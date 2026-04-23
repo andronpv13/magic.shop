@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Основа свечи -->
+  <rect x="40" y="50" width="20" height="40" fill="#D2B48C" stroke="#8B4513" stroke-width="2"/>
+  
+  <!-- Пламя свечи -->
+  <path d="M50,30 Q55,20 60,30 Q55,40 50,30 Z" fill="#FFA500" stroke="#FF8C00" stroke-width="1"/>
+  
+  <!-- Магические искорки -->
+  <circle cx="45" cy="25" r="2" fill="#FFFF00"/>
+  <circle cx="55" cy="20" r="1.5" fill="#FFFF00"/>
+  <circle cx="50" cy="15" r="1" fill="#FFFF00"/>
+</svg>

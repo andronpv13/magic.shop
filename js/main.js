@@ -1,0 +1,28 @@
+// js/main.js
+console.log("Main.js загружен");
+
+document.addEventListener('DOMContentLoaded', function() {
+    // --- 1. МЕНЮ ПОЛЬЗОВАТЕЛЯ ---
+    const userMenuTrigger = document.querySelector('.js-user-menu-trigger');
+    const userDropdownMenu = document.getElementById('user-dropdown-menu');
+    
+    if (userMenuTrigger && userDropdownMenu) {
+        // Скрываем меню по умолчанию через JS (чтобы не мерцало при загрузке, если нужно)
+        // Но лучше оставить display: none в CSS, как мы делали ранее.
+        // userDropdownMenu.style.display = 'none'; 
+
+        userMenuTrigger.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const isVisible = userDropdownMenu.style.display === 'block';
+            userDropdownMenu.style.display = isVisible ? 'none' : 'block';
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!userMenuTrigger.contains(e.target) && !userDropdownMenu.contains(e.target)) {
+                userDropdownMenu.style.display = 'none';
+            }
+        });
+    } else {
+        // console.log("initUserMenu: Элементы меню пользователя не найдены. Проверьте ID в HTML.");
+    }
+});
