@@ -1,76 +1,61 @@
 <?php
-/**
- * Главная страница "Волшебная ЛАВКА"
- * Разработчик: АВВА ©2025
- */
-
-// Включаем отображение всех ошибок
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
-// echo "Начало загрузки страницы<br>";
-
-require_once 'includes/config.php';
-// echo "Config загружен<br>";
-
-require_once 'includes/functions.php';
-// echo "Functions загружен<br>";
-
 require_once 'includes/header.php';
-//echo "Header загружен<br>";
-
-$page_title = 'Главная';
-
-// Получаем последние 3 товара
-$latest_products = getLatestProducts(3);
-
-// Проверяем, есть ли товары
-if (empty($latest_products)) {
-    echo '<div class="container section"><p class="empty-state">Товары не найдены</p></div>';
-    require_once 'includes/footer.php';
-    exit;
-}
 ?>
 
-<section class="section">
-    <div class="container">
-        <h1 class="page-title">Добро пожаловать в Волшебную ЛАВКУ</h1>
-        
-        <div class="products-slider">
-            <h2>Последние товары</h2>
-            <div class="slider-container">
-                <?php foreach ($latest_products as $product): ?>
-                    <div class="product-card">
-                        <div class="product-image">
-                            <?php if (!empty($product['image'])): ?>
-                                <img src="/images/<?php echo e($product['image']); ?>" alt="<?php echo e($product['name']); ?>">
-                            <?php else: ?>
-                                <div class="no-image">🎁</div>
-                            <?php endif; ?>
-                        </div>
-                        <div class="product-info">
-                            <h3><?php echo e($product['name']); ?></h3>
-                            
-                            <!-- Отображаем категорию только если она есть -->
-                            <?php if (!empty($product['category_name'])): ?>
-                                <p class="product-category">
-                                    <span class="category-label">Категория:</span>
-                                    <?php echo e($product['category_name']); ?>
-                                </p>
-                            <?php endif; ?>
-                            
-                            <p class="product-price"><?php echo number_format($product['price'], 0, ',', ' '); ?> ₽</p>
-                            <a href="/shop.php" class="btn btn-primary">Подробнее</a>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-        </div>
+<section class="hero">
+    <div class="hero-content">
+        <h1>Добро пожаловать в Волшебную ЛАВКУ</h1>
+        <p>Откройте для себя удивительный мир магических товаров</p>
+        <a href="/shop.php" class="btn btn-primary">Перейти в каталог</a>
     </div>
 </section>
 
-<?php 
-// echo "Конец загрузки страницы<br>";
-require_once 'includes/footer.php'; 
-?>
+<section class="new-products">
+    <h2>Новые товары</h2>
+    <div class="products-grid">
+        <?php
+        $products = getProducts(null, 3);
+        foreach ($products as $product):
+        ?>
+        <div class="product-card">
+            <img src="/images/product/<?php echo $product['image']; ?>" alt="<?php echo sanitize($product['name']); ?>">
+            <h3><?php echo sanitize($product['name']); ?></h3>
+            <p class="price"><?php echo number_format($product['price'], 0, '', ' '); ?> ₽</p>
+            <button class="add-to-basket btn btn-primary" data-product-id="<?php echo $product['id']; ?>" data-quantity="1">Добавить в корзину</button>
+        </div>
+        <?php endforeach; ?>
+    </div>
+</section>
+
+<section class="recent-reviews">
+    <h2>Последние отзывы</h2>
+    <div class="reviews-grid">
+        <?php
+        $stmt = $conn->prepare("SELECT r.*, u.name, p.name as product_name 
+                               FROM reviews r 
+                               JOIN users u ON r.user_id = u.id 
+                               JOIN products p ON r.product_id = p.id 
+                               ORDER BY r.created_at DESC 
+                               LIMIT 5");
+        $stmt->execute();
+        $reviews = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        
+        foreach ($reviews as $review):
+        ?>
+        <div class="review-card">
+            <div class="review-header">
+                <h4><?php echo sanitize($review['product_name']); ?></h4>
+                <div class="rating">
+                    <?php for ($i = 1; $i <= 5; $i++): ?>
+                        <span class="star <?php if ($i <= $review['rating']) echo 'filled'; ?>">★</span>
+                    <?php endfor; ?>
+                </div>
+            </div>
+            <p class="review-text"><?php echo sanitize($review['comment']); ?></p>
+            <p class="review-author">- <?php echo sanitize($review['name']); ?></p>
+        </div>
+        <?php endforeach; ?>
+    </div>
+</section>
+
+<?php require_once 'includes/footer.php'; ?>

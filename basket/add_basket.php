@@ -1,36 +1,27 @@
 <?php
-/**
- * AJAX API: Добавление товара в корзину
- * Разработчик: АВВА © 2025
- */
+require_once '../includes/config.php';
 
-// Запускаем сессию
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+header('Content-Type: application/json');
 
-require_once __DIR__ . '/../includes/functions.php';
-
-header('Content-Type: application/json; charset=utf-8');
-
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo json_encode(['success' => false, 'message' => 'Метод не поддерживается']);
+if (!isset($_POST['product_id']) || !isset($_POST['quantity'])) {
+    echo json_encode(['success' => false, 'message' => 'Не указаны необходимые параметры']);
     exit;
 }
 
-// Проверка CSRF токена
-if (!isset($_POST['csrf_token']) || !csrf_verify()) {
-    echo json_encode(['success' => false, 'message' => 'Ошибка безопасности: истек срок действия сессии. Обновите страницу.']);
+$product_id = (int)$_POST['product_id'];
+$quantity = (int)$_POST['quantity'];
+
+if ($quantity < 1) {
+    echo json_encode(['success' => false, 'message' => 'Неверное количество']);
     exit;
 }
 
-$product_id = isset($_POST['product_id']) ? (int)$_POST['product_id'] : 0;
-$quantity = isset($_POST['quantity']) ? (int)$_POST['quantity'] : 1;
-
-if ($product_id <= 0) {
-    echo json_encode(['success' => false, 'message' => 'Некорректный ID товара']);
-    exit;
+if (addToBasket($product_id, $quantity)) {
+    echo json_encode([
+        'success' => true,
+        'message' => 'Товар добавлен в корзину',
+        'basket_count' => getBasketCount()
+    ]);
+} else {
+    echo json_encode(['success' => false, 'message' => 'Ошибка при добавлении в корзину']);
 }
-
-$result = addToCart($product_id, $quantity);
-echo json_encode($result);
