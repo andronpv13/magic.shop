@@ -1,5 +1,6 @@
 <?php
 require_once '../includes/config.php';
+require_once '../includes/functions.php';
 
 header('Content-Type: application/json');
 
@@ -9,6 +10,12 @@ if (!isset($_POST['product_id'])) {
 }
 
 $product_id = (int)$_POST['product_id'];
+
+// Проверяем CSRF токен
+if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+    echo json_encode(['success' => false, 'message' => 'Ошибка безопасности: неверный CSRF токен']);
+    exit;
+}
 
 if (removeFromBasket($product_id)) {
     echo json_encode([

@@ -1,5 +1,6 @@
 <?php
 require_once '../includes/config.php';
+require_once '../includes/functions.php';
 
 header('Content-Type: application/json');
 
@@ -13,6 +14,12 @@ $quantity = (int)$_POST['quantity'];
 
 if ($quantity < 1) {
     echo json_encode(['success' => false, 'message' => 'Неверное количество']);
+    exit;
+}
+
+// Проверяем CSRF токен
+if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+    echo json_encode(['success' => false, 'message' => 'Ошибка безопасности: неверный CSRF токен']);
     exit;
 }
 

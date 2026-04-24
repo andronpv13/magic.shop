@@ -1,6 +1,22 @@
 <?php
 require_once 'config.php';
 
+// Category functions
+function getCategories() {
+    global $conn;
+    
+    $stmt = $conn->prepare("SELECT DISTINCT category FROM products WHERE category IS NOT NULL AND category != '' ORDER BY category");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    $categories = [];
+    while ($row = $result->fetch_assoc()) {
+        $categories[] = $row['category'];
+    }
+    
+    return $categories;
+}
+
 // Product functions
 function getProducts($category = null, $limit = null) {
     global $conn;
@@ -45,6 +61,17 @@ function getProductById($id) {
     return $result->fetch_assoc();
 }
 
+// Admin functions
+function getAdminContactInfo() {
+    global $conn;
+    
+    $stmt = $conn->prepare("SELECT email, phone FROM users WHERE role = 'admin' LIMIT 1");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    return $result->fetch_assoc();
+}
+
 // User functions
 function getUserById($id) {
     global $conn;
@@ -55,6 +82,13 @@ function getUserById($id) {
     $result = $stmt->get_result();
     
     return $result->fetch_assoc();
+}
+
+function getCurrentUser() {
+    global $conn;
+    if (!isLoggedIn()) return null;
+    
+    return getUserById($_SESSION['user_id']);
 }
 
 // Order functions
@@ -187,4 +221,18 @@ function updateBasket($product_id, $quantity) {
     }
     
     return false;
+}
+
+function getBasketCount() {
+    return isset($_SESSION['basket']) ? count($_SESSION['basket']) : 0;
+}
+
+function getBasketTotal() {
+    if (!isset($_SESSION['basket'])) return 0;
+    
+    $total = 0;
+    foreach ($_SESSION['basket'] as $item) {
+        $total += $item['price'] * $item['quantity'];
+    }
+    return $total;
 }

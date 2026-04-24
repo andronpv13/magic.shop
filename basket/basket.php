@@ -1,5 +1,6 @@
 <?php
 require_once '../includes/header.php';
+require_once '../includes/functions.php';
 ?>
 
 <h1>Корзина</h1>
@@ -11,7 +12,10 @@ require_once '../includes/header.php';
         <div class="basket-items">
             <?php foreach ($_SESSION['basket'] as $item): ?>
                 <div class="basket-item">
-                    <img src="/images/product/<?php echo $item['image']; ?>" alt="<?php echo sanitize($item['name']); ?>">
+                    <?php 
+                    $imagePath = !empty($item['image']) ? 'product/' . $item['image'] : 'no_photo.png';
+                    ?>
+                    <img src="/images/<?php echo $imagePath; ?>" alt="<?php echo sanitize($item['name']); ?>">
                     <div class="basket-item-info">
                         <h3><?php echo sanitize($item['name']); ?></h3>
                         <p class="price"><?php echo number_format($item['price'], 0, '', ' '); ?> ₽</p>

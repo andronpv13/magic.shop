@@ -1,5 +1,6 @@
 <?php
 require_once 'includes/header.php';
+require_once 'includes/functions.php';
 ?>
 
 <section class="hero">
@@ -11,17 +12,33 @@ require_once 'includes/header.php';
 </section>
 
 <section class="new-products">
-    <h2>Новые товары</h2>
-    <div class="products-grid">
+    <h2>Наши новинки</h2>
+    <div class="products-slider">
         <?php
-        $products = getProducts(null, 3);
+        // Получаем 3 последних добавленных товара
+        $stmt = $conn->prepare("SELECT p.*, u.name as creator_name 
+                                FROM products p 
+                                LEFT JOIN users u ON p.created_by = u.id 
+                                WHERE p.active = 1 
+                                ORDER BY p.created_at DESC 
+                                LIMIT 3");
+        $stmt->execute();
+        $products = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        
         foreach ($products as $product):
         ?>
         <div class="product-card">
-            <img src="/images/product/<?php echo $product['image']; ?>" alt="<?php echo sanitize($product['name']); ?>">
-            <h3><?php echo sanitize($product['name']); ?></h3>
-            <p class="price"><?php echo number_format($product['price'], 0, '', ' '); ?> ₽</p>
-            <button class="add-to-basket btn btn-primary" data-product-id="<?php echo $product['id']; ?>" data-quantity="1">Добавить в корзину</button>
+            <?php 
+            $imagePath = !empty($product['image']) ? 'product/' . $product['image'] : 'no_photo.png';
+            ?>
+            <img src="/images/<?php echo $imagePath; ?>" alt="<?php echo sanitize($product['name']); ?>">
+            <div class="card-content">
+                <h3><?php echo sanitize($product['name']); ?></h3>
+                <p class="price"><?php echo number_format($product['price'], 0, '', ' '); ?> ₽</p>
+                <div class="btn-container">
+                    <a href="/shop.php?id=<?php echo $product['id']; ?>" class="btn">Подробнее</a>
+                </div>
+            </div>
         </div>
         <?php endforeach; ?>
     </div>

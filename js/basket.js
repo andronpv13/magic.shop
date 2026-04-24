@@ -3,22 +3,37 @@ document.addEventListener('DOMContentLoaded', function() {
     updateBasketCount();
     
     // Add to basket
-    const addToBasketButtons = document.querySelectorAll('.add-to-basket');
-    addToBasketButtons.forEach(button => {
-        button.addEventListener('click', function(e) {
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('add-to-basket')) {
             e.preventDefault();
-            const productId = this.dataset.productId;
-            const quantity = parseInt(this.dataset.quantity) || 1;
+            console.log('Add to basket button clicked');
+            
+            const button = e.target;
+            const productId = button.dataset.productId;
+            const quantity = parseInt(button.dataset.quantity) || 1;
+            
+            console.log('Product ID:', productId, 'Quantity:', quantity);
+            
+            const csrfToken = document.querySelector('meta[name="csrf-token"]');
+            if (!csrfToken) {
+                console.error('CSRF token not found');
+                showNotification('Ошибка безопасности: CSRF токен не найден', 'error');
+                return;
+            }
             
             fetch('/basket/add_basket.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: `product_id=${productId}&quantity=${quantity}&csrf_token=${document.querySelector('meta[name="csrf-token"]').content}`
+                body: `product_id=${productId}&quantity=${quantity}&csrf_token=${csrfToken.content}`
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.json();
+            })
             .then(data => {
+                console.log('Response data:', data);
                 if (data.success) {
                     updateBasketCount();
                     showNotification(data.message, 'success');
@@ -27,54 +42,100 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             })
             .catch(error => {
+                console.error('Error:', error);
                 showNotification('Ошибка при добавлении в корзину', 'error');
             });
-        });
+        }
     });
     
     // Remove from basket
-    const removeFromBasketButtons = document.querySelectorAll('.remove-from-basket');
-    removeFromBasketButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const productId = this.dataset.productId;
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-from-basket')) {
+            e.preventDefault();
+            const button = e.target;
+            const productId = button.dataset.productId;
+            const basketItem = button.closest('.basket-item');
+            
+            console.log('Remove from basket button clicked for product:', productId);
+            
+            const csrfToken = document.querySelector('meta[name="csrf-token"]');
+            if (!csrfToken) {
+                console.error('CSRF token not found');
+                showNotification('Ошибка безопасности: CSRF токен не найден', 'error');
+                return;
+            }
             
             fetch('/basket/remove_basket.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: `product_id=${productId}&csrf_token=${document.querySelector('meta[name="csrf-token"]').content}`
+                body: `product_id=${productId}&csrf_token=${csrfToken.content}`
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.json();
+            })
             .then(data => {
+                console.log('Response data:', data);
                 if (data.success) {
+                    // Удаляем элемент DOM
+                    if (basketItem) {
+                        basketItem.remove();
+                    }
+                    
+                    // Обновляем счетчик и общую сумму
                     updateBasketCount();
                     updateBasketTotal(data.basket_total);
-                    this.closest('.basket-item').remove();
+                    
+                    // Если корзина пуста, перезагружаем страницу
+                    if (document.querySelectorAll('.basket-item').length === 0) {
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    }
+                    
                     showNotification(data.message, 'success');
                 } else {
                     showNotification(data.message, 'error');
                 }
             })
-        });
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Ошибка при удалении из корзины', 'error');
+            });
+        }
     });
     
     // Update basket quantity
-    const quantityInputs = document.querySelectorAll('.quantity-input');
-    quantityInputs.forEach(input => {
-        input.addEventListener('change', function() {
-            const productId = this.dataset.productId;
-            const quantity = parseInt(this.value) || 1;
+    document.addEventListener('change', function(e) {
+        if (e.target.classList.contains('quantity-input')) {
+            const input = e.target;
+            const productId = input.dataset.productId;
+            const quantity = parseInt(input.value) || 1;
+            
+            console.log('Update quantity for product:', productId, 'New quantity:', quantity);
+            
+            const csrfToken = document.querySelector('meta[name="csrf-token"]');
+            if (!csrfToken) {
+                console.error('CSRF token not found');
+                showNotification('Ошибка безопасности: CSRF токен не найден', 'error');
+                return;
+            }
             
             fetch('/basket/update_basket.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: `product_id=${productId}&quantity=${quantity}&csrf_token=${document.querySelector('meta[name="csrf-token"]').content}`
+                body: `product_id=${productId}&quantity=${quantity}&csrf_token=${csrfToken.content}`
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.json();
+            })
             .then(data => {
+                console.log('Response data:', data);
                 if (data.success) {
                     updateBasketCount();
                     updateBasketTotal(data.basket_total);
@@ -84,50 +145,77 @@ document.addEventListener('DOMContentLoaded', function() {
                     showNotification(data.message, 'error');
                 }
             })
-        });
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Ошибка при обновлении корзины', 'error');
+            });
+        }
     });
     
     // Increase quantity
-    const increaseButtons = document.querySelectorAll('.increase-quantity');
-    increaseButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const productId = this.dataset.productId;
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('increase-quantity')) {
+            const button = e.target;
+            const productId = button.dataset.productId;
             const input = document.querySelector(`.quantity-input[data-product-id="${productId}"]`);
-            const newQuantity = parseInt(input.value) + 1;
-            input.value = newQuantity;
-            input.dispatchEvent(new Event('change'));
-        });
+            
+            if (input) {
+                const newQuantity = parseInt(input.value) + 1;
+                input.value = newQuantity;
+                input.dispatchEvent(new Event('change'));
+            }
+        }
     });
     
     // Decrease quantity
-    const decreaseButtons = document.querySelectorAll('.decrease-quantity');
-    decreaseButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const productId = this.dataset.productId;
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('decrease-quantity')) {
+            const button = e.target;
+            const productId = button.dataset.productId;
             const input = document.querySelector(`.quantity-input[data-product-id="${productId}"]`);
-            const newQuantity = Math.max(1, parseInt(input.value) - 1);
-            input.value = newQuantity;
-            input.dispatchEvent(new Event('change'));
-        });
+            
+            if (input) {
+                const currentValue = parseInt(input.value);
+                const newQuantity = Math.max(1, currentValue - 1);
+                input.value = newQuantity;
+                input.dispatchEvent(new Event('change'));
+            }
+        }
     });
 });
 
 function updateBasketCount() {
-    fetch('/basket/get_basket_count.php')
-    .then(response => response.json())
-    .then(data => {
-        document.getElementById('basket-count').textContent = data.count;
-    });
+    const basketCountElement = document.getElementById('basket-count');
+    if (!basketCountElement) {
+        console.error('Basket count element not found');
+        return;
+    }
+    
+    // Если мы на странице корзины, обновляем количество на основе элементов в корзине
+    const basketItems = document.querySelectorAll('.basket-item');
+    if (basketItems.length > 0) {
+        basketCountElement.textContent = basketItems.length;
+        console.log('Basket count updated from DOM:', basketItems.length);
+    }
 }
 
 function updateBasketTotal(total) {
-    document.querySelector('.basket-total').textContent = formatPrice(total);
+    const basketTotalElement = document.querySelector('.basket-total');
+    if (basketTotalElement) {
+        basketTotalElement.textContent = 'Итого: ' + formatPrice(total);
+        console.log('Basket total updated:', total);
+    } else {
+        console.error('Basket total element not found');
+    }
 }
 
 function updateItemTotal(total, productId) {
     const itemTotalElement = document.querySelector(`.item-total[data-product-id="${productId}"]`);
     if (itemTotalElement) {
         itemTotalElement.textContent = formatPrice(total);
+        console.log('Item total updated for product', productId, ':', total);
+    } else {
+        console.error('Item total element not found for product:', productId);
     }
 }
 

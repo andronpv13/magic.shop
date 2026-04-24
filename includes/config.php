@@ -3,7 +3,7 @@
 $host = 'localhost';
 $db_name = 'shop_db';
 $db_user = 'root';
-$db_pass = 'toor';
+$db_pass = 'Andronpv13';
 
 // Session configuration
 ini_set('session.cookie_httponly', 1);
@@ -51,20 +51,6 @@ function sanitize($input) {
 function redirect($url) {
     header("Location: $url");
     exit();
-}
-
-function getBasketCount() {
-    return isset($_SESSION['basket']) ? count($_SESSION['basket']) : 0;
-}
-
-function getBasketTotal() {
-    if (!isset($_SESSION['basket'])) return 0;
-    
-    $total = 0;
-    foreach ($_SESSION['basket'] as $item) {
-        $total += $item['price'] * $item['quantity'];
-    }
-    return $total;
 }
 
 // Regenerate session ID every 30 minutes

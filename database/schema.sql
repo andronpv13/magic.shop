@@ -1,4 +1,8 @@
-CREATE DATABASE IF NOT EXISTS shop_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- Удаление базы данных если существует
+DROP DATABASE IF EXISTS shop_db;
+
+-- Создание новой базы данных
+CREATE DATABASE shop_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE shop_db;
 
 -- Users table

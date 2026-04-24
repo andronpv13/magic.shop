@@ -1,36 +1,41 @@
 <?php
-/**
- * Подвал сайта "Волшебная ЛАВКА"
- * Разработчик: АВВА © 2025
- */
+require_once 'config.php';
+require_once 'functions.php';
+
+$admin_info = getAdminContactInfo();
 ?>
     </main>
-
-    <footer class="site-footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h3>✨ Волшебная ЛАВКА</h3>
-                    <p>Лучший магазин магических товаров</p>
-                </div>
-                <div class="footer-section">
-                    <h3>Контакты</h3>
-                    <?php 
-                        // Значения по умолчанию, если в базе пусто
-                        $email = !empty($site_settings['email']) ? $site_settings['email'] : 'info@magic.shop';
-                        $phone = !empty($site_settings['phone']) ? $site_settings['phone'] : '+7 (999) 123-45-67';
-                    ?>
-                    <p>Email: <?php echo e($email); ?></p>
-                    <p>Телефон: <?php echo e($phone); ?></p>
-                </div>
+    
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>О нас</h3>
+                <p>Интернет-магазин "Волшебная ЛАВКА"</p>
+                <p>© 2025 Команда АВВА</p>
             </div>
-            <div class="footer-bottom">
-                <p>&copy; <?php echo date('Y'); ?> Волшебная ЛАВКА. Все права защищены. Разработчик: <strong>АВВА</strong></p>
+            
+            <div class="footer-section">
+                <h3>Контакты</h3>
+                <p>Email: <?php echo isset($admin_info['email']) ? sanitize($admin_info['email']) : 'info@magicshop.ru'; ?></p>
+                <p>Телефон: <?php echo isset($admin_info['phone']) ? sanitize($admin_info['phone']) : '+7 (999) 123-45-67'; ?></p>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Мы в соцсетях</h3>
+                <div class="social-links">
+                    <a href="#" class="social-link">VK</a>
+                    <a href="#" class="social-link">Telegram</a>
+                    <a href="#" class="social-link">Instagram</a>
+                </div>
             </div>
         </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2025 Волшебная ЛАВКА. Все права защищены.</p>
+        </div>
     </footer>
-
-    <div id="notification-container" class="notification-container"></div>
-
+    
+    <script src="/js/basket.js"></script>
+    <script src="/js/validation.js"></script>
 </body>
 </html>
