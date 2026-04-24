@@ -1,6 +1,11 @@
 <?php
 require_once 'config.php';
 require_once 'functions.php';
+
+// Генерируем новый CSRF токен для каждой страницы
+if (!isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 ?>
 <!DOCTYPE html>
 <html lang="ru">

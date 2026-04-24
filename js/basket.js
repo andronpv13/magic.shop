@@ -14,27 +14,44 @@ document.addEventListener('DOMContentLoaded', function() {
             
             console.log('Product ID:', productId, 'Quantity:', quantity);
             
-            const csrfToken = document.querySelector('meta[name="csrf-token"]');
-            if (!csrfToken) {
+            const csrfTokenElement = document.querySelector('meta[name="csrf-token"]');
+            if (!csrfTokenElement) {
                 console.error('CSRF token not found');
                 showNotification('Ошибка безопасности: CSRF токен не найден', 'error');
                 return;
             }
+            
+            const csrfToken = csrfTokenElement.content;
+            console.log('CSRF token:', csrfToken);
             
             fetch('/basket/add_basket.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: `product_id=${productId}&quantity=${quantity}&csrf_token=${csrfToken.content}`
+                body: `product_id=${productId}&quantity=${quantity}&csrf_token=${csrfToken}`
             })
             .then(response => {
                 console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers.get('content-type'));
+                
+                // Проверяем, что ответ является JSON
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('Неверный формат ответа сервера');
+                }
+                
                 return response.json();
             })
             .then(data => {
                 console.log('Response data:', data);
                 if (data.success) {
+                    // Обновляем CSRF токен
+                    if (data.csrf_token) {
+                        csrfTokenElement.content = data.csrf_token;
+                        console.log('CSRF token updated:', data.csrf_token);
+                    }
+                    
                     updateBasketCount();
                     showNotification(data.message, 'success');
                 } else {
@@ -58,27 +75,44 @@ document.addEventListener('DOMContentLoaded', function() {
             
             console.log('Remove from basket button clicked for product:', productId);
             
-            const csrfToken = document.querySelector('meta[name="csrf-token"]');
-            if (!csrfToken) {
+            const csrfTokenElement = document.querySelector('meta[name="csrf-token"]');
+            if (!csrfTokenElement) {
                 console.error('CSRF token not found');
                 showNotification('Ошибка безопасности: CSRF токен не найден', 'error');
                 return;
             }
+            
+            const csrfToken = csrfTokenElement.content;
+            console.log('CSRF token:', csrfToken);
             
             fetch('/basket/remove_basket.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: `product_id=${productId}&csrf_token=${csrfToken.content}`
+                body: `product_id=${productId}&csrf_token=${csrfToken}`
             })
             .then(response => {
                 console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers.get('content-type'));
+                
+                // Проверяем, что ответ является JSON
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('Неверный формат ответа сервера');
+                }
+                
                 return response.json();
             })
             .then(data => {
                 console.log('Response data:', data);
                 if (data.success) {
+                    // Обновляем CSRF токен
+                    if (data.csrf_token) {
+                        csrfTokenElement.content = data.csrf_token;
+                        console.log('CSRF token updated:', data.csrf_token);
+                    }
+                    
                     // Удаляем элемент DOM
                     if (basketItem) {
                         basketItem.remove();
@@ -116,27 +150,44 @@ document.addEventListener('DOMContentLoaded', function() {
             
             console.log('Update quantity for product:', productId, 'New quantity:', quantity);
             
-            const csrfToken = document.querySelector('meta[name="csrf-token"]');
-            if (!csrfToken) {
+            const csrfTokenElement = document.querySelector('meta[name="csrf-token"]');
+            if (!csrfTokenElement) {
                 console.error('CSRF token not found');
                 showNotification('Ошибка безопасности: CSRF токен не найден', 'error');
                 return;
             }
+            
+            const csrfToken = csrfTokenElement.content;
+            console.log('CSRF token:', csrfToken);
             
             fetch('/basket/update_basket.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: `product_id=${productId}&quantity=${quantity}&csrf_token=${csrfToken.content}`
+                body: `product_id=${productId}&quantity=${quantity}&csrf_token=${csrfToken}`
             })
             .then(response => {
                 console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers.get('content-type'));
+                
+                // Проверяем, что ответ является JSON
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('Неверный формат ответа сервера');
+                }
+                
                 return response.json();
             })
             .then(data => {
                 console.log('Response data:', data);
                 if (data.success) {
+                    // Обновляем CSRF токен
+                    if (data.csrf_token) {
+                        csrfTokenElement.content = data.csrf_token;
+                        console.log('CSRF token updated:', data.csrf_token);
+                    }
+                    
                     updateBasketCount();
                     updateBasketTotal(data.basket_total);
                     updateItemTotal(data.item_total, productId);
