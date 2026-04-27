@@ -178,7 +178,7 @@ $use_categories = isset($_SESSION['use_categories']) ? $_SESSION['use_categories
                                     <td>
                                         <?php if ($product['image']): ?>
                                             <div class="table-image">
-                                                <img src="/images/<?php echo e($product['image']); ?>" alt="<?php echo e($product['name']); ?>">
+                                                <img src="<?php echo getProductImage($product['image']); ?>" alt="<?php echo e($product['name']); ?>" style="width: 50px; height: 50px; object-fit: cover;">
                                             </div>
                                         <?php else: ?>
                                             <div class="table-image-placeholder">🎁</div>

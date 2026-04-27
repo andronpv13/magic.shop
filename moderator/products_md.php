@@ -56,7 +56,7 @@ $message = $_GET['message'] ?? '';
                                 <td>
                                     <div class="table-image">
                                         <?php if ($product['image']): ?>
-                                            <img src="/images/<?php echo e($product['image']); ?>" alt="<?php echo e($product['name']); ?>">
+                                            <img src="<?php echo getProductImage($product['image']); ?>" alt="<?php echo e($product['name']); ?>">
                                         <?php else: ?>
                                             <div class="table-image-placeholder">🎁</div>
                                         <?php endif; ?>

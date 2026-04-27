@@ -1,14 +1,7 @@
 <?php
-require_once '../includes/config.php';
-require_once '../includes/functions.php';
-
+require_once __DIR__ . '/../includes/config.php';
+require_once __DIR__ . '/../includes/functions.php';
 header('Content-Type: application/json');
-
-// Проверяем CSRF токен
-if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-    echo json_encode(['success' => false, 'message' => 'Ошибка безопасности: неверный CSRF токен']);
-    exit;
-}
 
 if (!isset($_POST['product_id']) || !isset($_POST['quantity'])) {
     echo json_encode(['success' => false, 'message' => 'Не указаны необходимые параметры']);
@@ -24,22 +17,20 @@ if ($quantity < 1) {
 }
 
 if (updateBasket($product_id, $quantity)) {
-    $item = null;
-    foreach ($_SESSION['basket'] as $basket_item) {
-        if ($basket_item['id'] == $product_id) {
-            $item = $basket_item;
+    // Вычисляем сумму обновлённой позиции
+    $item_total = 0;
+    foreach ($_SESSION['basket'] as $item) {
+        if ($item['id'] == $product_id) {
+            $item_total = $item['price'] * $item['quantity'];
             break;
         }
     }
-    
-    // Генерируем новый CSRF токен после успешного обновления
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-    
+
     echo json_encode([
         'success' => true,
         'message' => 'Количество обновлено',
         'basket_count' => getBasketCount(),
-        'item_total' => $item['price'] * $quantity,
+        'item_total' => $item_total,
         'basket_total' => getBasketTotal(),
         'csrf_token' => $_SESSION['csrf_token']
     ]);

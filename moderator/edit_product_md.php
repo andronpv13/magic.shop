@@ -150,7 +150,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <label>Текущее изображение:</label>
                         <?php if ($product['image']): ?>
                             <div class="current-image">
-                                <img src="/images/<?php echo e($product['image']); ?>" alt="<?php echo e($product['name']); ?>">
+                                <img src="<?php echo getProductImage($product['image']); ?>" alt="<?php echo e($product['name']); ?>">
                             </div>
                         <?php else: ?>
                             <p class="form-hint">Изображение не загружено</p>

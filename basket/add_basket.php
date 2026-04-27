@@ -1,15 +1,9 @@
 <?php
-require_once '../includes/config.php';
-require_once '../includes/functions.php';
-
+require_once __DIR__ . '/../includes/config.php';
+require_once __DIR__ . '/../includes/functions.php';
 header('Content-Type: application/json');
 
-// Проверяем CSRF токен
-if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-    echo json_encode(['success' => false, 'message' => 'Ошибка безопасности: неверный CSRF токен']);
-    exit;
-}
-
+// CSRF уже проверен и токен ротирован в config.php. Если скрипт дошёл сюда, валидация пройдена.
 if (!isset($_POST['product_id']) || !isset($_POST['quantity'])) {
     echo json_encode(['success' => false, 'message' => 'Не указаны необходимые параметры']);
     exit;
@@ -24,9 +18,6 @@ if ($quantity < 1) {
 }
 
 if (addToBasket($product_id, $quantity)) {
-    // Генерируем новый CSRF токен после успешного добавления
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-    
     echo json_encode([
         'success' => true,
         'message' => 'Товар добавлен в корзину',

@@ -20,9 +20,9 @@ if ($product_id) {
     ?>
     <div class="product-detail">
         <?php 
-        $imagePath = !empty($product['image']) ? 'product/' . $product['image'] : 'no_photo.png';
+        $imagePath = !empty($item['images']) ? 'product/' . $item['images'] : 'no_photo.png';
         ?>
-        <img src="/images/<?php echo $imagePath; ?>" alt="<?php echo sanitize($product['name']); ?>">
+        <img src="<?php echo getProductImage($product['image']); ?>" alt="<?php echo sanitize($product['name']); ?>">
         <div class="product-info">
             <h1><?php echo sanitize($product['name']); ?></h1>
             <p class="price"><?php echo number_format($product['price'], 0, '', ' '); ?> ₽</p>
@@ -59,7 +59,7 @@ if ($product_id) {
                 <?php 
                 $imagePath = !empty($product['image']) ? 'product/' . $product['image'] : 'no_photo.png';
                 ?>
-                <img src="/images/<?php echo $imagePath; ?>" alt="<?php echo sanitize($product['name']); ?>">
+                <img src="<?php echo getProductImage($product['image']); ?>" alt="<?php echo sanitize($product['name']); ?>">
                 <div class="card-content">
                     <h3><?php echo sanitize($product['name']); ?></h3>
                     <p class="price"><?php echo number_format($product['price'], 0, '', ' '); ?> ₽</p>
