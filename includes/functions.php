@@ -4,7 +4,10 @@ require_once __DIR__ . '/config.php';
 // === Категории ===
 function getCategories() {
     global $conn;
-    $stmt = $conn->prepare("SELECT DISTINCT category FROM products WHERE category IS NOT NULL AND category != '' ORDER BY category");
+    $stmt = $conn->prepare("SELECT name AS category FROM categories ORDER BY name");
+    if (!$stmt) {
+        $stmt = $conn->prepare("SELECT DISTINCT category AS category FROM products WHERE category IS NOT NULL AND category != '' ORDER BY category");
+    }
     $stmt->execute();
     $result = $stmt->get_result();
     $categories = [];
@@ -17,7 +20,7 @@ function getCategories() {
 // === Товары ===
 function getProducts($category = null, $limit = null) {
     global $conn;
-    $sql = "SELECT p.*, u.username as creator_name
+    $sql = "SELECT p.*, p.category AS category_name, u.username as creator_name
             FROM products p
             LEFT JOIN users u ON p.created_by = u.id
             WHERE p.active = 1";
@@ -40,7 +43,7 @@ function getProducts($category = null, $limit = null) {
 
 function getProductById($id) {
     global $conn;
-    $stmt = $conn->prepare("SELECT * FROM products WHERE id = ? AND active = 1");
+    $stmt = $conn->prepare("SELECT p.*, p.category AS category_name FROM products p WHERE p.id = ? AND p.active = 1");
     $stmt->bind_param("i", $id); $stmt->execute();
     return $stmt->get_result()->fetch_assoc();
 }
@@ -64,6 +67,14 @@ function getUserById($id) {
 function getCurrentUser() {
     if (!isLoggedIn()) return null;
     return getUserById($_SESSION['user_id']);
+}
+
+function hasAnyRole($roles) {
+    if (!isLoggedIn()) return false;
+    if (!is_array($roles)) {
+        $roles = [$roles];
+    }
+    return in_array($_SESSION['role'], $roles, true);
 }
 
 // ✅ ДОБАВЛЕНО: Регистрация пользователя

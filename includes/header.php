@@ -14,6 +14,7 @@ if (!isset($_SESSION['csrf_token'])) {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Волшебная ЛАВКА</title>
 <link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/magic_theme.css">
 <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
 <meta name="csrf-token" content="<?php echo $_SESSION['csrf_token']; ?>">
 </head>
@@ -22,8 +23,8 @@ if (!isset($_SESSION['csrf_token'])) {
 <nav class="navbar">
     <div class="logo">
         <a href="/index.php">
-            <img src="/images/logo1.png" alt="Волшебная ЛАВКА" class="logo-img">
-            <span class="logo-text">Волшебная ЛАВКА</span>
+            <img src="/images/logo1.png" alt="Волшебная ЛАВКА" class="logo-img magic">
+            <!--<span class="logo-text">Волшебная ЛАВКА</span>-->
         </a>
     </div>
     <div class="nav-links">

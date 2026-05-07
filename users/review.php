@@ -2,9 +2,10 @@
 $page_title = 'Оставить отзыв';
 require_once '../includes/header.php';
 require_once '../includes/functions.php';
-requireLogin();
 $purchased = getPurchasedProducts($_SESSION['user_id']);
 $success = $error = '';
+
+if (!isLoggedIn()) { header('Location: /login.php'); exit; }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $pid = (int)($_POST['product_id'] ?? 0);

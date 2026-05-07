@@ -2,7 +2,9 @@
 $page_title = 'Детали заказа';
 require_once '../includes/header.php';
 require_once '../includes/functions.php';
-requireLogin();
+
+if (!isLoggedIn()) { header('Location: /login.php'); exit; }
+
 $order_id = isset($_GET['order_id']) ? (int)$_GET['order_id'] : 0;
 if (!$order_id) { header('Location: /users/orders.php'); exit; }
 $order = getOrderDetails($order_id, $_SESSION['user_id']);

@@ -2,7 +2,7 @@
 $page_title = 'Оплата заказа';
 require_once 'includes/header.php';
 require_once 'includes/functions.php';
-requireLogin();
+if (!isLoggedIn()) { header('Location: /login.php'); exit; }
 $order_id = isset($_GET['order_id']) ? (int)$_GET['order_id'] : 0;
 if (!$order_id) { header('Location: /users/orders.php'); exit; }
 $order = getOrderDetails($order_id, $_SESSION['user_id']);
@@ -14,7 +14,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $payment_method = $_POST['payment_method'] ?? '';
     if (empty($payment_method)) $error = 'Выберите способ оплаты';
     else {
-        updateOrderStatus($order_id, 'payment');
         $res = updateOrderStatus($order_id, 'completed');
         if ($res['success']) { $success = 'Оплата прошла успешно! Заказ оплачен.'; $order['status'] = 'completed'; }
         else $error = 'Ошибка при обработке оплаты';

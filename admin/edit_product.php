@@ -30,8 +30,8 @@ $success = '';
 $error = '';
 
 // Определяем состояние чекбокса категорий
-// Если у товара есть категория (id не null и > 0), включаем чекбокс
-$use_categories = !empty($product['category_id']);
+// Если у товара есть категория, включаем чекбокс
+$use_categories = !empty($product['category']);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Проверка CSRF токена
@@ -45,33 +45,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         // Логика категорий
         $use_categories = isset($_POST['use_categories']) && $_POST['use_categories'] === '1';
-        $category_id = null;
+        $category = null;
 
         if ($use_categories) {
+            $category = trim($_POST['category'] ?? '');
             $category_name = trim($_POST['category_name'] ?? '');
-            $category_id_input = isset($_POST['category_id']) ? (int)$_POST['category_id'] : 0;
 
-            // Если выбрали из списка
-            if ($category_id_input > 0) {
-                $category_id = $category_id_input;
-            } 
-            // Если ввели новое название
-            elseif (!empty($category_name)) {
-                $existing_cat = getCategoryByName($category_name);
-                if ($existing_cat) {
-                    $category_id = $existing_cat['id'];
-                } else {
-                    $new_cat_result = addCategory($category_name);
-                    if ($new_cat_result['success']) {
-                        $category_id = $new_cat_result['id'];
-                    } else {
-                        $error = $new_cat_result['message'];
-                    }
-                }
+            if (!empty($category_name)) {
+                $category = $category_name;
+            }
+            if ($category === '') {
+                $category = null;
             }
         } else {
-            // Если чекбокс выключен, сбрасываем категорию товара
-            $category_id = null;
+            $category = null;
         }
         
         $is_new = isset($_POST['is_new']) ? 1 : 0;
@@ -102,14 +89,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             
             if (empty($error)) {
-                $result = editProduct($product_id, $name, $description, $price, $category_id, $stock, $is_new, $image_path);
+                $result = editProduct($product_id, $name, $description, $price, $category, $stock, $is_new, $image_path);
                 
                 if ($result['success']) {
                     $success = 'Товар обновлен';
                     // Обновляем данные товара для отображения актуальной информации
                     $product = getProductById($product_id);
                     // Обновляем состояние чекбокса после сохранения
-                    $use_categories = !empty($product['category_id']);
+                    $use_categories = !empty($product['category']);
                 } else {
                     $error = $result['message'];
                 }
@@ -182,14 +169,14 @@ $all_categories = getCategoriesList();
                     </div>
 
                     <div class="form-group" id="category-group" style="<?php echo $use_categories ? '' : 'display: none; opacity: 0.5;'; ?>">
-                        <label for="category_id">Выберите категорию:</label>
-                        <select id="category_id" name="category_id" 
+                        <label for="category">Выберите категорию:</label>
+                        <select id="category" name="category" 
                                <?php echo $use_categories ? '' : 'disabled'; ?>>
-                            <option value="0">-- Без категории --</option>
+                            <option value="">-- Без категории --</option>
                             <?php foreach ($all_categories as $cat): ?>
-                                <option value="<?php echo $cat['id']; ?>" 
-                                        <?php echo $product['category_id'] == $cat['id'] ? 'selected' : ''; ?>>
-                                    <?php echo e($cat['name']); ?>
+                                <option value="<?php echo e($cat['category']); ?>" 
+                                        <?php echo ($product['category'] ?? '') === $cat['category'] ? 'selected' : ''; ?>>
+                                    <?php echo e($cat['category']); ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
@@ -253,7 +240,7 @@ $all_categories = getCategoriesList();
 <script>
     function toggleCategoryField(checkbox) {
         const categoryGroup = document.getElementById('category-group');
-        const categorySelect = document.getElementById('category_id');
+        const categorySelect = document.getElementById('category');
         const categoryInput = document.getElementById('category_name');
         
         if (checkbox.checked) {
@@ -263,7 +250,7 @@ $all_categories = getCategoriesList();
             categoryInput.disabled = false;
         } else {
             categoryGroup.style.display = 'none';
-            categorySelect.value = '0'; // Сброс select
+            categorySelect.value = ''; // Сброс select
             categoryInput.value = ''; // Очищаем input
         }
     }

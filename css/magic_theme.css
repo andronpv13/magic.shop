@@ -1,0 +1,475 @@
+/* magic_theme.css - Расширение магической темы для Волшебной ЛАВКИ */
+
+/* ==========================================================================
+   ДОПОЛНИТЕЛЬНЫЕ CSS-ПЕРЕМЕННЫЕ
+   ========================================================================== */
+:root {
+    /* Расширенная цветовая палитра магии */
+    --magic-deep-purple: #2A0A4A;      /* Глубокий фиолетовый */
+    --magic-dark-blue: #0F1A3D;        /* Тёмно-синий, как ночное небо */
+    --magic-lavender: #9D7BFF;         /* Лавандовый (магическое свечение) */
+    --magic-emerald: #00CC88;          /* Изумрудный (энергия природы) */
+    --magic-ruby: #CC0066;             /* Рубиновый (огонь, страсть) */
+    --magic-gold: #FFD700;             /* Золото (уже есть, но повторяем) */
+    --magic-silver: #C0C0C0;           /* Серебро (лунный свет) */
+    --magic-twilight: #4A235A;         /* Сумеречный фиолетовый */
+    --magic-arcane: #5D3FD3;           /* Арканный синий */
+    
+    /* Эффекты свечения */
+    --glow-soft: 0 0 15px rgba(157, 123, 255, 0.5);
+    --glow-medium: 0 0 25px rgba(157, 123, 255, 0.7);
+    --glow-strong: 0 0 35px rgba(157, 123, 255, 0.9);
+    --glow-gold: 0 0 20px rgba(255, 215, 0, 0.8);
+    --glow-emerald: 0 0 20px rgba(0, 204, 136, 0.6);
+    --glow-ruby: 0 0 20px rgba(204, 0, 102, 0.6);
+    
+    /* Градиенты */
+    --gradient-magic: linear-gradient(135deg, var(--magic-deep-purple) 0%, var(--magic-dark-blue) 100%);
+    --gradient-arcane: linear-gradient(45deg, var(--magic-arcane) 0%, var(--magic-lavender) 100%);
+    --gradient-emerald: linear-gradient(45deg, var(--magic-emerald) 0%, var(--magic-dark-blue) 100%);
+    --gradient-ruby: linear-gradient(45deg, var(--magic-ruby) 0%, var(--magic-deep-purple) 100%);
+    
+    /* Тени */
+    --shadow-magic: 0 5px 15px rgba(42, 10, 74, 0.4);
+    --shadow-floating: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* ==========================================================================
+   НОВЫЕ АНИМАЦИИ
+   ========================================================================== */
+@keyframes sparkle {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.2); }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 1; }
+}
+
+@keyframes wave {
+    0% { transform: translateX(0) translateY(0); }
+    50% { transform: translateX(10px) translateY(-5px); }
+    100% { transform: translateX(0) translateY(0); }
+}
+
+@keyframes magic-orb {
+    0% { transform: translate(0, 0) scale(1); box-shadow: var(--glow-soft); }
+    33% { transform: translate(20px, -10px) scale(1.1); box-shadow: var(--glow-medium); }
+    66% { transform: translate(-15px, 15px) scale(0.9); box-shadow: var(--glow-soft); }
+    100% { transform: translate(0, 0) scale(1); box-shadow: var(--glow-soft); }
+}
+
+@keyframes text-glow {
+    0%, 100% { text-shadow: 0 0 10px var(--magic-lavender), 0 0 20px var(--magic-lavender); }
+    50% { text-shadow: 0 0 15px var(--magic-lavender), 0 0 30px var(--magic-lavender), 0 0 40px var(--magic-arcane); }
+}
+
+@keyframes border-glow {
+    0%, 100% { border-color: var(--magic-lavender); box-shadow: 0 0 10px var(--magic-lavender); }
+    50% { border-color: var(--magic-gold); box-shadow: 0 0 20px var(--magic-gold); }
+}
+
+/* ==========================================================================
+   МАГИЧЕСКИЕ ЭЛЕМЕНТЫ ДЛЯ СУЩЕСТВУЮЩИХ КОМПОНЕНТОВ
+   ========================================================================== */
+
+/* Заголовки с магическим свечением */
+.magic-glow,
+h1.magic, h2.magic, h3.magic {
+    animation: text-glow 3s ease-in-out infinite;
+    color: var(--magic-lavender);
+    font-weight: bold;
+}
+
+/* Кнопки с магическими эффектами */
+.btn-magic {
+    background: var(--gradient-arcane);
+    color: white;
+    border: 2px solid var(--magic-lavender);
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-magic);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-magic:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--glow-medium), var(--shadow-floating);
+    border-color: var(--magic-gold);
+    background: var(--gradient-magic);
+}
+
+.btn-magic:active {
+    transform: translateY(0);
+}
+
+.btn-magic::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.3) 1%, transparent 10%);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.btn-magic:hover::after {
+    opacity: 1;
+    animation: sparkle 1.5s infinite;
+}
+
+/* Карточки товаров с улучшенными эффектами */
+.product-card.magic {
+    border: 1px solid transparent;
+    background: rgba(42, 10, 74, 0.2);
+    backdrop-filter: blur(5px);
+    border-radius: 12px;
+    transition: all 0.4s ease;
+    animation: border-glow 4s infinite;
+}
+
+.product-card.magic:hover {
+    transform: translateY(-10px) scale(1.03);
+    box-shadow: var(--glow-strong), 0 15px 30px rgba(0, 0, 0, 0.4);
+    border-color: var(--magic-lavender);
+    background: rgba(42, 10, 74, 0.4);
+}
+
+.product-card.magic .product-image {
+    border-radius: 10px 10px 0 0;
+    overflow: hidden;
+    position: relative;
+}
+
+.product-card.magic .product-image::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom, transparent 60%, rgba(42, 10, 74, 0.7) 100%);
+    pointer-events: none;
+}
+
+/* Навигационные ссылки с магическим подчёркиванием */
+.nav-link.magic {
+    position: relative;
+    color: var(--magic-lavender);
+}
+
+.nav-link.magic::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--gradient-arcane);
+    transition: width 0.4s ease;
+}
+
+.nav-link.magic:hover::after {
+    width: 100%;
+}
+
+.nav-link.magic.active {
+    color: var(--magic-gold);
+    text-shadow: 0 0 10px var(--magic-gold);
+}
+
+/* Формы с магическими полями */
+.input-magic {
+    background: rgba(15, 26, 61, 0.5);
+    border: 1px solid var(--magic-lavender);
+    border-radius: 6px;
+    padding: 10px 15px;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.input-magic:focus {
+    outline: none;
+    border-color: var(--magic-gold);
+    box-shadow: var(--glow-gold);
+    background: rgba(15, 26, 61, 0.8);
+}
+
+.input-magic::placeholder {
+    color: rgba(157, 123, 255, 0.6);
+}
+
+/* Бейджи и метки */
+.badge-magic {
+    display: inline-block;
+    padding: 4px 12px;
+    background: var(--gradient-emerald);
+    color: white;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    animation: pulse 2s infinite;
+    box-shadow: var(--glow-emerald);
+}
+
+.badge-magic.ruby {
+    background: var(--gradient-ruby);
+    box-shadow: var(--glow-ruby);
+}
+
+/* ==========================================================================
+   СПЕЦИАЛЬНЫЕ МАГИЧЕСКИЕ ЭФФЕКТЫ
+   ========================================================================== */
+
+/* Частицы на фоне (декоративные) */
+.magic-particles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+    overflow: hidden;
+}
+
+.particle {
+    position: absolute;
+    background: rgba(157, 123, 255, 0.3);
+    border-radius: 50%;
+    animation: magic-orb 15s infinite linear;
+}
+
+.particle:nth-child(1) { top: 10%; left: 5%; width: 8px; height: 8px; animation-delay: 0s; }
+.particle:nth-child(2) { top: 30%; left: 80%; width: 12px; height: 12px; animation-delay: 1s; }
+.particle:nth-child(3) { top: 70%; left: 20%; width: 6px; height: 6px; animation-delay: 2s; }
+.particle:nth-child(4) { top: 50%; left: 60%; width: 10px; height: 10px; animation-delay: 3s; }
+.particle:nth-child(5) { top: 85%; left: 40%; width: 7px; height: 7px; animation-delay: 4s; }
+.particle:nth-child(6) { top: 20%; left: 30%; width: 9px; height: 9px; animation-delay: 5s; }
+
+/* Магический скроллбар (дополнение к существующему) */
+::-webkit-scrollbar-thumb.magic {
+    background: var(--gradient-arcane);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb.magic:hover {
+    background: var(--magic-lavender);
+    box-shadow: var(--glow-soft);
+}
+
+/* Эффект параллакса для секций */
+.section-magic {
+    position: relative;
+    overflow: hidden;
+}
+
+.section-magic::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at center, rgba(157, 123, 255, 0.1) 0%, transparent 70%);
+    animation: wave 20s infinite linear;
+    z-index: -1;
+}
+
+/* Анимация появления элементов */
+@keyframes fadeInUpMagic {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.fade-in-magic {
+    animation: fadeInUpMagic 0.8s ease-out;
+}
+
+/* ==========================================================================
+   УТИЛИТЫ ДЛЯ БЫСТРОГО ПРИМЕНЕНИЯ
+   ========================================================================== */
+.text-magic { color: var(--magic-lavender); }
+.text-gold { color: var(--magic-gold); }
+.text-emerald { color: var(--magic-emerald); }
+.text-ruby { color: var(--magic-ruby); }
+
+.bg-magic { background: var(--gradient-magic); }
+.bg-arcane { background: var(--gradient-arcane); }
+.bg-emerald { background: var(--gradient-emerald); }
+.bg-ruby { background: var(--gradient-ruby); }
+
+.border-magic { border: 2px solid var(--magic-lavender); }
+.border-gold { border: 2px solid var(--magic-gold); }
+
+.shadow-magic { box-shadow: var(--shadow-magic); }
+.glow-magic { box-shadow: var(--glow-medium); }
+
+.animate-sparkle { animation: sparkle 2s infinite; }
+.animate-pulse { animation: pulse 3s infinite; }
+.animate-float { animation: float 6s ease-in-out infinite; }
+
+/* ==========================================================================
+   АДАПТИВНОСТЬ И ДОСТУПНОСТЬ
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+    .magic-glow,
+    .btn-magic,
+    .product-card.magic,
+    .particle,
+    .badge-magic,
+    .fade-in-magic,
+    .animate-sparkle,
+    .animate-pulse,
+    .animate-float {
+        animation: none;
+        transition: none;
+    }
+}
+
+/* ==========================================================================
+   ДОПОЛНИТЕЛЬНЫЕ МАГИЧЕСКИЕ ЭЛЕМЕНТЫ
+   ========================================================================== */
+
+/* Анимация логотипа */
+@keyframes logo-sparkle {
+    0%, 100% { filter: drop-shadow(0 0 5px var(--magic-lavender)); }
+    50% { filter: drop-shadow(0 0 15px var(--magic-gold)) brightness(1.2); }
+}
+
+.logo-img.magic {
+    animation: logo-sparkle 3s ease-in-out infinite;
+    transition: transform 0.5s ease;
+}
+
+.logo-img.magic:hover {
+    transform: rotate(5deg) scale(1.05);
+    animation-duration: 1s;
+}
+
+/* Улучшенный скроллбар */
+::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(15, 26, 61, 0.3);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--gradient-arcane);
+    border-radius: 10px;
+    border: 2px solid rgba(15, 26, 61, 0.5);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--magic-lavender);
+    box-shadow: var(--glow-soft);
+}
+
+/* Магические переходы для страниц */
+.page-transition {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUpMagic 0.6s ease-out forwards;
+}
+
+.page-transition.delay-1 { animation-delay: 0.1s; }
+.page-transition.delay-2 { animation-delay: 0.2s; }
+.page-transition.delay-3 { animation-delay: 0.3s; }
+
+/* Эффект волшебного выделения */
+.highlight-magic {
+    position: relative;
+    z-index: 1;
+}
+
+.highlight-magic::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    right: -5px;
+    bottom: -5px;
+    background: var(--gradient-arcane);
+    border-radius: 10px;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.highlight-magic:hover::before {
+    opacity: 0.3;
+}
+
+/* Магический tooltip */
+.tooltip-magic {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip-magic::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--gradient-magic);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+    z-index: 1000;
+    box-shadow: var(--shadow-floating);
+    border: 1px solid var(--magic-lavender);
+}
+
+.tooltip-magic:hover::after {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* ==========================================================================
+   КОММЕНТАРИИ ДЛЯ РАЗРАБОТЧИКА
+   ========================================================================== */
+/*
+ * Этот файл расширяет существующую тему style.css.
+ * Для применения магических стилей добавьте соответствующие классы:
+ *
+ * 1. Для заголовков: <h1 class="magic-glow">Заголовок</h1>
+ * 2. Для кнопок: <button class="btn-magic">Кнопка</button>
+ * 3. Для карточек товаров: <div class="product-card magic">...</div>
+ * 4. Для навигации: <a class="nav-link magic" href="#">Ссылка</a>
+ * 5. Для полей ввода: <input class="input-magic" placeholder="...">
+ *
+ * Чтобы добавить частицы на страницу, включите этот HTML:
+ * <div class="magic-particles">
+ *   <div class="particle"></div>
+ *   <div class="particle"></div>
+ *   <div class="particle"></div>
+ *   <div class="particle"></div>
+ *   <div class="particle"></div>
+ *   <div class="particle"></div>
+ * </div>
+ *
+ * Все анимации учитывают настройки prefers-reduced-motion.
+ */

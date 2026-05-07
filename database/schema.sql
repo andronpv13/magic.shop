@@ -26,6 +26,13 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Categories table
+CREATE TABLE categories (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(50) UNIQUE NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Products table
 CREATE TABLE products (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -34,6 +41,8 @@ CREATE TABLE products (
     price DECIMAL(10,2) NOT NULL,
     image VARCHAR(100),
     category VARCHAR(50),
+    stock INT DEFAULT 0,
+    is_new BOOLEAN DEFAULT FALSE,
     active BOOLEAN DEFAULT TRUE,
     created_by INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -45,6 +54,8 @@ CREATE TABLE orders (
     id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
     total DECIMAL(10,2) NOT NULL,
+    delivery_address TEXT,
+    comment TEXT,
     status ENUM('pending', 'payment', 'completed', 'cancelled') DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
@@ -77,6 +88,11 @@ CREATE TABLE reviews (
 INSERT INTO users (username, password, email, first_name, last_name, role) VALUES
 ('root', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin@magicshop.ru', 'Администратор', 'Системы', 'admin'),
 ('moderator', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'moderator@magicshop.ru', 'Модератор', 'Системы', 'moderator');
+
+INSERT INTO categories (name) VALUES
+('Магические предметы'),
+('Инструменты'),
+('Книги');
 
 -- Sample products
 INSERT INTO products (name, description, price, image, category, created_by) VALUES

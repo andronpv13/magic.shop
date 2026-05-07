@@ -27,33 +27,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         // Логика категорий
         $use_categories = isset($_POST['use_categories']) && $_POST['use_categories'] === '1';
-        $category_id = null;
+        $category = null;
 
         if ($use_categories) {
+            $category = trim($_POST['category'] ?? '');
             $category_name = trim($_POST['category_name'] ?? '');
-            $category_id_input = isset($_POST['category_id']) ? (int)$_POST['category_id'] : 0;
 
-            // Если выбрали из списка
-            if ($category_id_input > 0) {
-                $category_id = $category_id_input;
-            } 
-            // Если ввели новое название
-            elseif (!empty($category_name)) {
-                $existing_cat = getCategoryByName($category_name);
-                if ($existing_cat) {
-                    $category_id = $existing_cat['id'];
-                } else {
-                    $new_cat_result = addCategory($category_name);
-                    if ($new_cat_result['success']) {
-                        $category_id = $new_cat_result['id'];
-                    } else {
-                        $error = $new_cat_result['message'];
-                    }
-                }
+            if (!empty($category_name)) {
+                $category = $category_name;
+            }
+
+            if ($category === '') {
+                $category = null;
             }
         } else {
-            // Если чекбокс выключен, сбрасываем категорию товара
-            $category_id = null;
+            $category = null;
         }
         
         $is_new = isset($_POST['is_new']) ? 1 : 0;
@@ -78,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             if (empty($error)) {
                 $created_by = $_SESSION['user_id'];
-                $result = addProduct($name, $description, $price, $category_id, $stock, $is_new, $image_path, $created_by);
+                $result = addProduct($name, $description, $price, $category, $stock, $is_new, $image_path, $created_by);
                 
                 if ($result['success']) {
                     $success = 'Товар добавлен';
@@ -156,13 +144,13 @@ $use_categories = isset($_SESSION['use_categories']) ? $_SESSION['use_categories
                         </div>
 
                         <div class="form-group" id="category-group" style="<?php echo $use_categories ? '' : 'display: none; opacity: 0.5;'; ?>">
-                            <label for="category_id">Выберите категорию:</label>
-                            <select id="category_id" name="category_id" 
-                                   <?php echo $use_categories ? '' : 'disabled'; ?>>
-                                <option value="0">-- Без категории --</option>
-                                <?php foreach ($categories as $cat): ?>
-                                    <option value="<?php echo $cat['id']; ?>">
-                                        <?php echo e($cat['name']); ?>
+<label for="category">Выберите категорию:</label>
+                        <select id="category" name="category" 
+                               <?php echo $use_categories ? '' : 'disabled'; ?>>
+                            <option value="">-- Без категории --</option>
+                            <?php foreach ($categories as $cat): ?>
+                                <option value="<?php echo e($cat['category']); ?>">
+                                    <?php echo e($cat['category']); ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
@@ -206,7 +194,7 @@ $use_categories = isset($_SESSION['use_categories']) ? $_SESSION['use_categories
     // Функция для переключения поля категории в форме
     function toggleCategoryField(checkbox) {
         const categoryGroup = document.getElementById('category-group');
-        const categorySelect = document.getElementById('category_id');
+        const categorySelect = document.getElementById('category');
         const categoryInput = document.getElementById('category_name');
         
         if (checkbox.checked) {
@@ -216,7 +204,7 @@ $use_categories = isset($_SESSION['use_categories']) ? $_SESSION['use_categories
             categoryInput.disabled = false;
         } else {
             categoryGroup.style.display = 'none';
-            categorySelect.value = '0';
+            categorySelect.value = '';
             categoryInput.value = '';
         }
     }

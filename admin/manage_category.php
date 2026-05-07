@@ -12,23 +12,16 @@ require_once __DIR__ . '/../includes/functions_adm.php';
 // Проверяем права администратора
 requireAdmin();
 
-// Устанавливаем заголовок JSON
-header('Content-Type: application/json');
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    header('Content-Type: application/json');
 
-// Проверяем, что это POST-запрос
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo json_encode(['success' => false, 'message' => 'Метод не разрешен']);
-    exit;
-}
-
-// Проверка CSRF токена
-if (!csrf_verify()) {
-    echo json_encode(['success' => false, 'message' => 'Ошибка безопасности']);
-    exit;
-}
+    if (!csrf_verify()) {
+        echo json_encode(['success' => false, 'message' => 'Ошибка безопасности']);
+        exit;
+    }
 
 // Проверяем существование необходимых функций
-$required_functions = ['getCategoryByName', 'addCategory', 'getProductsCountByCategory', 'deleteCategory', 'getCategoryById'];
+$required_functions = ['getCategoryByName', 'addCategory', 'getProductsCountByCategory', 'deleteCategory', 'countCategories'];
 foreach ($required_functions as $func) {
     if (!function_exists($func)) {
         echo json_encode(['success' => false, 'message' => 'Функция не найдена: ' . $func]);
@@ -39,10 +32,9 @@ foreach ($required_functions as $func) {
 // Обработка добавления категории
 if (isset($_POST['name'])) {
     $name = trim($_POST['name']);
-    
-    // Проверяем длину названия категории
-    if (empty($name) || strlen($name) > 10) {
-        echo json_encode(['success' => false, 'message' => 'Название категории должно быть от 1 до 10 символов']);
+
+    if (empty($name) || mb_strlen($name) > 50) {
+        echo json_encode(['success' => false, 'message' => 'Название категории должно быть от 1 до 50 символов']);
         exit;
     }
     
@@ -73,8 +65,10 @@ if (isset($_POST['name'])) {
         
         if ($result['success']) {
             // Логируем действие
-            logAction("Добавлена категория: $name");
-            echo json_encode(['success' => true, 'id' => $result['id']]);
+            if (function_exists('logAction')) {
+                logAction("Добавлена категория: $name");
+            }
+            echo json_encode(['success' => true, 'category' => $name]);
         } else {
             echo json_encode(['success' => false, 'message' => $result['message']]);
         }
@@ -85,47 +79,180 @@ if (isset($_POST['name'])) {
     exit;
 }
 
-// Обработка удаления категории
-if (isset($_POST['category_id'])) {
-    $category_id = (int)$_POST['category_id'];
-    
-    if ($category_id <= 0) {
-        echo json_encode(['success' => false, 'message' => 'Некорректный ID категории']);
+if (isset($_POST['category'])) {
+    $category = trim($_POST['category']);
+
+    if ($category === '') {
+        echo json_encode(['success' => false, 'message' => 'Некорректное название категории']);
         exit;
     }
-    
+
     try {
-        // Проверяем, есть ли товары в этой категории
-        $products_count = getProductsCountByCategory($category_id);
+        $products_count = getProductsCountByCategory($category);
         if ($products_count > 0) {
             echo json_encode(['success' => false, 'message' => 'Невозможно удалить категорию, в которой есть товары']);
             exit;
         }
-        
-        // Получаем название категории для логирования
-        $category_info = getCategoryById($category_id);
-        if (!$category_info) {
-            echo json_encode(['success' => false, 'message' => 'Категория не найдена']);
-            exit;
-        }
-        
-        // Удаляем категорию
-        $result = deleteCategory($category_id);
-        
+
+        $result = deleteCategory($category);
+
         if ($result['success']) {
-            // Логируем действие
-            logAction("Удалена категория: " . $category_info['name']);
+            if (function_exists('logAction')) {
+                logAction("Удалена категория: $category");
+            }
             echo json_encode(['success' => true, 'message' => 'Категория удалена']);
         } else {
             echo json_encode(['success' => false, 'message' => $result['message']]);
         }
     } catch (Exception $e) {
-        error_log("Ошибка базы данных: " . $e->getMessage());
+        error_log('Ошибка базы данных: ' . $e->getMessage());
         echo json_encode(['success' => false, 'message' => 'Ошибка базы данных']);
     }
     exit;
 }
 
-// Если ни одно из действий не выполнено
-echo json_encode(['success' => false, 'message' => 'Неверный запрос']);
-exit;
+    // Если ни одно из действий не выполнено
+    echo json_encode(['success' => false, 'message' => 'Неверный запрос']);
+    exit;
+}
+
+$categories = getCategoriesList();
+
+$page_title = 'Управление категориями';
+require_once __DIR__ . '/../includes/header.php';
+?>
+
+<section class="section">
+    <div class="container">
+        <nav class="breadcrumbs">
+            <a href="/admin/index.php">Админ-панель</a>
+            <span class="separator">/</span>
+            <span class="current">Категории</span>
+        </nav>
+
+        <h1 class="page-title">Управление категориями</h1>
+
+        <div class="category-management">
+            <div class="add-category-form">
+                <h2>Добавить категорию</h2>
+                <form id="new-category-form">
+                    <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                    <div class="form-group">
+                        <label for="new-category-name">Название категории</label>
+                        <input type="text" id="new-category-name" name="name" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Добавить</button>
+                </form>
+            </div>
+
+            <div class="categories-list-block">
+                <h2>Список категорий</h2>
+                <?php if (!empty($categories)): ?>
+                    <ul class="categories-list" id="categories-list">
+                        <?php foreach ($categories as $cat): ?>
+                            <li data-category="<?php echo e($cat['category']); ?>">
+                                <span class="category-name"><?php echo e($cat['category']); ?></span>
+                                <span class="category-count">(<?php echo isset($cat['product_count']) ? (int)$cat['product_count'] : 0; ?>)</span>
+                                <button type="button" class="btn btn-sm btn-delete delete-category" data-category="<?php echo e($cat['category']); ?>">
+                                    Удалить
+                                </button>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php else: ?>
+                    <p class="empty-state" id="empty-state-text">Категории не найдены</p>
+                    <ul class="categories-list" id="categories-list"></ul>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    document.getElementById('new-category-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const categoryName = document.getElementById('new-category-name').value.trim();
+        if (!categoryName) {
+            alert('Пожалуйста, введите название категории');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('name', categoryName);
+        formData.append('csrf_token', '<?php echo csrf_token(); ?>');
+
+        fetch('/admin/manage_category.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                let list = document.getElementById('categories-list');
+                if (!list) {
+                    const wrapper = document.querySelector('.categories-list-block');
+                    list = document.createElement('ul');
+                    list.id = 'categories-list';
+                    list.className = 'categories-list';
+                    wrapper.appendChild(list);
+                }
+                const emptyState = document.getElementById('empty-state-text');
+                if (emptyState) {
+                    emptyState.remove();
+                }
+
+                const item = document.createElement('li');
+                item.dataset.category = categoryName;
+                item.innerHTML = `
+                    <span class="category-name">${categoryName}</span>
+                    <span class="category-count">(0)</span>
+                    <button type="button" class="btn btn-sm btn-delete delete-category" data-category="${categoryName}">Удалить</button>
+                `;
+                list.appendChild(item);
+                document.getElementById('new-category-name').value = '';
+            } else {
+                alert('Ошибка при добавлении категории: ' + (data.message || 'Неизвестная ошибка'));
+            }
+        })
+        .catch(() => alert('Ошибка при добавлении категории'));
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!e.target.classList.contains('delete-category')) return;
+
+        const category = e.target.dataset.category;
+        if (!category || !confirm('Вы уверены, что хотите удалить эту категорию?')) {
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('category', category);
+        formData.append('csrf_token', '<?php echo csrf_token(); ?>');
+
+        fetch('/admin/manage_category.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const li = e.target.closest('li');
+                if (li) li.remove();
+                const list = document.getElementById('categories-list');
+                if (list && list.children.length === 0) {
+                    const emptyState = document.createElement('p');
+                    emptyState.className = 'empty-state';
+                    emptyState.id = 'empty-state-text';
+                    emptyState.textContent = 'Категории не найдены';
+                    list.parentNode.insertBefore(emptyState, list);
+                }
+            } else {
+                alert('Ошибка при удалении категории: ' + (data.message || 'Неизвестная ошибка'));
+            }
+        })
+        .catch(() => alert('Ошибка при удалении категории'));
+    });
+</script>
+
+<?php require_once __DIR__ . '/../includes/footer.php'; ?>
