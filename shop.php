@@ -40,7 +40,7 @@ if ($product_id) {
     $products = getProducts($category);
     ?>
     <div class="shop-header">
-        <h1 style="text-align: center;">Каталог товаров</h1>
+        <h1 class="shop-title">Каталог товаров</h1>
         <div class="category-filter">
             <select id="category-select" onchange="if (this.value) window.location.href='?category=' + this.value; else window.location.href='?';">
                 <option value="">Все товары</option>
