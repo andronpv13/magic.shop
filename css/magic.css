@@ -83,10 +83,10 @@
     --spacing-xxl: 3rem;
 
     /* Радиусы скругления */
-    --radius-sm: 8px;
-    --radius-md: 12px;
-    --radius-lg: 20px;
-    --radius-xl: 30px;
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
     --radius-full: 50%;
 
     /* Переходы и анимации */
@@ -414,8 +414,8 @@ header {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 50px;
-    height: 50px;
+    width: 45px;
+    height: 45px;
     background: var(--gradient-magic-accent);
     border-radius: var(--radius-full);
     box-shadow: var(--shadow-medium), var(--glow-ruby);
@@ -574,6 +574,9 @@ main {
     position: relative;
     overflow: hidden;
     border: 2px solid transparent;
+    background: var(--gradient-magic-primary);
+    color: var(--color-white);
+    box-shadow: var(--shadow-medium), var(--glow-purple);
 }
 
 .btn::before {
@@ -594,6 +597,11 @@ main {
     height: 300px;
 }
 
+.btn:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: var(--shadow-strong), 0 0 30px var(--color-gold-bright);
+}
+
 .btn-primary {
     background: var(--gradient-magic-primary);
     color: var(--color-white);
@@ -602,7 +610,7 @@ main {
 
 .btn-primary:hover {
     transform: translateY(-3px) scale(1.02);
-    box-shadow: var(--shadow-strong), 0 0 30px var(--color-purple-bright);
+    box-shadow: var(--shadow-strong), 0 0 20px var(--color-purple-bright);
 }
 
 .btn-secondary {
@@ -613,7 +621,7 @@ main {
 
 .btn-secondary:hover {
     transform: translateY(-3px) scale(1.02);
-    box-shadow: var(--shadow-strong), 0 0 30px var(--color-emerald);
+    box-shadow: var(--shadow-strong), 0 0 20px var(--color-emerald);
 }
 
 .btn-gold {
@@ -624,7 +632,7 @@ main {
 
 .btn-gold:hover {
     transform: translateY(-3px) scale(1.02);
-    box-shadow: var(--shadow-strong), 0 0 40px var(--color-gold-bright);
+    box-shadow: var(--shadow-strong), 0 0 30px var(--color-gold-bright);
 }
 
 .btn-outline {
@@ -640,8 +648,8 @@ main {
 }
 
 .btn-large {
-    padding: var(--spacing-lg) var(--spacing-xxl);
-    font-size: 1.3rem;
+    padding: calc(var(--spacing-lg) - 5px) var(--spacing-xxl);
+    font-size: 1.2rem;
 }
 
 .btn-small {
@@ -710,6 +718,8 @@ main {
 .btn-container .btn {
     flex: 0 0 auto;
     min-width: 120px;
+    padding: calc(var(--spacing-sm) - 5px) var(--spacing-lg);
+    font-size: 1rem;
 }
 
 .product-card::before {
@@ -787,6 +797,8 @@ main {
 .product-actions .btn {
     flex: 0 0 auto;
     min-width: 120px;
+    padding: calc(var(--spacing-sm) - 5px) var(--spacing-lg);
+    font-size: 1rem;
 }
 
 /* --------------------------------------------------------------------------
@@ -875,6 +887,127 @@ main {
 }
 
 .form-footer a:hover {
+    text-decoration: underline;
+    text-shadow: 0 0 10px var(--color-gold);
+}
+
+/* --------------------------------------------------------------------------
+   9.1. СТРАНИЦА ВХОДА (AUTH) - СТИЛЬ КАК КАРТОЧКА ТОВАРА
+   -------------------------------------------------------------------------- */
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
+    padding: var(--spacing-xl) 0;
+}
+
+.auth-card {
+    background: var(--gradient-card);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xxl);
+    transition: all var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-medium);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    max-width: 450px;
+    width: 100%;
+}
+
+.auth-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(157, 78, 221, 0.1) 0%, rgba(67, 97, 238, 0.1) 100%);
+    opacity: 0;
+    transition: opacity var(--transition-normal);
+    z-index: -1;
+}
+
+.auth-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: var(--shadow-strong), var(--glow-multi);
+    border-color: var(--color-purple-bright);
+}
+
+.auth-card:hover::before {
+    opacity: 1;
+}
+
+.auth-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: var(--spacing-sm);
+    color: var(--color-white);
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(135deg, var(--color-gold) 0%, var(--color-purple-light) 50%, var(--color-blue-sky) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.auth-subtitle {
+    font-size: 1rem;
+    color: var(--color-lavender);
+    margin-bottom: var(--spacing-xl);
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.auth-form {
+    width: 100%;
+}
+
+.auth-form .form-group {
+    margin-bottom: var(--spacing-lg);
+}
+
+.auth-form .form-control {
+    width: 100%;
+    padding: var(--spacing-md) var(--spacing-lg);
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(157, 78, 221, 0.3);
+    border-radius: var(--radius-md);
+    color: var(--color-white);
+    transition: all var(--transition-normal);
+}
+
+.auth-form .form-control:focus {
+    border-color: var(--color-purple-bright);
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 15px rgba(157, 78, 221, 0.4);
+    transform: translateY(-2px);
+}
+
+.auth-form .form-control::placeholder {
+    color: var(--color-gray);
+}
+
+.auth-form .btn-block {
+    width: 100%;
+    margin-top: var(--spacing-md);
+}
+
+.auth-footer {
+    text-align: center;
+    margin-top: var(--spacing-lg);
+    color: var(--color-lavender);
+}
+
+.auth-footer a {
+    color: var(--color-gold);
+    font-weight: 600;
+}
+
+.auth-footer a:hover {
     text-decoration: underline;
     text-shadow: 0 0 10px var(--color-gold);
 }
@@ -1469,6 +1602,7 @@ footer {
     }
 
     .products-grid,
+    .products-slider,
     .reviews-grid {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -1503,6 +1637,7 @@ footer {
     }
 
     .products-grid,
+    .products-slider,
     .reviews-grid {
         grid-template-columns: 1fr;
     }
@@ -1550,6 +1685,7 @@ footer {
     }
 
     .products-grid,
+    .products-slider,
     .reviews-grid {
         grid-template-columns: 1fr;
     }
