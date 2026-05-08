@@ -26,11 +26,11 @@ if ($product_id) {
             <p class="description"><?php echo sanitize($product['description']); ?></p>
             <div class="product-actions">
                 <div class="quantity-selector">
-                    <button class="quantity-btn decrease">-</button>
-                    <input type="number" class="quantity-input" value="1" min="1" max="99">
-                    <button class="quantity-btn increase">+</button>
+                    <button class="quantity-btn decrease-quantity" data-product-id="<?php echo $product['id']; ?>">-</button>
+                    <input type="number" class="quantity-input" data-product-id="<?php echo $product['id']; ?>" value="1" min="1" max="99">
+                    <button class="quantity-btn increase-quantity" data-product-id="<?php echo $product['id']; ?>">+</button>
                 </div>
-                <button class="add-to-basket btn btn-primary" data-product-id="<?php echo $product['id']; ?>" data-quantity="1">Добавить в корзину</button>
+                <button class="add-to-basket btn btn-primary" data-product-id="<?php echo $product['id']; ?>" data-quantity="1">В корзину</button>
             </div>
         </div>
     </div>
