@@ -1,8 +1,8 @@
 document.addEventListener('DOMContentLoaded', function() {
-    
+
     // Единый обработчик событий для всех кнопок корзины
     document.addEventListener('click', function(e) {
-        
+
         // === УДАЛЕНИЕ ТОВАРА ===
         const removeBtn = e.target.closest('.remove-from-basket');
         if (removeBtn) {
@@ -65,23 +65,27 @@ document.addEventListener('DOMContentLoaded', function() {
         // === КНОПКИ ПЛЮС / МИНУС ===
         const increaseBtn = e.target.closest('.increase-quantity');
         if (increaseBtn) {
+            e.preventDefault();
             const productId = increaseBtn.dataset.productId;
             const input = document.querySelector(`.quantity-input[data-product-id="${productId}"]`);
             if (input) {
-                input.value = parseInt(input.value) + 1;
-                input.dispatchEvent(new Event('change'));
+                const newQuantity = parseInt(input.value) + 1;
+                input.value = newQuantity;
+                updateQuantity(productId, newQuantity);
             }
         }
 
         const decreaseBtn = e.target.closest('.decrease-quantity');
         if (decreaseBtn) {
+            e.preventDefault();
             const productId = decreaseBtn.dataset.productId;
             const input = document.querySelector(`.quantity-input[data-product-id="${productId}"]`);
             if (input) {
                 const val = parseInt(input.value);
                 if (val > 1) {
-                    input.value = val - 1;
-                    input.dispatchEvent(new Event('change'));
+                    const newQuantity = val - 1;
+                    input.value = newQuantity;
+                    updateQuantity(productId, newQuantity);
                 }
             }
         }
@@ -94,31 +98,35 @@ document.addEventListener('DOMContentLoaded', function() {
             const productId = input.dataset.productId;
             const quantity = Math.max(1, parseInt(input.value) || 1);
             input.value = quantity;
-
-            fetch('/basket/update_basket.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `product_id=${productId}&quantity=${quantity}&csrf_token=${getCsrf()}`
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.csrf_token) document.querySelector('meta[name="csrf-token"]').content = data.csrf_token;
-                if (data.success) {
-                    // ✅ Обновляем счетчики и шапку, и внутри корзины
-                    updateBasketCounts(data.basket_count);
-                    if (data.basket_total !== undefined) updateBasketTotal(data.basket_total);
-                    if (data.item_total !== undefined) {
-                        const itemTotalEl = document.querySelector(`.item-total[data-product-id="${productId}"]`);
-                        if (itemTotalEl) itemTotalEl.textContent = formatPrice(data.item_total);
-                    }
-                    showNotification(data.message, 'success');
-                } else {
-                    showNotification(data.message, 'error');
-                }
-            })
-            .catch(() => showNotification('Ошибка сети', 'error'));
+            updateQuantity(productId, quantity);
         }
     });
+
+    // === ФУНКЦИЯ ОБНОВЛЕНИЯ КОЛИЧЕСТВА ===
+    function updateQuantity(productId, quantity) {
+        fetch('/basket/update_basket.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `product_id=${productId}&quantity=${quantity}&csrf_token=${getCsrf()}`
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.csrf_token) document.querySelector('meta[name="csrf-token"]').content = data.csrf_token;
+            if (data.success) {
+                // ✅ Обновляем счетчики и шапку, и внутри корзины
+                updateBasketCounts(data.basket_count);
+                if (data.basket_total !== undefined) updateBasketTotal(data.basket_total);
+                if (data.item_total !== undefined) {
+                    const itemTotalEl = document.querySelector(`.item-total[data-product-id="${productId}"]`);
+                    if (itemTotalEl) itemTotalEl.textContent = formatPrice(data.item_total);
+                }
+                showNotification(data.message, 'success');
+            } else {
+                showNotification(data.message, 'error');
+            }
+        })
+        .catch(() => showNotification('Ошибка сети', 'error'));
+    }
 });
 
 // === ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ===
@@ -130,7 +138,7 @@ function getCsrf() {
 // ✅ ЕДИНАЯ ФУНКЦИЯ ОБНОВЛЕНИЯ СЧЕТЧИКОВ
 function updateBasketCounts(count) {
     if (count === undefined) return;
-    
+
     // 1. Обновляем счетчик в шапке (на всех страницах)
     const headerEl = document.getElementById('basket-count');
     if (headerEl) {
@@ -162,12 +170,12 @@ function formatPrice(price) {
 function showNotification(msg, type) {
     const old = document.querySelector('.ajax-notification');
     if (old) old.remove();
-    
+
     const el = document.createElement('div');
     el.className = `ajax-notification notification ${type}`;
     el.textContent = msg;
     el.style.cssText = `
-        position: fixed; top: 90px; right: 20px; z-index: 9999; 
+        position: fixed; top: 90px; right: 20px; z-index: 9999;
         padding: 12px 20px; border-radius: 8px; color: white; font-weight: 600;
         background: ${type === 'success' ? '#28a745' : '#dc3545'};
         box-shadow: 0 4px 12px rgba(0,0,0,0.2);
