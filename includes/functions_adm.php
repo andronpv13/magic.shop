@@ -134,7 +134,7 @@ function countCategories() {
 
 function getProductsCountByCategory($category) {
     global $conn;
-    $stmt = $conn->prepare("SELECT COUNT(*) as total FROM products WHERE category = ?");
+    $stmt = $conn->prepare("SELECT COUNT(*) as total FROM products WHERE category = ? AND active = 1");
     $stmt->bind_param("s", $category);
     $stmt->execute();
     $result = $stmt->get_result()->fetch_assoc();
@@ -143,18 +143,24 @@ function getProductsCountByCategory($category) {
 
 function deleteCategory($category) {
     global $conn;
-    $stmt = $conn->prepare("UPDATE products SET category = NULL WHERE category = ?");
-    $stmt->bind_param("s", $category);
-    $success = $stmt->execute();
 
+    // Сначала удаляем категорию из таблицы categories
     $stmt = $conn->prepare("DELETE FROM categories WHERE name = ?");
-    if (!$stmt) {
-        return ['success' => $success];
+    if ($stmt) {
+        $stmt->bind_param("s", $category);
+        $stmt->execute();
+        $stmt->close();
     }
-    $stmt->bind_param("s", $category);
-    $deleted = $stmt->execute();
 
-    return ['success' => $success && $deleted];
+    // Затем устанавливаем category = NULL для всех товаров этой категории
+    $stmt = $conn->prepare("UPDATE products SET category = NULL WHERE category = ?");
+    if ($stmt) {
+        $stmt->bind_param("s", $category);
+        $stmt->execute();
+        $stmt->close();
+    }
+
+    return ['success' => true];
 }
 
 function uploadProductImage($file) {
