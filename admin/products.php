@@ -1,9 +1,4 @@
 <?php
-
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 /**
  * Управление товарами "Волшебная ЛАВКА"
  * Разработчик: АВВА © 2025
@@ -43,12 +38,6 @@ $use_categories = isset($_SESSION['use_categories']) ? $_SESSION['use_categories
 
 <section class="section">
     <div class="container">
-        <nav class="breadcrumbs">
-            <a href="/admin/index.php">Админ-панель</a>
-            <span class="separator">/</span>
-            <span class="current">Товары</span>
-        </nav>
-
         <h1 class="page-title">Управление товарами</h1>
 
         <?php if ($success): ?>
@@ -61,14 +50,6 @@ $use_categories = isset($_SESSION['use_categories']) ? $_SESSION['use_categories
 
         <!-- Панель управления категориями -->
         <div class="category-control-panel">
-            <div class="form-group">
-                <label class="checkbox-label">
-                    <input type="checkbox" id="use_categories" name="use_categories" value="1" 
-                           onchange="toggleCategories(this)" <?php echo $use_categories ? 'checked' : ''; ?>>
-                    Использовать категории
-                </label>
-            </div>
-            
             <a href="/admin/manage_category.php" class="btn btn-primary">
                 Управление категориями
             </a>
