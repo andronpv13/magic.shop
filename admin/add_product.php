@@ -88,15 +88,9 @@ $use_categories = isset($_SESSION['use_categories']) ? $_SESSION['use_categories
 <section class="section">
     <div class="container">
         <nav class="breadcrumbs">
-            <a href="/admin/index.php">Админ-панель</a>
-            <span class="separator">/</span>
-            <a href="/admin/products.php">Товары</a>
-            <span class="separator">/</span>
-            <span class="current">Добавление товара</span>
+            <a href="/admin/products.php">Управление товарами</a>
         </nav>
-
         <h1 class="page-title">Добавление нового товара</h1>
-
         <?php if ($success): ?>
             <div class="alert alert-success"><?php echo e($success); ?></div>
         <?php endif; ?>
