@@ -1282,10 +1282,6 @@ main {
     border-radius: var(--radius-lg);
     padding: var(--spacing-md);
     box-shadow: var(--shadow-medium);
-    max-height: calc(100vh - 250px);
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: var(--color-purple-bright) rgba(255, 255, 255, 0.05);
 }
 
 .basket-item {
@@ -1420,7 +1416,8 @@ main {
 
 .basket-summary-wrapper {
     position: sticky;
-    top: 100px;
+    top: calc(80px + var(--spacing-md));
+    z-index: 999;
 }
 
 .quantity-controls {
