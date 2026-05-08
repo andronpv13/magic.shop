@@ -159,7 +159,7 @@ function updateBasketCounts(count) {
 function updateBasketTotal(total) {
     const el = document.querySelector('.basket-total');
     if (el) {
-        el.textContent = 'Итого к оплате: ' + formatPrice(total);
+        el.textContent = 'К оплате: ' + formatPrice(total);
     }
 }
 
