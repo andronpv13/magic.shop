@@ -46,9 +46,9 @@ require_once '../includes/functions.php';
             <div class="basket-summary-wrapper">
                 <div class="basket-summary">
                     <div class="basket-summary-info">
-                        <!-- ✅ Здесь выводится то же количество, что и в шапке -->
+                        <p class="text">Итого:</p>
                         <p class="basket-count-text">Всего товаров: <span id="cart-page-count" class="highlight-text"><?php echo getBasketCount(); ?></span></p>
-                        <p class="basket-total">Итого к оплате: <?php echo formatPrice(getBasketTotal()); ?></p>
+                        <p class="basket-total">К оплате: <?php echo formatPrice(getBasketTotal()); ?></p>
                     </div>
                     <a href="/checkout.php" class="btn btn-primary btn-lg">Оформить заказ</a>
                 </div>
