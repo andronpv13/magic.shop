@@ -32,10 +32,16 @@ if (!isset($_SESSION['csrf_token'])) {
         <?php if (isLoggedIn()): ?>
             <?php if ($_SESSION['role'] === 'admin'): ?>
                 <a href="/admin/index.php" class="nav-link">Админка</a>
+                <a href="/admin/cab.php" class="nav-link">Личный кабинет</a>
+                <a href="/admin/edit_cab.php" class="nav-link">Редактировать профиль</a>
             <?php elseif ($_SESSION['role'] === 'moderator'): ?>
                 <a href="/moderator/index_md.php" class="nav-link">Модерация</a>
+                <a href="/moderator/cab_md.php" class="nav-link">Личный кабинет</a>
+                <a href="/moderator/edit_cab_md.php" class="nav-link">Редактировать профиль</a>
+            <?php else: ?>
+                <a href="/users/profile.php" class="nav-link">Личный кабинет</a>
+                <a href="/users/edit_profile.php" class="nav-link">Редактировать профиль</a>
             <?php endif; ?>
-            <a href="/users/profile.php" class="nav-link">Личный кабинет</a>
             <a href="/logout.php" class="nav-link">Выйти</a>
         <?php else: ?>
             <a href="/login.php" class="nav-link">Войти</a>
