@@ -56,7 +56,10 @@ if ($product_id) {
                 <?php
                 $imagePath = !empty($product['image']) ? 'product/' . $product['image'] : 'no_photo.png';
                 ?>
-                <img src="<?php echo getProductImage($product['image']); ?>" alt="<?php echo sanitize($product['name']); ?>">
+                <a href="shop.php?id=<?php echo $product['id']; ?>" class="product-image-link">
+                    <img src="<?php echo getProductImage($product['image']); ?>" alt="<?php echo sanitize($product['name']); ?>">
+                    <span class="image-overlay">Подробнее</span>
+                </a>
                 <div class="card-content">
                     <h3><?php echo sanitize($product['name']); ?></h3>
                     <p class="price"><?php echo number_format($product['price'], 0, '', ' '); ?> ₽</p>
