@@ -39,15 +39,16 @@ if ($product_id) {
     // Показываем каталог товаров
     $products = getProducts($category);
     ?>
-    <h1>Каталог товаров</h1>
-
-    <div class="category-filters">
-        <button class="category-btn <?php if (!$category) echo 'active'; ?>" data-category="">Все товары</button>
-        <?php foreach ($categories as $cat): ?>
-            <button class="category-btn <?php if ($category === $cat) echo 'active'; ?>" data-category="<?php echo $cat; ?>">
-                <?php echo sanitize($cat); ?>
-            </button>
-        <?php endforeach; ?>
+    <div class="shop-header">
+        <h1>Каталог товаров</h1>
+        <div class="category-filters">
+            <button class="category-btn <?php if (!$category) echo 'active'; ?>" data-category="">Все товары</button>
+            <?php foreach ($categories as $cat): ?>
+                <button class="category-btn <?php if ($category === $cat) echo 'active'; ?>" data-category="<?php echo $cat; ?>">
+                    <?php echo sanitize($cat); ?>
+                </button>
+            <?php endforeach; ?>
+        </div>
     </div>
 
     <div class="products-grid">
