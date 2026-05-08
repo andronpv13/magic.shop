@@ -4,10 +4,13 @@ require_once __DIR__ . '/config.php';
 // === Категории ===
 function getCategories() {
     global $conn;
-    $stmt = $conn->prepare("SELECT name AS category FROM categories ORDER BY name");
-    if (!$stmt) {
-        $stmt = $conn->prepare("SELECT DISTINCT category AS category FROM products WHERE category IS NOT NULL AND category != '' ORDER BY category");
-    }
+    // Получаем только категории, в которых есть активные товары
+    $stmt = $conn->prepare("SELECT DISTINCT p.category AS category
+                            FROM products p
+                            WHERE p.category IS NOT NULL
+                            AND p.category != ''
+                            AND p.active = 1
+                            ORDER BY p.category");
     $stmt->execute();
     $result = $stmt->get_result();
     $categories = [];
@@ -24,10 +27,10 @@ function getProducts($category = null, $limit = null) {
             FROM products p
             LEFT JOIN users u ON p.created_by = u.id
             WHERE p.active = 1";
-    
+
     if ($category) $sql .= " AND p.category = ?";
     if ($limit) $sql .= " LIMIT ?";
-    
+
     $stmt = $conn->prepare($sql);
     if ($category && $limit) {
         $stmt->bind_param("si", $category, $limit);
@@ -36,7 +39,7 @@ function getProducts($category = null, $limit = null) {
     } elseif ($limit) {
         $stmt->bind_param("i", $limit);
     }
-    
+
     $stmt->execute();
     return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 }
@@ -91,7 +94,7 @@ function registerUser($username, $email, $password) {
     $hash = password_hash($password, PASSWORD_DEFAULT);
     $stmt = $conn->prepare("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, 'customer')");
     $stmt->bind_param("sss", $username, $email, $hash);
-    
+
     if ($stmt->execute()) {
         $_SESSION['user_id'] = $conn->insert_id;
         $_SESSION['username'] = $username;
@@ -108,13 +111,13 @@ function createOrder($user_id, $items, $address = '', $comment = '') {
     try {
         $total = 0;
         foreach ($items as $item) $total += $item['price'] * $item['quantity'];
-        
+
         // ✅ ИСПРАВЛЕНО: Добавлены адрес и комментарий в запрос
         $stmt = $conn->prepare("INSERT INTO orders (user_id, total, delivery_address, comment, status) VALUES (?, ?, ?, ?, 'pending')");
         $stmt->bind_param("idss", $user_id, $total, $address, $comment);
         $stmt->execute();
         $order_id = $conn->insert_id;
-        
+
         foreach ($items as $item) {
             $stmt = $conn->prepare("INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)");
             $stmt->bind_param("iiid", $order_id, $item['id'], $item['quantity'], $item['price']);
@@ -197,7 +200,7 @@ function addToBasket($product_id, $quantity) {
     $product = getProductById($product_id);
     if (!$product) return false;
     if (!isset($_SESSION['basket'])) $_SESSION['basket'] = [];
-    
+
     $found = false;
     foreach ($_SESSION['basket'] as &$item) {
         if ($item['id'] == $product_id) {
@@ -208,10 +211,10 @@ function addToBasket($product_id, $quantity) {
     }
     if (!$found) {
         $_SESSION['basket'][] = [
-            'id' => $product['id'], 
+            'id' => $product['id'],
             'name' => $product['name'],
-            'price' => $product['price'], 
-            'image' => $product['image'], 
+            'price' => $product['price'],
+            'image' => $product['image'],
             'quantity' => $quantity
         ];
     }
@@ -267,34 +270,34 @@ function formatPrice($p) { return number_format((float)$p, 0, ',', ' ') . ' ₽'
 /**
  * Возвращает корректный путь к изображению товара.
  * Проверяет наличие файла на сервере. Если файл отсутствует или имя пустое — возвращает заглушку.
- * 
+ *
  * @param string $image_val Значение из базы данных (например 'product/image.jpg')
  * @return string Полный URL путь
  */
 function getProductImage($image_val) {
     $fallback = '/images/no_photo.png';
-    
+
     // 1. Если в базе пусто — сразу заглушка
     if (empty($image_val)) {
         return $fallback;
     }
-    
+
     // 2. Нормализуем путь (убираем лишние слеши)
     $path = ltrim($image_val, '/');
-    
+
     // Если в базе записано только имя файла, добавляем папку product/
     if (strpos($path, 'product/') === false) {
         $path = 'product/' . $path;
     }
-    
+
     // 3. Проверяем физическое наличие файла на сервере
     // __DIR__ указывает на папку includes/, поднимаемся на уровень выше к корню
     $full_server_path = __DIR__ . '/../images/' . $path;
-    
+
     if (file_exists($full_server_path)) {
         return '/images/' . $path;
     }
-    
+
     // 4. Файл потерян — возвращаем заглушку
     return $fallback;
 }
