@@ -40,14 +40,16 @@ if ($product_id) {
     $products = getProducts($category);
     ?>
     <div class="shop-header">
-        <h1>Каталог товаров</h1>
-        <div class="category-filters">
-            <button class="category-btn <?php if (!$category) echo 'active'; ?>" data-category="">Все товары</button>
-            <?php foreach ($categories as $cat): ?>
-                <button class="category-btn <?php if ($category === $cat) echo 'active'; ?>" data-category="<?php echo $cat; ?>">
-                    <?php echo sanitize($cat); ?>
-                </button>
-            <?php endforeach; ?>
+        <h1 style="text-align: center;">Каталог товаров</h1>
+        <div class="category-filter">
+            <select id="category-select" onchange="if (this.value) window.location.href='?category=' + this.value; else window.location.href='?';">
+                <option value="">Все товары</option>
+                <?php foreach ($categories as $cat): ?>
+                    <option value="<?php echo $cat; ?>" <?php if ($category === $cat) echo 'selected'; ?>>
+                        <?php echo sanitize($cat); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
         </div>
     </div>
 
