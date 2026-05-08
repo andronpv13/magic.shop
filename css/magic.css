@@ -96,6 +96,18 @@
     --transition-bounce: 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
+/* Скрытие стрелок (спиннеров) для поля ввода количества */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield; /* Для Firefox */
+    appearance: textfield;
+}
+
 /* --------------------------------------------------------------------------
    2. СБРОС СТИЛЕЙ И БАЗОВЫЕ НАСТРОЙКИ
    -------------------------------------------------------------------------- */
