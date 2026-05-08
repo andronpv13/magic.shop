@@ -1,4 +1,3 @@
---- css/magic.css
 /* ==========================================================================
    MAGIC.CSS — Яркая магическая тема для веб-приложения "Волшебная ЛАВКА"
    Полностью заменяет все предыдущие стили
@@ -515,6 +514,48 @@ main {
     flex-wrap: wrap;
 }
 
+/* Секции на главной странице */
+.new-products,
+.recent-reviews {
+    padding: var(--spacing-xxl) 0;
+    text-align: center;
+}
+
+.new-products h2,
+.recent-reviews h2 {
+    font-size: 2.5rem;
+    margin-bottom: var(--spacing-xl);
+    background: linear-gradient(135deg, var(--color-gold) 0%, var(--color-purple-light) 50%, var(--color-blue-sky) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 30px rgba(157, 78, 221, 0.5);
+}
+
+.reviews-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-xl);
+    padding: var(--spacing-xl) 0;
+    justify-content: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.review-card {
+    background: var(--gradient-card);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    transition: all var(--transition-normal);
+    box-shadow: var(--shadow-medium);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
 /* --------------------------------------------------------------------------
    7. КНОПКИ
    -------------------------------------------------------------------------- */
@@ -610,11 +651,15 @@ main {
 /* --------------------------------------------------------------------------
    8. КАРТОЧКИ ТОВАРОВ
    -------------------------------------------------------------------------- */
-.products-grid {
+.products-grid,
+.products-slider {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: var(--spacing-xl);
     padding: var(--spacing-xl) 0;
+    justify-content: center;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .product-card {
@@ -627,6 +672,43 @@ main {
     position: relative;
     overflow: hidden;
     box-shadow: var(--shadow-medium);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.product-card img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-md);
+    box-shadow: var(--shadow-soft);
+    transition: all var(--transition-normal);
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.card-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.btn-container {
+    display: flex;
+    gap: var(--spacing-sm);
+    justify-content: center;
+    width: 100%;
+    margin-top: var(--spacing-md);
+}
+
+.btn-container .btn {
+    flex: 0 0 auto;
+    min-width: 120px;
 }
 
 .product-card::before {
@@ -660,6 +742,9 @@ main {
     margin-bottom: var(--spacing-md);
     box-shadow: var(--shadow-soft);
     transition: all var(--transition-normal);
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .product-card:hover .product-image {
@@ -694,10 +779,12 @@ main {
     display: flex;
     gap: var(--spacing-sm);
     flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
 }
 
 .product-actions .btn {
-    flex: 1;
+    flex: 0 0 auto;
     min-width: 120px;
 }
 
@@ -1316,7 +1403,7 @@ footer {
     }
 
     .products-grid {
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        grid-template-columns: repeat(2, 1fr);
     }
 }
 
