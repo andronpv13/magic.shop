@@ -15,7 +15,7 @@ $admin_info = getAdminContactInfo();
     <div class="footer-section">
         <h3>О нас</h3>
         <p>Интернет-магазин "Волшебная ЛАВКА"</p>
-        <p>© 2025 Команда АВВА</p>
+        <p>&copy; 2025 Команда АВВА. Все права защищены.</p>
     </div>
     <div class="footer-section">
         <h3>Контакты</h3>
@@ -31,11 +31,10 @@ $admin_info = getAdminContactInfo();
         </div>
     </div>
 </div>
-<div class="footer-bottom">
-    <p>&copy; 2025 Волшебная ЛАВКА. Все права защищены.</p>
-</div>
 </footer>
+<script src="/js/main.js"></script>
 <script src="/js/basket.js"></script>
+<script src="/js/detail.js"></script>
 <script src="/js/validation.js"></script>
 </body>
 </html>
