@@ -335,6 +335,7 @@ header {
     justify-content: space-between;
     align-items: center;
     gap: var(--spacing-lg);
+    flex-wrap: wrap;
 }
 
 .logo {
@@ -1386,40 +1387,106 @@ footer {
 /* --------------------------------------------------------------------------
    16. АДАПТИВНОСТЬ
    -------------------------------------------------------------------------- */
+
+/* Кнопка гамбургер (скрыта по умолчанию) */
+.hamburger-menu {
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 30px;
+    height: 25px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    z-index: 1001;
+}
+
+.hamburger-menu span {
+    display: block;
+    width: 100%;
+    height: 3px;
+    background: var(--gradient-magic-primary);
+    border-radius: 3px;
+    transition: all var(--transition-normal);
+}
+
+.hamburger-menu.active span:nth-child(1) {
+    transform: rotate(45deg) translate(6px, 6px);
+}
+
+.hamburger-menu.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger-menu.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -8px);
+}
+
 @media (max-width: 1024px) {
     .navbar {
-        flex-wrap: wrap;
+        position: relative;
+    }
+
+    .hamburger-menu {
+        display: flex;
+        order: 2;
+    }
+
+    .basket-icon {
+        order: 3;
     }
 
     .nav-links {
-        order: 3;
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: rgba(26, 26, 46, 0.98);
+        backdrop-filter: blur(10px);
+        flex-direction: column;
+        padding: var(--spacing-lg);
+        gap: var(--spacing-md);
+        box-shadow: var(--shadow-strong), var(--glow-purple);
+        border-top: 2px solid var(--color-purple-bright);
+        animation: slideIn 0.3s ease-out;
+        order: 4;
         width: 100%;
-        justify-content: center;
-        margin-top: var(--spacing-md);
+    }
+
+    .nav-links.active {
+        display: flex;
+    }
+
+    .nav-link {
+        text-align: center;
+        padding: var(--spacing-md);
     }
 
     .hero-title {
         font-size: 2.5rem;
     }
 
-    .products-grid {
+    .products-grid,
+    .reviews-grid {
         grid-template-columns: repeat(2, 1fr);
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 700px) {
     :root {
         font-size: 14px;
     }
 
     .navbar {
-        flex-direction: column;
-        gap: var(--spacing-md);
+        flex-direction: row;
+        justify-content: space-between;
     }
 
     .nav-links {
-        flex-direction: column;
-        gap: var(--spacing-sm);
+        left: 0;
+        right: 0;
     }
 
     .hero-title {
@@ -1435,7 +1502,8 @@ footer {
         align-items: center;
     }
 
-    .products-grid {
+    .products-grid,
+    .reviews-grid {
         grid-template-columns: 1fr;
     }
 
@@ -1479,6 +1547,11 @@ footer {
 
     .form-container {
         padding: var(--spacing-lg);
+    }
+
+    .products-grid,
+    .reviews-grid {
+        grid-template-columns: 1fr;
     }
 }
 
