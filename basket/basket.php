@@ -42,15 +42,16 @@ require_once '../includes/functions.php';
                 <?php endforeach; ?>
             </div>
 
-        <!-- БЛОК ИТОГО -->
-        <div class="basket-summary-wrapper">
-            <div class="basket-summary">
-                <div class="basket-summary-info">
-                    <!-- ✅ Здесь выводится то же количество, что и в шапке -->
-                    <p class="basket-count-text">Всего товаров: <span id="cart-page-count" class="highlight-text"><?php echo getBasketCount(); ?></span></p>
-                    <p class="basket-total">Итого к оплате: <?php echo formatPrice(getBasketTotal()); ?></p>
+            <!-- БЛОК ИТОГО -->
+            <div class="basket-summary-wrapper">
+                <div class="basket-summary">
+                    <div class="basket-summary-info">
+                        <!-- ✅ Здесь выводится то же количество, что и в шапке -->
+                        <p class="basket-count-text">Всего товаров: <span id="cart-page-count" class="highlight-text"><?php echo getBasketCount(); ?></span></p>
+                        <p class="basket-total">Итого к оплате: <?php echo formatPrice(getBasketTotal()); ?></p>
+                    </div>
+                    <a href="/checkout.php" class="btn btn-primary btn-lg">Оформить заказ</a>
                 </div>
-                <a href="/checkout.php" class="btn btn-primary btn-lg">Оформить заказ</a>
             </div>
         </div>
     <?php endif; ?>
