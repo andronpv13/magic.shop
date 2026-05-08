@@ -94,10 +94,10 @@ $stats = getAdminStats();
                 <p>Просмотр и удаление отзывов</p>
             </a>
             
-            <a href="cab.php" class="admin-nav-card">
+            <a href="settings.php" class="admin-nav-card">
                 <span class="admin-nav-icon">⚙️</span>
                 <h3>Настройки сайта</h3>
-                <p>Изменение профиля, оформление сайта</p>
+                <p>Изменение оформления сайта</p>
             </a>
         </div>
     </div>
