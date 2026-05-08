@@ -674,7 +674,64 @@ main {
 }
 
 /* --------------------------------------------------------------------------
-   8. КАРТОЧКИ ТОВАРОВ
+   8. КАТАЛОГ ТОВАРОВ И ФИЛЬТРЫ
+   -------------------------------------------------------------------------- */
+.shop-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+    flex-wrap: wrap;
+}
+
+.shop-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--color-gold) 0%, var(--color-purple-light) 50%, var(--color-blue-sky) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 30px rgba(157, 78, 221, 0.5);
+    margin: 0;
+}
+
+.category-filters {
+    display: flex;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.category-btn {
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--gradient-card);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-md);
+    color: var(--color-white);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    white-space: nowrap;
+}
+
+.category-btn:hover {
+    background: var(--gradient-magic-primary);
+    border-color: var(--color-purple-bright);
+    box-shadow: var(--glow-purple);
+    transform: translateY(-2px);
+}
+
+.category-btn.active {
+    background: var(--gradient-magic-primary);
+    border-color: var(--color-gold);
+    box-shadow: var(--glow-gold);
+}
+
+/* --------------------------------------------------------------------------
+   8.1. КАРТОЧКИ ТОВАРОВ
    -------------------------------------------------------------------------- */
 .products-grid,
 .products-slider {
@@ -2101,6 +2158,20 @@ footer {
     .hero-buttons {
         flex-direction: column;
         align-items: center;
+    }
+
+    /* Фильтры и заголовок на маленьких экранах - по центру */
+    .shop-header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .shop-header h1 {
+        margin-bottom: var(--spacing-md);
+    }
+
+    .category-filters {
+        justify-content: center;
     }
 
     .products-grid,
