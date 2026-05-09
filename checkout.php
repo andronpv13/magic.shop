@@ -27,9 +27,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($delivery_address) || strlen($delivery_address) < 10) {
         $error = 'Укажите полный адрес доставки';
     }
-    elseif (empty($delivery_address)) {
-        $error = 'Укажите адрес доставки';
-    }
     else {
         $result = createOrder($_SESSION['user_id'], $cart, $delivery_address, $comment);
         if ($result['success']) {
