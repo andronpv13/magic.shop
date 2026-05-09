@@ -1,14 +1,15 @@
 <?php
 $page_title = 'Детали заказа';
-require_once '../includes/header.php';
-require_once '../includes/functions.php';
+require_once __DIR__ . '/../includes/config.php';
+require_once __DIR__ . '/../includes/header.php';
+require_once __DIR__ . '/../includes/functions.php';
 
 if (!isLoggedIn()) { header('Location: /login.php'); exit; }
 
 $order_id = isset($_GET['order_id']) ? (int)$_GET['order_id'] : 0;
 if (!$order_id) { header('Location: /users/orders.php'); exit; }
 $order = getOrderDetails($order_id, $_SESSION['user_id']);
-if (!$order) { echo '<div class="container section"><p class="empty-state">Заказ не найден</p></div>'; require_once '../includes/footer.php'; exit; }
+if (!$order) { echo '<div class="container section"><p class="empty-state">Заказ не найден</p></div>'; require_once __DIR__ . '/../includes/footer.php'; exit; }
 ?>
 <section class="section"><div class="container">
     <nav class="breadcrumbs"><a href="/users/profile.php">Мой профиль</a><span class="separator">/</span><span class="current">Заказ #<?php echo $order_id; ?></span></nav>
@@ -35,4 +36,4 @@ if (!$order) { echo '<div class="container section"><p class="empty-state">За�
     </div>
     <a href="/users/orders.php" class="back-link">← Назад к заказам</a>
 </div></section>
-<?php require_once '../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../includes/footer.php'; ?>
