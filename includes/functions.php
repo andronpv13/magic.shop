@@ -65,6 +65,48 @@ function getUserById($id) {
     return $stmt->get_result()->fetch_assoc();
 }
 
+function getUserByEmail($email) {
+    global $conn;
+    $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    return $stmt->get_result()->fetch_assoc();
+}
+
+function updateUserProfile($user_id, $name, $email) {
+    global $conn;
+    // Разделяем имя на first_name и last_name если есть пробел
+    $name_parts = explode(' ', trim($name), 2);
+    $first_name = $name_parts[0] ?? '';
+    $last_name = $name_parts[1] ?? '';
+
+    $stmt = $conn->prepare("UPDATE users SET first_name = ?, last_name = ?, email = ? WHERE id = ?");
+    $stmt->bind_param("sssi", $first_name, $last_name, $email, $user_id);
+
+    if ($stmt->execute()) {
+        return ['success' => true];
+    }
+    return ['success' => false, 'message' => 'Ошибка при обновлении профиля'];
+}
+
+function changeUserPassword($user_id, $current_password, $new_password) {
+    global $conn;
+    $user = getUserById($user_id);
+
+    if (!$user || !password_verify($current_password, $user['password'])) {
+        return ['success' => false, 'message' => 'Неверный текущий пароль'];
+    }
+
+    $hash = password_hash($new_password, PASSWORD_DEFAULT);
+    $stmt = $conn->prepare("UPDATE users SET password = ? WHERE id = ?");
+    $stmt->bind_param("si", $hash, $user_id);
+
+    if ($stmt->execute()) {
+        return ['success' => true];
+    }
+    return ['success' => false, 'message' => 'Ошибка при смене пароля'];
+}
+
 function getCurrentUser() {
     if (!isLoggedIn()) return null;
     return getUserById($_SESSION['user_id']);
