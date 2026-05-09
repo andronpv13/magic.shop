@@ -14,15 +14,19 @@ requireAdmin();
 $success = '';
 $error = '';
 
-// Обработка удаления товара
-if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
-    $product_id = (int)$_GET['delete'];
-    $result = deleteProduct($product_id);
-    
-    if ($result['success']) {
-        $success = $result['message'];
+// Обработка удаления товара (только POST с CSRF)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete'])) {
+    if (!csrf_verify()) {
+        $error = 'Ошибка безопасности (CSRF)';
     } else {
-        $error = $result['message'];
+        $product_id = (int)$_POST['delete'];
+        $result = deleteProduct($product_id);
+
+        if ($result['success']) {
+            $success = $result['message'];
+        } else {
+            $error = $result['message'];
+        }
     }
 }
 
@@ -43,7 +47,7 @@ $use_categories = isset($_SESSION['use_categories']) ? $_SESSION['use_categories
         <?php if ($success): ?>
             <div class="alert alert-success"><?php echo e($success); ?></div>
         <?php endif; ?>
-        
+
         <?php if ($error): ?>
             <div class="alert alert-error"><?php echo e($error); ?></div>
         <?php endif; ?>
@@ -53,7 +57,7 @@ $use_categories = isset($_SESSION['use_categories']) ? $_SESSION['use_categories
             <a href="/admin/manage_category.php" class="btn btn-primary">
                 Управление категориями
             </a>
-            
+
             <a href="/admin/add_product.php" class="btn btn-primary">
                 Добавить товар
             </a>
@@ -62,7 +66,7 @@ $use_categories = isset($_SESSION['use_categories']) ? $_SESSION['use_categories
         <!-- Список товаров -->
         <div class="products-list">
             <h2>Список товаров</h2>
-            
+
             <?php if (!empty($products)): ?>
                 <div class="table-container">
                     <table class="data-table">
@@ -113,10 +117,11 @@ $use_categories = isset($_SESSION['use_categories']) ? $_SESSION['use_categories
                                             <a href="/admin/edit_product.php?id=<?php echo $product['id']; ?>" class="btn btn-sm btn-edit">
                                                 Редактировать
                                             </a>
-                                            <a href="/admin/products.php?delete=<?php echo $product['id']; ?>" class="btn btn-sm btn-delete"
-                                               onclick="return confirm('Вы уверены, что хотите удалить этот товар?');">
-                                                Удалить
-                                            </a>
+                                            <form method="POST" style="display: inline;" onsubmit="return confirm('Вы уверены, что хотите удалить этот товар?');">
+                                                <input type="hidden" name="delete" value="<?php echo $product['id']; ?>">
+                                                <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                                <button type="submit" class="btn btn-sm btn-delete">Удалить</button>
+                                            </form>
                                         </div>
                                     </td>
                                 </tr>
