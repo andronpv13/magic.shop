@@ -513,7 +513,12 @@ function getOrderDetailsAdmin($id) {
     $s = $conn->prepare("SELECT oi.quantity, oi.price, p.name as product_name FROM order_items oi JOIN products p ON oi.product_id = p.id WHERE oi.order_id = ?");
     $s->bind_param("i", $id);
     $s->execute();
-    $o['items'] = $s->get_result()->fetch_all(MYSQLI_ASSOC);
+    $items = $s->get_result()->fetch_all(MYSQLI_ASSOC);
+    // Добавляем вычисление subtotal для каждого элемента
+    foreach ($items as &$item) {
+        $item['subtotal'] = $item['quantity'] * $item['price'];
+    }
+    $o['items'] = $items;
     return $o;
 }
 
