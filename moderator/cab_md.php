@@ -1,7 +1,8 @@
 <?php
 $page_title = 'Профиль модератора';
-require_once '../includes/header.php';
-require_once '../includes/functions_md.php';
+require_once __DIR__ . '/../includes/config.php';
+require_once __DIR__ . '/../includes/header.php';
+require_once __DIR__ . '/../includes/functions_md.php';
 requireModerator();
 $success = $error = '';
 $current_user = getCurrentUser();
@@ -37,4 +38,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     </form>
     <a href="/moderator/index_md.php" class="back-link">← Назад</a>
 </div></section>
-<?php require_once '../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../includes/footer.php'; ?>
