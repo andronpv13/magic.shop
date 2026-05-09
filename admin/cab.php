@@ -1,7 +1,8 @@
 <?php
 $page_title = 'Настройки администратора';
-require_once '../includes/header.php';
-require_once '../includes/functions_adm.php';
+require_once __DIR__ . '/../includes/config.php';
+require_once __DIR__ . '/../includes/header.php';
+require_once __DIR__ . '/../includes/functions_adm.php';
 requireRole('admin');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
