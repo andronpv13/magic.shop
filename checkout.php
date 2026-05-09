@@ -19,15 +19,17 @@ $address_parts = [];
    if (!empty($current_user['apartment'])) $address_parts[] = 'кв. ' . $current_user['apartment'];
    $default_address = implode(', ', $address_parts);
    $address_value = $_POST['delivery_address'] ?? $default_address;
-/* Валидация адреса доставки. Убедимся, что пользователь ввел достаточно информации для доставки. Если адрес слишком короткий, это может быть ошибкой, и мы попросим пользователя указать более полный адрес.*/
-   if (empty($delivery_address) || strlen($delivery_address) < 10) {
-       $error = 'Укажите полный адрес доставки';
-   }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $delivery_address = trim($_POST['delivery_address'] ?? '');
     $comment = trim($_POST['comment'] ?? '');
-    if (empty($delivery_address)) $error = 'Укажите адрес доставки';
+    /* Валидация адреса доставки. Убедимся, что пользователь ввел достаточно информации для доставки. Если адрес слишком короткий, это может быть ошибкой, и мы попросим пользователя указать более полный адрес.*/
+    if (empty($delivery_address) || strlen($delivery_address) < 10) {
+        $error = 'Укажите полный адрес доставки';
+    }
+    elseif (empty($delivery_address)) {
+        $error = 'Укажите адрес доставки';
+    }
     else {
         $result = createOrder($_SESSION['user_id'], $cart, $delivery_address, $comment);
         if ($result['success']) {
