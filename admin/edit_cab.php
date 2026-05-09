@@ -11,6 +11,7 @@ requireAdmin();
 $current_user = getCurrentUser();
 $success = '';
 $error = '';
+global $conn;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
@@ -69,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <form method="POST" class="auth-form">
             <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
-            
+
             <div class="form-group">
                 <label>Логин</label>
                 <input type="text" name="username" value="<?php echo e($current_user['username']); ?>" required>
