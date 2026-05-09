@@ -1,6 +1,7 @@
 <?php
-require_once '../includes/header.php';
-require_once '../includes/functions.php';
+require_once __DIR__ . '/../includes/config.php';
+require_once __DIR__ . '/../includes/header.php';
+require_once __DIR__ . '/../includes/functions.php';
 if (!isLoggedIn()) { header('Location: /login.php'); exit; }
 $page_title = 'Мои заказы';
 $orders = getUserOrders($_SESSION['user_id']);
@@ -31,4 +32,4 @@ $orders = getUserOrders($_SESSION['user_id']);
     <div class="empty-state"><div class="empty-cart-icon">📦</div><h2>У вас пока нет заказов</h2><a href="/shop.php" class="btn btn-outline">Перейти в каталог</a></div>
     <?php endif; ?>
 </div></section>
-<?php require_once '../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../includes/footer.php'; ?>
