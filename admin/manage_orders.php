@@ -65,7 +65,7 @@ $orders = getAllOrders($filter);
                                     <?php echo e($order['username'] ?? 'Гость'); ?><br>
                                     <small><?php echo e($order['email'] ?? ''); ?></small>
                                 </td>
-                                <td><?php echo number_format($order['total_amount'], 0, ',', ' '); ?> ₽</td>
+                                <td><?php echo number_format($order['total'], 0, ',', ' '); ?> ₽</td>
                                 <td>
                                     <span class="status-badge status-<?php echo $order['status']; ?>">
                                         <?php
