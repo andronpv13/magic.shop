@@ -37,7 +37,7 @@ function addProduct($n, $d, $p, $cat, $st, $nw, $img, $cb) {
         ensureCategoryExists($cat);
     }
     $stmt = $conn->prepare("INSERT INTO products (name,description,price,category,stock,is_new,image,created_by) VALUES (?,?,?,?,?,?,?,?)");
-    $stmt->bind_param("ssdsisii", $n, $d, $p, $cat, $st, $nw, $img, $cb);
+    $stmt->bind_param("ssdsiisi", $n, $d, $p, $cat, $st, $nw, $img, $cb);
     return ['success' => $stmt->execute()];
 }
 
@@ -47,7 +47,7 @@ function editProduct($id, $n, $d, $p, $cat, $st, $nw, $img) {
         ensureCategoryExists($cat);
     }
     $stmt = $conn->prepare("UPDATE products SET name=?,description=?,price=?,category=?,stock=?,is_new=?,image=? WHERE id=?");
-    $stmt->bind_param("ssdsisii", $n, $d, $p, $cat, $st, $nw, $img, $id);
+    $stmt->bind_param("ssdsiisi", $n, $d, $p, $cat, $st, $nw, $img, $id);
     return ['success' => $stmt->execute()];
 }
 
