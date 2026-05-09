@@ -24,4 +24,4 @@ $admin_info = getAdminContactInfo();
     </form>
     <a href="/admin/index.php" class="back-link">← Назад</a>
 </div></section>
-<?php require_once '../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../includes/footer.php'; ?>
