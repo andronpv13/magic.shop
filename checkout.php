@@ -1,7 +1,8 @@
 <?php
 $page_title = 'Оформление заказа';
-require_once 'includes/header.php';
-require_once 'includes/functions.php';
+require_once __DIR__ . '/includes/config.php';
+require_once __DIR__ . '/includes/header.php';
+require_once __DIR__ . '/includes/functions.php';
 
 if (!isLoggedIn()) { header('Location: /login.php'); exit; }
 
@@ -65,4 +66,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
     <a href="/basket/basket.php" class="back-link">← Вернуться в корзину</a>
 </div></section>
-<?php require_once 'includes/footer.php'; ?>
+<?php require_once __DIR__ . '/includes/footer.php'; ?>
