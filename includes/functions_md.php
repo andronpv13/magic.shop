@@ -40,6 +40,7 @@ function editProductModerator($id,$n,$d,$p,$cat,$st,$nw,$img,$uid) {
     return editProduct($id,$n,$d,$p,$cat,$st,$nw,$img);
 }
 function deleteProductModerator($pid,$uid) {
+    if(!csrf_verify()) return ['success'=>false,'message'=>'Ошибка безопасности (CSRF)'];
     if(!isProductOwner($pid,$uid)) return ['success'=>false,'message'=>'Нет прав'];
     return deleteProduct($pid);
 }
