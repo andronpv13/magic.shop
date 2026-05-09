@@ -4,10 +4,28 @@ require_once __DIR__ . '/functions.php';
 
 function getModeratorStats($uid) {
     global $conn;
+
+    // Продукты: COUNT с подготовленным выражением
+    $stmt = $conn->prepare("SELECT COUNT(*) FROM products WHERE created_by=? AND active=1");
+    $stmt->bind_param("i", $uid);
+    $stmt->execute();
+    $products = $stmt->get_result()->fetch_row()[0];
+    $stmt->close();
+
+    // Заказы: общее количество (без фильтрации по uid, поэтому prepare не нужен)
+    $orders = $conn->query("SELECT COUNT(*) FROM orders")->fetch_row()[0];
+
+    // Общая стоимость: SUM с подготовленным выражением
+    $stmt2 = $conn->prepare("SELECT COALESCE(SUM(price*stock),0) FROM products WHERE created_by=?");
+    $stmt2->bind_param("i", $uid);
+    $stmt2->execute();
+    $total_value = $stmt2->get_result()->fetch_row()[0];
+    $stmt2->close();
+
     return [
-        'products' => $conn->query("SELECT COUNT(*) FROM products WHERE created_by=$uid AND active=1")->fetch_row()[0],
-        'orders' => $conn->query("SELECT COUNT(*) FROM orders")->fetch_row()[0],
-        'total_value' => $conn->query("SELECT COALESCE(SUM(price*stock),0) FROM products WHERE created_by=$uid")->fetch_row()[0]
+        'products' => $products,
+        'orders' => $orders,
+        'total_value' => $total_value
     ];
 }
 function getModeratorProducts($uid) {
