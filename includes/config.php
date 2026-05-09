@@ -2,10 +2,29 @@
 /**
  * Базовая конфигурация проекта "Волшебная ЛАВКА"
  */
-$host = 'localhost';
-$db_name = 'shop_db';
-$db_user = 'root';
-$db_pass = 'Andronpv13'; // Измените на ваш пароль
+
+// Загрузка переменных окружения из файла .env
+$env_file = dirname(__DIR__) . '/includes/config/.env';
+if (file_exists($env_file)) {
+    $env_lines = file($env_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($env_lines as $line) {
+        if (strpos($line, '=') !== false && strpos($line, '#') !== 0) {
+            list($key, $value) = explode('=', $line, 2);
+            putenv(trim($key) . '=' . trim($value));
+        }
+    }
+}
+
+$host = getenv('DB_HOST') ?: '';
+$db_name = getenv('DB_NAME') ?: '';
+$db_user = getenv('DB_USER') ?: '';
+$db_pass = getenv('DB_PASS') ?: '';
+$app_env = getenv('APP_ENV') ?: '';
+
+// Проверка наличия пароля БД
+if (empty($db_pass)) {
+    die('Error: Database password is not set. Please configure .env file.');
+}
 
 ini_set('session.cookie_httponly', 1);
 ini_set('session.cookie_samesite', 'Strict');
@@ -46,7 +65,14 @@ function csrf_verify() {
 }
 
 error_reporting(E_ALL);
-ini_set('display_errors', 1); // На продакшене поставить 0
+
+// Отключаем отображение ошибок в production режиме
+if ($app_env === 'production') {
+    ini_set('display_errors', 0);
+    ini_set('log_errors', 1);
+} else {
+    ini_set('display_errors', 1);
+}
 
 $conn = new mysqli($host, $db_user, $db_pass, $db_name);
 if ($conn->connect_error) {
@@ -75,6 +101,10 @@ function regenerateSessionId() {
     session_regenerate_id(true);
     $_SESSION['last_regeneration'] = time();
 }
-if (!isset($_SESSION['last_regeneration']) || time() - $_SESSION['last_regeneration'] > 1800) {
+
+// Константа для интервала регенерации сессии (30 минут)
+define('SESSION_REGENERATION_INTERVAL', 1800);
+
+if (!isset($_SESSION['last_regeneration']) || time() - $_SESSION['last_regeneration'] > SESSION_REGENERATION_INTERVAL) {
     regenerateSessionId();
 }
