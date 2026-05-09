@@ -5,6 +5,7 @@ require_once '../includes/functions_md.php';
 requireModerator();
 $success = $error = '';
 $current_user = getCurrentUser();
+global $conn;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     $fn = trim($_POST['first_name'] ?? ''); $ln = trim($_POST['last_name'] ?? '');
