@@ -1,6 +1,7 @@
 <?php
-require_once '../includes/header.php';
-require_once '../includes/functions.php';
+require_once __DIR__ . '/../includes/config.php';
+require_once __DIR__ . '/../includes/header.php';
+require_once __DIR__ . '/../includes/functions.php';
 ?>
 <div class="basket-wrapper">
     <h1 class="page-title">Корзина</h1>
@@ -56,4 +57,4 @@ require_once '../includes/functions.php';
         </div>
     <?php endif; ?>
 </div>
-<?php require_once '../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../includes/footer.php'; ?>
