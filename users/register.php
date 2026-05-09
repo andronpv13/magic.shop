@@ -4,8 +4,8 @@
 * Разработчик: АВВА © 2025
 */
 $page_title = 'Регистрация';
-require_once '../includes/config.php';
-require_once '../includes/functions.php';
+require_once __DIR__ . '/../includes/config.php';
+require_once __DIR__ . '/../includes/functions.php';
 
 if (isLoggedIn()) {
     header("Location: /index.php");
@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-require_once '../includes/header.php';
+require_once __DIR__ . '/../includes/header.php';
 ?>
 
 <section class="section">
@@ -63,7 +63,7 @@ require_once '../includes/header.php';
                     <div class="form-row">
                         <div class="form-group">
                             <label for="username">Логин</label>
-                            <input type="text" id="username" name="username" class="form-control" 
+                            <input type="text" id="username" name="username" class="form-control"
                                    value="<?php echo e($_POST['username'] ?? ''); ?>" required>
                             <small id="username-feedback" class="feedback-message"></small>
                         </div>
@@ -107,10 +107,10 @@ require_once '../includes/header.php';
     .form-row .form-group { flex: 1; }
     .feedback-message.valid { color: #32CD32; }
     .feedback-message.invalid { color: #DC143C; }
-    
+
     @media (max-width: 600px) {
         .form-row { flex-direction: column; gap: 0; }
     }
 </style>
 
-<?php require_once '../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../includes/footer.php'; ?>
