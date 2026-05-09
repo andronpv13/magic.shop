@@ -1,6 +1,7 @@
 <?php
-require_once '../includes/header.php';
-require_once '../includes/functions.php';
+require_once __DIR__ . '/../includes/config.php';
+require_once __DIR__ . '/../includes/header.php';
+require_once __DIR__ . '/../includes/functions.php';
 
 if (!isLoggedIn()) {
     header('Location: /login.php');
@@ -39,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($username)) $errors[] = 'Введите логин';
     if (empty($email)) $errors[] = 'Введите email';
     elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = 'Некорректный Email';
-    
+
     if (!empty($password)) {
         if ($password !== $password_confirm) $errors[] = 'Пароли не совпадают';
         if (strlen($password) < 6) $errors[] = 'Пароль минимум 6 символов';
@@ -107,11 +108,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <form method="POST" class="auth-form">
                     <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
-                    
+
                     <h3>Основные данные</h3>
                     <div class="form-group"><label>Логин</label><input type="text" name="username" value="<?php echo e($current_user['username']); ?>" required></div>
                     <div class="form-group"><label>Email</label><input type="email" name="email" value="<?php echo e($current_user['email']); ?>" required></div>
-                    
+
                     <div class="form-row">
                         <div class="form-group"><label>Имя</label><input type="text" name="first_name" value="<?php echo e($current_user['first_name'] ?? ''); ?>"></div>
                         <div class="form-group"><label>Фамилия</label><input type="text" name="last_name" value="<?php echo e($current_user['last_name'] ?? ''); ?>"></div>
@@ -141,4 +142,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 </section>
-<?php require_once '../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../includes/footer.php'; ?>
