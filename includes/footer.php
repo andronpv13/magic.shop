@@ -1,7 +1,4 @@
 <?php
-require_once __DIR__ . '/config.php';
-require_once __DIR__ . '/functions.php';
-
 // Проверяем, загрузилась ли функция, на случай если файл вызван напрямую
 if (!function_exists('getAdminContactInfo')) {
     function getAdminContactInfo() { return ['email' => '', 'phone' => '']; }
