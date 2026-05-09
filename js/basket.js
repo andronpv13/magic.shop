@@ -12,7 +12,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
             fetch('/basket/remove_basket.php', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRF-TOKEN': getCsrf()
+                },
                 body: `product_id=${productId}&csrf_token=${getCsrf()}`
             })
             .then(res => res.json())
@@ -45,7 +48,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
             fetch('/basket/add_basket.php', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRF-TOKEN': getCsrf()
+                },
                 body: `product_id=${productId}&quantity=${quantity}&csrf_token=${getCsrf()}`
             })
             .then(res => res.json())
@@ -106,7 +112,10 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateQuantity(productId, quantity) {
         fetch('/basket/update_basket.php', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRF-TOKEN': getCsrf()
+            },
             body: `product_id=${productId}&quantity=${quantity}&csrf_token=${getCsrf()}`
         })
         .then(res => res.json())
