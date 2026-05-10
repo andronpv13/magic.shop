@@ -34,16 +34,53 @@ function getModeratorProducts($uid) {
 function isProductOwner($pid,$uid) {
     global $conn; $s=$conn->prepare("SELECT id FROM products WHERE id=? AND created_by=?"); $s->bind_param("ii",$pid,$uid); $s->execute(); return $s->get_result()->num_rows>0;
 }
-function addProductModerator($n,$d,$p,$cat,$st,$nw,$img,$cb) { return addProduct($n,$d,$p,$cat,$st,$nw,$img,$cb); }
+function addProductModerator($n,$d,$p,$cat,$st,$nw,$img,$cb) {
+    // Проверка прав модератора
+    if (!isLoggedIn() || !in_array($_SESSION['role'], ['moderator', 'admin'])) {
+        return ['success' => false, 'message' => 'Недостаточно прав для добавления товара'];
+    }
+    return addProduct($n,$d,$p,$cat,$st,$nw,$img,$cb);
+}
+
 function editProductModerator($id,$n,$d,$p,$cat,$st,$nw,$img,$uid) {
+    // Проверка прав модератора
+    if (!isLoggedIn() || !in_array($_SESSION['role'], ['moderator', 'admin'])) {
+        return ['success' => false, 'message' => 'Недостаточно прав для редактирования товара'];
+    }
     if(!isProductOwner($id,$uid)) return ['success'=>false,'message'=>'Нет прав'];
     return editProduct($id,$n,$d,$p,$cat,$st,$nw,$img);
 }
+
 function deleteProductModerator($pid,$uid) {
+    // Проверка прав модератора
+    if (!isLoggedIn() || !in_array($_SESSION['role'], ['moderator', 'admin'])) {
+        return ['success' => false, 'message' => 'Недостаточно прав для удаления товара'];
+    }
     if(!csrf_verify()) return ['success'=>false,'message'=>'Ошибка безопасности (CSRF)'];
     if(!isProductOwner($pid,$uid)) return ['success'=>false,'message'=>'Нет прав'];
     return deleteProduct($pid);
 }
-function getAllOrdersModerator($s=null) { return getAllOrders($s); }
-function getOrderDetailsModerator($id) { return getOrderDetailsAdmin($id); }
-function updateOrderStatusModerator($id,$st) { return updateOrderStatusAdmin($id,$st); }
+
+function getAllOrdersModerator($s=null) {
+    // Проверка прав модератора
+    if (!isLoggedIn() || !in_array($_SESSION['role'], ['moderator', 'admin'])) {
+        return [];
+    }
+    return getAllOrders($s);
+}
+
+function getOrderDetailsModerator($id) {
+    // Проверка прав модератора
+    if (!isLoggedIn() || !in_array($_SESSION['role'], ['moderator', 'admin'])) {
+        return false;
+    }
+    return getOrderDetailsAdmin($id);
+}
+
+function updateOrderStatusModerator($id,$st) {
+    // Проверка прав модератора
+    if (!isLoggedIn() || !in_array($_SESSION['role'], ['moderator', 'admin'])) {
+        return ['success' => false, 'message' => 'Недостаточно прав для изменения статуса заказа'];
+    }
+    return updateOrderStatusAdmin($id,$st);
+}
