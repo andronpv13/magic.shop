@@ -16,29 +16,35 @@ $message = '';
 $msgType = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = trim($_POST['username'] ?? '');
-    $email = trim($_POST['email'] ?? '');
-    $password = $_POST['password'] ?? '';
-    $confirm_password = $_POST['confirm_password'] ?? '';
-
-    if (empty($username) || empty($password) || empty($email)) {
-        $message = "Все поля обязательны для заполнения.";
-        $msgType = 'error';
-    } elseif ($password !== $confirm_password) {
-        $message = "Пароли не совпадают.";
-        $msgType = 'error';
-    } elseif (strlen($password) < 6) {
-        $message = "Пароль должен быть не менее 6 символов.";
+    // Проверка CSRF токена
+    if (!csrf_verify()) {
+        $message = "Ошибка безопасности (CSRF).";
         $msgType = 'error';
     } else {
-        $result = registerUser($username, $email, $password);
-        if ($result['success']) {
-            $_SESSION['just_registered'] = true;
-            header("Location: /users/edit_profile.php");
-            exit;
-        } else {
-            $message = $result['message'];
+        $username = trim($_POST['username'] ?? '');
+        $email = trim($_POST['email'] ?? '');
+        $password = $_POST['password'] ?? '';
+        $confirm_password = $_POST['confirm_password'] ?? '';
+
+        if (empty($username) || empty($password) || empty($email)) {
+            $message = "Все поля обязательны для заполнения.";
             $msgType = 'error';
+        } elseif ($password !== $confirm_password) {
+            $message = "Пароли не совпадают.";
+            $msgType = 'error';
+        } elseif (strlen($password) < 6) {
+            $message = "Пароль должен быть не менее 6 символов.";
+            $msgType = 'error';
+        } else {
+            $result = registerUser($username, $email, $password);
+            if ($result['success']) {
+                $_SESSION['just_registered'] = true;
+                header("Location: /users/edit_profile.php");
+                exit;
+            } else {
+                $message = $result['message'];
+                $msgType = 'error';
+            }
         }
     }
 }
