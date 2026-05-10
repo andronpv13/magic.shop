@@ -20,12 +20,13 @@ function getCategories() {
 // === Товары ===
 function getProducts($category = null, $limit = null) {
     global $conn;
-    $sql = "SELECT p.*, p.category AS category_name, u.username as creator_name
+    $sql = "SELECT p.*, c.name AS category_name, u.username as creator_name
             FROM products p
+            LEFT JOIN categories c ON p.category_id = c.id
             LEFT JOIN users u ON p.created_by = u.id
             WHERE p.active = 1";
 
-    if ($category) $sql .= " AND p.category = ?";
+    if ($category) $sql .= " AND c.name = ?";
     if ($limit) $sql .= " LIMIT ?";
 
     $stmt = $conn->prepare($sql);
@@ -43,7 +44,7 @@ function getProducts($category = null, $limit = null) {
 
 function getProductById($id) {
     global $conn;
-    $stmt = $conn->prepare("SELECT p.*, p.category AS category_name FROM products p WHERE p.id = ? AND p.active = 1");
+    $stmt = $conn->prepare("SELECT p.*, c.name AS category_name FROM products p LEFT JOIN categories c ON p.category_id = c.id WHERE p.id = ? AND p.active = 1");
     $stmt->bind_param("i", $id); $stmt->execute();
     return $stmt->get_result()->fetch_assoc();
 }
