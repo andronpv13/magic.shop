@@ -3,12 +3,11 @@
 function getCategories() {
     global $conn;
     // Получаем только категории, в которых есть активные товары
-    $stmt = $conn->prepare("SELECT DISTINCT p.category AS category
+    $stmt = $conn->prepare("SELECT DISTINCT c.name AS category
                             FROM products p
-                            WHERE p.category IS NOT NULL
-                            AND p.category != ''
-                            AND p.active = 1
-                            ORDER BY p.category");
+                            JOIN categories c ON p.category_id = c.id
+                            WHERE p.active = 1
+                            ORDER BY c.name");
     $stmt->execute();
     $result = $stmt->get_result();
     $categories = [];
