@@ -5,10 +5,14 @@
  */
 
 $page_title = 'Мой профиль - Волшебная ЛАВКА';
+require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/functions.php';
 
-requireLogin();
+if (!isLoggedIn()) {
+    header('Location: /login.php');
+    exit;
+}
 
 $user_id = $_SESSION['user_id'];
 $user = getUserById($user_id);
@@ -106,7 +110,7 @@ $orders = getUserOrders($user_id);
                     <div class="form-group">
                         <label for="name">Имя: *</label>
                         <input type="text" id="name" name="name" required
-                               value="<?php echo e($user['name']); ?>">
+                               value="<?php echo e(trim(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? ''))); ?>">
                     </div>
 
                     <div class="form-group">
