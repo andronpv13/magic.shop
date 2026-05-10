@@ -33,6 +33,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $user = $result->fetch_assoc();
             if (password_verify($password, $user['password'])) {
+                // Регенерация сессии после успешного логина для защиты от Session fixation
+                session_regenerate_id(true);
+
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['username'] = $user['username'];
                 $_SESSION['role'] = $user['role'];
@@ -72,7 +75,7 @@ require_once 'includes/header.php';
 
                     <div class="form-group">
                         <label for="username">Логин или Email:</label>
-                        <input type="text" id="username" name="username" class="form-control" 
+                        <input type="text" id="username" name="username" class="form-control"
                                required value="<?php echo e($_POST['username'] ?? ''); ?>" autofocus>
                     </div>
 
