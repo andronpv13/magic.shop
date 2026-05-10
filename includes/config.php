@@ -36,21 +36,7 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// 2. Проверяем токен для POST
-$csrf_validation_passed = false;
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $csrf_validation_passed = !empty($_POST['csrf_token'])
-        && isset($_SESSION['csrf_token'])
-        && hash_equals($_SESSION['csrf_token'], $_POST['csrf_token']);
-
-    if (!$csrf_validation_passed) {
-        http_response_code(403);
-        die('CSRF validation failed');
-    }
-
-    // Обновляем токен ПОСЛЕ успешной проверки
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-}
+// CSRF проверка теперь выполняется индивидуально в каждой форме через csrf_verify()
 
 function csrf_token() {
     return $_SESSION['csrf_token'] ?? '';
@@ -60,8 +46,17 @@ function csrf_verify() {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         return true;
     }
-    global $csrf_validation_passed;
-    return !empty($csrf_validation_passed);
+
+    $csrf_validation_passed = !empty($_POST['csrf_token'])
+        && isset($_SESSION['csrf_token'])
+        && hash_equals($_SESSION['csrf_token'], $_POST['csrf_token']);
+
+    // Обновляем токен после успешной проверки
+    if ($csrf_validation_passed) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+
+    return $csrf_validation_passed;
 }
 
 error_reporting(E_ALL);
