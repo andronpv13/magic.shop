@@ -71,7 +71,7 @@ function editProduct($id, $n, $d, $p, $cat, $st, $nw, $img) {
         return ['success' => false, 'message' => 'Категория не найдена'];
     }
     $stmt = $conn->prepare("UPDATE products SET name=?,description=?,price=?,category_id=?,stock=?,is_new=?,image=? WHERE id=?");
-    $stmt->bind_param("ssdiissii", $n, $d, $p, $category_id, $st, $nw, $img, $id);
+    $stmt->bind_param("ssdiissi", $n, $d, $p, $category_id, $st, $nw, $img, $id);
     return ['success' => $stmt->execute()];
 }
 
