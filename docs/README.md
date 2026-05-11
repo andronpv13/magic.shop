@@ -305,8 +305,8 @@ MagicShop/
 
 | Роль | Логин | Пароль |
 |---|---|---|
-| admin | root | toor |
-| moderator | moderator | toor |
+| admin | root | password |
+| moderator | moderator | password |
 
 **⚠️ Обязательно смените пароли после установки!**
 
