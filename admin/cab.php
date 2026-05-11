@@ -22,6 +22,7 @@ $admin_info = getAdminContactInfo();
         <div class="form-group"><label>Телефон</label><input type="tel" name="phone" value="<?php echo e($admin_info['phone'] ?? ''); ?>" required></div>
         <button type="submit" class="btn btn-primary">Сохранить</button>
     </form>
+    <a href="/admin/edit_cab.php" class="btn btn-primary">Редактировать профиль</a>
     <a href="/admin/index.php" class="back-link">← Назад</a>
 </div></section>
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>
