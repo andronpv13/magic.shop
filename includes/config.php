@@ -193,6 +193,15 @@ function csrf_verify_ajax() {
     return true;
 }
 
+// Алиасы для совместимости с другими именами функций
+function verifyCsrfToken($token) {
+    return !empty($token) && isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
+}
+
+function csrf_field() {
+    echo '<input type="hidden" name="csrf_token" value="' . htmlspecialchars($_SESSION['csrf_token'] ?? '', ENT_QUOTES, 'UTF-8') . '">';
+}
+
 $conn = new mysqli($host, $db_user, $db_pass, $db_name);
 if ($conn->connect_error) {
     log_error('Database connection failed: ' . $conn->connect_error, 'CRITICAL');
