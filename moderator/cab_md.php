@@ -35,6 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
         <div class="form-group"><label>Телефон</label><input type="tel" name="phone" value="<?php echo e($current_user['phone'] ?? ''); ?>"></div>
         <button type="submit" name="update_profile" class="btn btn-primary">Сохранить</button>
     </form>
+    <a href="/moderator/edit_cab_md.php" class="btn btn-primary">Редактировать профиль</a>
     <a href="/moderator/index_md.php" class="back-link">← Назад</a>
 </div></section>
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>
