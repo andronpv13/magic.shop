@@ -16,43 +16,48 @@ if (isLoggedIn()) {
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = trim($_POST['username'] ?? '');
-    $password = $_POST['password'] ?? '';
-
-    if (empty($username) || empty($password)) {
-        $error = 'Заполните все поля';
+    // CSRF проверка
+    if (!csrf_verify()) {
+        $error = 'Ошибка безопасности (CSRF). Попробуйте снова.';
     } else {
-        global $conn;
-        $stmt = $conn->prepare("SELECT id, username, password, role, first_name, last_name FROM users WHERE username = ? OR email = ?");
-        $stmt->bind_param("ss", $username, $username);
-        $stmt->execute();
-        $result = $stmt->get_result();
+        $username = trim($_POST['username'] ?? '');
+        $password = $_POST['password'] ?? '';
 
-        if ($result->num_rows === 0) {
-            $error = 'Неверный логин или пароль';
+        if (empty($username) || empty($password)) {
+            $error = 'Заполните все поля';
         } else {
-            $user = $result->fetch_assoc();
-            if (password_verify($password, $user['password'])) {
-                // Регенерация сессии после успешного логина для защиты от Session fixation
-                session_regenerate_id(true);
+            global $conn;
+            $stmt = $conn->prepare("SELECT id, username, password, role, first_name, last_name FROM users WHERE username = ? OR email = ?");
+            $stmt->bind_param("ss", $username, $username);
+            $stmt->execute();
+            $result = $stmt->get_result();
 
-                $_SESSION['user_id'] = $user['id'];
-                $_SESSION['username'] = $user['username'];
-                $_SESSION['role'] = $user['role'];
-                $_SESSION['first_name'] = $user['first_name'] ?? '';
-                $_SESSION['last_name'] = $user['last_name'] ?? '';
-
-                switch ($user['role']) {
-                    case 'admin':     header('Location: /admin/index.php'); break;
-                    case 'moderator': header('Location: /moderator/index_md.php'); break;
-                    default:          header('Location: /index.php');
-                }
-                exit;
-            } else {
+            if ($result->num_rows === 0) {
                 $error = 'Неверный логин или пароль';
+            } else {
+                $user = $result->fetch_assoc();
+                if (password_verify($password, $user['password'])) {
+                    // Регенерация сессии после успешного логина для защиты от Session fixation
+                    session_regenerate_id(true);
+
+                    $_SESSION['user_id'] = $user['id'];
+                    $_SESSION['username'] = $user['username'];
+                    $_SESSION['role'] = $user['role'];
+                    $_SESSION['first_name'] = $user['first_name'] ?? '';
+                    $_SESSION['last_name'] = $user['last_name'] ?? '';
+
+                    switch ($user['role']) {
+                        case 'admin':     header('Location: /admin/index.php'); break;
+                        case 'moderator': header('Location: /moderator/index_md.php'); break;
+                        default:          header('Location: /index.php');
+                    }
+                    exit;
+                } else {
+                    $error = 'Неверный логин или пароль';
+                }
             }
+            $stmt->close();
         }
-        $stmt->close();
     }
 }
 
