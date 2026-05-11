@@ -34,6 +34,8 @@ function getAllProducts() {
 function addProduct($n, $d, $p, $cat, $st, $nw, $img, $cb) {
     global $conn;
     $category_id = null;
+    $category_error = '';
+
     if (!empty($cat)) {
         $cat_data = ensureCategoryExists($cat);
         if (is_array($cat_data) && isset($cat_data['id'])) {
@@ -42,20 +44,29 @@ function addProduct($n, $d, $p, $cat, $st, $nw, $img, $cb) {
             $category_id = (int)$cat;
         } else {
             $cat_obj = getCategoryByName($cat);
-            $category_id = $cat_obj ? (int)$cat_obj['id'] : null;
+            if ($cat_obj && isset($cat_obj['id'])) {
+                $category_id = (int)$cat_obj['id'];
+            } else {
+                $category_error = 'Не удалось определить категорию: ' . e($cat);
+            }
         }
+    } else {
+        $category_error = 'Категория не указана';
     }
+
     if ($category_id === null) {
-        return ['success' => false, 'message' => 'Категория не найдена'];
+        return ['success' => false, 'message' => $category_error ?: 'Категория не найдена'];
     }
     $stmt = $conn->prepare("INSERT INTO products (name,description,price,category_id,stock,is_new,image,created_by) VALUES (?,?,?,?,?,?,?,?)");
     $stmt->bind_param("ssdiissi", $n, $d, $p, $category_id, $st, $nw, $img, $cb);
-    return ['success' => $stmt->execute()];
+    return ['success' => $stmt->execute(), 'message' => $stmt->execute() ? 'Товар добавлен' : 'Ошибка при добавлении товара'];
 }
 
 function editProduct($id, $n, $d, $p, $cat, $st, $nw, $img) {
     global $conn;
     $category_id = null;
+    $category_error = '';
+
     if (!empty($cat)) {
         $cat_data = ensureCategoryExists($cat);
         if (is_array($cat_data) && isset($cat_data['id'])) {
@@ -64,22 +75,31 @@ function editProduct($id, $n, $d, $p, $cat, $st, $nw, $img) {
             $category_id = (int)$cat;
         } else {
             $cat_obj = getCategoryByName($cat);
-            $category_id = $cat_obj ? (int)$cat_obj['id'] : null;
+            if ($cat_obj && isset($cat_obj['id'])) {
+                $category_id = (int)$cat_obj['id'];
+            } else {
+                $category_error = 'Не удалось определить категорию: ' . e($cat);
+            }
         }
+    } else {
+        $category_error = 'Категория не указана';
     }
+
     if ($category_id === null) {
-        return ['success' => false, 'message' => 'Категория не найдена'];
+        return ['success' => false, 'message' => $category_error ?: 'Категория не найдена'];
     }
     $stmt = $conn->prepare("UPDATE products SET name=?,description=?,price=?,category_id=?,stock=?,is_new=?,image=? WHERE id=?");
     $stmt->bind_param("ssdiissi", $n, $d, $p, $category_id, $st, $nw, $img, $id);
-    return ['success' => $stmt->execute()];
+    $success = $stmt->execute();
+    return ['success' => $success, 'message' => $success ? 'Товар обновлён' : 'Ошибка при обновлении товара'];
 }
 
 function deleteProduct($id) {
     global $conn;
     $stmt = $conn->prepare("UPDATE products SET active=0 WHERE id=?");
     $stmt->bind_param("i", $id);
-    return ['success' => $stmt->execute()];
+    $success = $stmt->execute();
+    return ['success' => $success, 'message' => $success ? 'Товар удалён' : 'Ошибка при удалении товара'];
 }
 
 function getCategoriesList() {
