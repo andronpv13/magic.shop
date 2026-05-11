@@ -89,15 +89,36 @@ function editProduct($id, $n, $d, $p, $cat, $st, $nw, $img) {
     if ($category_id === null) {
         return ['success' => false, 'message' => $category_error ?: 'Категория не найдена'];
     }
-    $stmt = $conn->prepare("UPDATE products SET name=?,description=?,price=?,category_id=?,stock=?,is_new=?,image=? WHERE id=?");
-    $stmt->bind_param("ssdiissi", $n, $d, $p, $category_id, $st, $nw, $img, $id);
+
+    // Если изображение не передано (null), оставляем старое
+    if ($img === null) {
+        $stmt = $conn->prepare("UPDATE products SET name=?,description=?,price=?,category_id=?,stock=?,is_new=? WHERE id=?");
+        $stmt->bind_param("ssdiisi", $n, $d, $p, $category_id, $st, $nw, $id);
+    } else {
+        $stmt = $conn->prepare("UPDATE products SET name=?,description=?,price=?,category_id=?,stock=?,is_new=?,image=? WHERE id=?");
+        $stmt->bind_param("ssdiissi", $n, $d, $p, $category_id, $st, $nw, $img, $id);
+    }
     $success = $stmt->execute();
     return ['success' => $success, 'message' => $success ? 'Товар обновлён' : 'Ошибка при обновлении товара'];
 }
 
 function deleteProduct($id) {
     global $conn;
-    $stmt = $conn->prepare("UPDATE products SET active=0 WHERE id=?");
+    // Сначала получаем текущее изображение товара для удаления файла
+    $stmt = $conn->prepare("SELECT image FROM products WHERE id = ?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $result = $stmt->get_result()->fetch_assoc();
+
+    if ($result && !empty($result['image'])) {
+        $image_path = __DIR__ . '/../images/' . $result['image'];
+        if (file_exists($image_path)) {
+            unlink($image_path);
+        }
+    }
+
+    // Удаляем товар из базы данных
+    $stmt = $conn->prepare("DELETE FROM products WHERE id = ?");
     $stmt->bind_param("i", $id);
     $success = $stmt->execute();
     return ['success' => $success, 'message' => $success ? 'Товар удалён' : 'Ошибка при удалении товара'];
