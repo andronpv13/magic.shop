@@ -2,17 +2,13 @@
 // === Категории ===
 function getCategories() {
     global $conn;
-    // Получаем только категории, в которых есть активные товары
-    $stmt = $conn->prepare("SELECT DISTINCT c.name AS category
-                            FROM products p
-                            JOIN categories c ON p.category_id = c.id
-                            WHERE p.active = 1
-                            ORDER BY c.name");
+    // Получаем все категории из таблицы categories
+    $stmt = $conn->prepare("SELECT name FROM categories ORDER BY name");
     $stmt->execute();
     $result = $stmt->get_result();
     $categories = [];
     while ($row = $result->fetch_assoc()) {
-        $categories[] = $row['category'];
+        $categories[] = $row['name'];
     }
     return $categories;
 }
