@@ -206,7 +206,7 @@ $orders = getUserOrders($user_id);
                             </div>
 
                             <div class="order-footer">
-                                <span class="order-total">Итого: <?php echo number_format($order['total_amount'], 2, '.', ' '); ?> ₽</span>
+                                <span class="order-total">Итого: <?php echo number_format($order['total'], 2, '.', ' '); ?> ₽</span>
                                 <a href="order_details.php?id=<?php echo $order['id']; ?>" class="btn btn-outline">Подробности</a>
                             </div>
                         </div>
