@@ -29,10 +29,18 @@ function getModeratorStats($uid) {
     ];
 }
 function getModeratorProducts($uid) {
-    global $conn; $s=$conn->prepare("SELECT * FROM products WHERE created_by=? ORDER BY created_at DESC"); $s->bind_param("i",$uid); $s->execute(); return $s->get_result()->fetch_all(MYSQLI_ASSOC);
+    global $conn;
+    $s=$conn->prepare("SELECT p.*, c.name AS category_name FROM products p LEFT JOIN categories c ON p.category_id = c.id WHERE p.created_by=? ORDER BY p.created_at DESC");
+    $s->bind_param("i",$uid);
+    $s->execute();
+    return $s->get_result()->fetch_all(MYSQLI_ASSOC);
 }
 function isProductOwner($pid,$uid) {
-    global $conn; $s=$conn->prepare("SELECT id FROM products WHERE id=? AND created_by=?"); $s->bind_param("ii",$pid,$uid); $s->execute(); return $s->get_result()->num_rows>0;
+    global $conn;
+    $s=$conn->prepare("SELECT id FROM products WHERE id=? AND created_by=?");
+    $s->bind_param("ii",$pid,$uid);
+    $s->execute();
+    return $s->get_result()->num_rows>0;
 }
 function addProductModerator($n,$d,$p,$cat,$st,$nw,$img,$cb) {
     // Проверка прав модератора
