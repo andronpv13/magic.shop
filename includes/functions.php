@@ -203,6 +203,18 @@ function getOrderDetails($order_id, $user_id) {
     return $order;
 }
 
+// ✅ ДОБАВЛЕНО: Получение деталей заказа для администратора (без проверки владельца)
+function getOrderDetailsAdmin($order_id) {
+    global $conn;
+    $stmt = $conn->prepare("SELECT * FROM orders WHERE id = ?");
+    $stmt->bind_param("i", $order_id);
+    $stmt->execute();
+    $order = $stmt->get_result()->fetch_assoc();
+    if (!$order) return false;
+    $order['items'] = getOrderItems($order_id);
+    return $order;
+}
+
 function updateOrderStatus($order_id, $status) {
     global $conn;
     $stmt = $conn->prepare("UPDATE orders SET status = ? WHERE id = ?");
