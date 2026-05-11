@@ -46,6 +46,7 @@ $message = $_GET['message'] ?? '';
                             <th>Категория</th>
                             <th>Цена</th>
                             <th>Остаток</th>
+                            <th>Статус</th>
                             <th>Действия</th>
                         </tr>
                     </thead>
@@ -70,7 +71,7 @@ $message = $_GET['message'] ?? '';
                                         <span class="badge badge-new">NEW</span>
                                     <?php endif; ?>
                                 </td>
-                                <td><?php echo e($product['category'] ?? '-'); ?></td>
+                                <td><?php echo e($product['category_name'] ?? '-'); ?></td>
                                 <td><?php echo number_format($product['price'], 0, ',', ' '); ?> ₽</td>
                                 <td>
                                     <?php if ($product['stock'] > 0): ?>
@@ -80,16 +81,27 @@ $message = $_GET['message'] ?? '';
                                     <?php endif; ?>
                                 </td>
                                 <td>
+                                    <?php if ($product['active'] == 1): ?>
+                                        <span class="badge badge-success">Активен</span>
+                                    <?php else: ?>
+                                        <span class="badge badge-error">Удалён</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
                                     <div class="table-actions">
-                                        <a href="edit_product_md.php?id=<?php echo $product['id']; ?>" class="btn btn-sm btn-edit">
-                                            ✏️
-                                        </a>
-                                        <form method="POST" style="display: inline;"
-                                              onsubmit="return confirm('Удалить товар <?php echo e($product['name']); ?>?');">
-                                            <input type="hidden" name="delete_product" value="<?php echo $product['id']; ?>">
-                                            <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                            <button type="submit" class="btn btn-sm btn-delete">🗑️</button>
-                                        </form>
+                                        <?php if ($product['active'] == 1): ?>
+                                            <a href="edit_product_md.php?id=<?php echo $product['id']; ?>" class="btn btn-sm btn-edit">
+                                                ✏️
+                                            </a>
+                                            <form method="POST" style="display: inline;"
+                                                  onsubmit="return confirm('Удалить товар <?php echo e($product['name']); ?>?');">
+                                                <input type="hidden" name="delete_product" value="<?php echo $product['id']; ?>">
+                                                <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                                <button type="submit" class="btn btn-sm btn-delete">🗑️</button>
+                                            </form>
+                                        <?php else: ?>
+                                            <span class="form-hint">Товар удалён</span>
+                                        <?php endif; ?>
                                     </div>
                                 </td>
                             </tr>
