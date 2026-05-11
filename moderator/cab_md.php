@@ -1,6 +1,5 @@
 <?php
 $page_title = 'Профиль модератора';
-require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/functions_md.php';
 requireModerator();
