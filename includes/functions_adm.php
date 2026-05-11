@@ -33,21 +33,45 @@ function getAllProducts() {
 
 function addProduct($n, $d, $p, $cat, $st, $nw, $img, $cb) {
     global $conn;
+    $category_id = null;
     if (!empty($cat)) {
-        ensureCategoryExists($cat);
+        $cat_data = ensureCategoryExists($cat);
+        if (is_array($cat_data) && isset($cat_data['id'])) {
+            $category_id = $cat_data['id'];
+        } elseif (is_numeric($cat)) {
+            $category_id = (int)$cat;
+        } else {
+            $cat_obj = getCategoryByName($cat);
+            $category_id = $cat_obj ? (int)$cat_obj['id'] : null;
+        }
     }
-    $stmt = $conn->prepare("INSERT INTO products (name,description,price,category,stock,is_new,image,created_by) VALUES (?,?,?,?,?,?,?,?)");
-    $stmt->bind_param("ssdsiisi", $n, $d, $p, $cat, $st, $nw, $img, $cb);
+    if ($category_id === null) {
+        return ['success' => false, 'message' => 'Категория не найдена'];
+    }
+    $stmt = $conn->prepare("INSERT INTO products (name,description,price,category_id,stock,is_new,image,created_by) VALUES (?,?,?,?,?,?,?,?)");
+    $stmt->bind_param("ssdiissi", $n, $d, $p, $category_id, $st, $nw, $img, $cb);
     return ['success' => $stmt->execute()];
 }
 
 function editProduct($id, $n, $d, $p, $cat, $st, $nw, $img) {
     global $conn;
+    $category_id = null;
     if (!empty($cat)) {
-        ensureCategoryExists($cat);
+        $cat_data = ensureCategoryExists($cat);
+        if (is_array($cat_data) && isset($cat_data['id'])) {
+            $category_id = $cat_data['id'];
+        } elseif (is_numeric($cat)) {
+            $category_id = (int)$cat;
+        } else {
+            $cat_obj = getCategoryByName($cat);
+            $category_id = $cat_obj ? (int)$cat_obj['id'] : null;
+        }
     }
-    $stmt = $conn->prepare("UPDATE products SET name=?,description=?,price=?,category=?,stock=?,is_new=?,image=? WHERE id=?");
-    $stmt->bind_param("ssdsiisi", $n, $d, $p, $cat, $st, $nw, $img, $id);
+    if ($category_id === null) {
+        return ['success' => false, 'message' => 'Категория не найдена'];
+    }
+    $stmt = $conn->prepare("UPDATE products SET name=?,description=?,price=?,category_id=?,stock=?,is_new=?,image=? WHERE id=?");
+    $stmt->bind_param("ssdiissii", $n, $d, $p, $category_id, $st, $nw, $img, $id);
     return ['success' => $stmt->execute()];
 }
 
@@ -60,7 +84,7 @@ function deleteProduct($id) {
 
 function getCategoriesList() {
     global $conn;
-    $stmt = $conn->prepare("SELECT c.name AS category, COUNT(p.id) AS product_count FROM categories c LEFT JOIN products p ON p.category = c.name AND p.active = 1 GROUP BY c.name ORDER BY c.name");
+    $stmt = $conn->prepare("SELECT c.name AS category, c.id AS category_id, COUNT(p.id) AS product_count FROM categories c LEFT JOIN products p ON p.category_id = c.id AND p.active = 1 GROUP BY c.id, c.name ORDER BY c.name");
     if (!$stmt) {
         $stmt = $conn->prepare("SELECT category AS category, COUNT(*) AS product_count FROM products WHERE category IS NOT NULL AND category != '' AND active = 1 GROUP BY category ORDER BY category");
     }
@@ -121,8 +145,9 @@ function ensureCategoryExists($name) {
     }
     $stmt->bind_param("s", $name);
     $stmt->execute();
-    if ($stmt->get_result()->num_rows > 0) {
-        return true;
+    $result = $stmt->get_result()->fetch_assoc();
+    if ($result) {
+        return ['id' => (int)$result['id'], 'name' => $name];
     }
 
     $stmt = $conn->prepare("INSERT INTO categories (name) VALUES (?)");
@@ -130,7 +155,10 @@ function ensureCategoryExists($name) {
         return true;
     }
     $stmt->bind_param("s", $name);
-    return $stmt->execute();
+    if ($stmt->execute()) {
+        return ['id' => (int)$conn->insert_id, 'name' => $name];
+    }
+    return false;
 }
 
 function countCategories() {
@@ -146,8 +174,20 @@ function countCategories() {
 
 function getProductsCountByCategory($category) {
     global $conn;
-    $stmt = $conn->prepare("SELECT COUNT(*) as total FROM products WHERE category = ? AND active = 1");
-    $stmt->bind_param("s", $category);
+    // Если передано число - считаем category_id, иначе ищем по имени
+    if (is_numeric($category)) {
+        $stmt = $conn->prepare("SELECT COUNT(*) as total FROM products WHERE category_id = ? AND active = 1");
+        $stmt->bind_param("i", $category);
+    } else {
+        // Для обратной совместимости: ищем категорию по имени
+        $cat_obj = getCategoryByName($category);
+        if (!$cat_obj) {
+            return 0;
+        }
+        $category_id = (int)$cat_obj['id'];
+        $stmt = $conn->prepare("SELECT COUNT(*) as total FROM products WHERE category_id = ? AND active = 1");
+        $stmt->bind_param("i", $category_id);
+    }
     $stmt->execute();
     $result = $stmt->get_result()->fetch_assoc();
     return (int)($result['total'] ?? 0);
@@ -156,18 +196,31 @@ function getProductsCountByCategory($category) {
 function deleteCategory($category) {
     global $conn;
 
+    // Определяем category_id: если передано число - это ID, иначе ищем по имени
+    if (is_numeric($category)) {
+        $category_id = (int)$category;
+    } else {
+        $cat_obj = getCategoryByName($category);
+        if (!$cat_obj) {
+            return ['success' => false, 'message' => 'Категория не найдена'];
+        }
+        $category_id = (int)$cat_obj['id'];
+    }
+
     // Сначала удаляем категорию из таблицы categories
-    $stmt = $conn->prepare("DELETE FROM categories WHERE name = ?");
+    $stmt = $conn->prepare("DELETE FROM categories WHERE id = ?");
     if ($stmt) {
-        $stmt->bind_param("s", $category);
+        $stmt->bind_param("i", $category_id);
         $stmt->execute();
         $stmt->close();
     }
 
-    // Затем устанавливаем category = NULL для всех товаров этой категории
-    $stmt = $conn->prepare("UPDATE products SET category = NULL WHERE category = ?");
+    // Затем устанавливаем category_id = NULL для всех товаров этой категории
+    // Примечание: в реальной БД с FK ON DELETE RESTRICT это может не сработать
+    // В таком случае нужно сначала удалить/переместить товары
+    $stmt = $conn->prepare("UPDATE products SET category_id = NULL WHERE category_id = ?");
     if ($stmt) {
-        $stmt->bind_param("s", $category);
+        $stmt->bind_param("i", $category_id);
         $stmt->execute();
         $stmt->close();
     }
