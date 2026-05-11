@@ -22,9 +22,6 @@ if (!$user) {
     header('Location: ../login.php');
     exit;
 }
-
-// Получение истории заказов
-$orders = getUserOrders($user_id);
 ?>
 
 <section class="section">
@@ -37,84 +34,82 @@ $orders = getUserOrders($user_id);
 
         <h1 class="page-title">Личный кабинет</h1>
 
-        <div class="profile-layout">
-            <!-- Информация о пользователе -->
-            <div class="profile-section">
-                <h2>Информация о пользователе</h2>
-                <div class="profile-info">
-                    <div class="info-row">
-                        <span class="info-label">Имя:</span>
-                        <span class="info-value"><?php echo e(trim(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? ''))); ?></span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Email:</span>
-                        <span class="info-value"><?php echo e($user['email']); ?></span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Роль:</span>
-                        <span class="info-value"><?php echo e(ucfirst($user['role'])); ?></span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Дата регистрации:</span>
-                        <span class="info-value"><?php echo date('d.m.Y H:i', strtotime($user['created_at'])); ?></span>
-                    </div>
+        <div class="profile-section">
+            <h2>Информация о пользователе</h2>
+            <div class="profile-info">
+                <div class="info-row">
+                    <span class="info-label">Логин:</span>
+                    <span class="info-value"><?php echo e($user['username']); ?></span>
                 </div>
-                <a href="edit_profile.php" class="btn btn-primary">Редактировать профиль</a>
+                <div class="info-row">
+                    <span class="info-label">Email:</span>
+                    <span class="info-value"><?php echo e($user['email']); ?></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Имя:</span>
+                    <span class="info-value"><?php echo e($user['first_name'] ?? ''); ?></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Фамилия:</span>
+                    <span class="info-value"><?php echo e($user['last_name'] ?? ''); ?></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Отчество:</span>
+                    <span class="info-value"><?php echo e($user['patronymic'] ?? ''); ?></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Телефон:</span>
+                    <span class="info-value"><?php echo e($user['phone'] ?? ''); ?></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Адрес:</span>
+                    <span class="info-value"><?php echo e($user['address'] ?? ''); ?></span>
+                </div>
             </div>
+            <a href="edit_profile.php" class="btn btn-primary">Редактировать данные</a>
         </div>
 
-        <!-- История заказов -->
         <div class="profile-section orders-section">
             <h2>История заказов</h2>
-
-            <?php if (empty($orders)): ?>
-                <p class="empty-state">У вас пока нет заказов</p>
-                <a href="../shop.php" class="btn btn-primary">Перейти в каталог</a>
-            <?php else: ?>
-                <div class="orders-list">
-                    <?php foreach ($orders as $order): ?>
-                        <div class="order-card">
-                            <div class="order-header">
-                                <span class="order-number">Заказ #<?php echo $order['id']; ?></span>
-                                <span class="order-status status-<?php echo e($order['status']); ?>">
-                                    <?php
-                                    $status_labels = [
-                                        'pending' => 'Ожидает оплаты',
-                                        'payment' => 'Оплачен',
-                                        'completed' => 'Выполнен',
-                                        'cancelled' => 'Отменён'
-                                    ];
-                                    echo e($status_labels[$order['status']] ?? $order['status']);
-                                    ?>
-                                </span>
-                                <span class="order-date"><?php echo date('d.m.Y H:i', strtotime($order['created_at'])); ?></span>
-                            </div>
-
-                            <div class="order-items">
-                                <?php
-                                $order_items = getOrderItems($order['id']);
-                                foreach ($order_items as $item):
-                                ?>
-                                    <div class="order-item">
-                                        <img src="<?php echo getProductImage($item['product_image']); ?>"
-                                             alt="<?php echo e($item['product_name']); ?>"
-                                             class="order-item-image">
-                                        <div class="order-item-details">
-                                            <span class="order-item-name"><?php echo e($item['product_name']); ?></span>
-                                            <span class="order-item-quantity"><?php echo $item['quantity']; ?> шт.</span>
-                                        </div>
-                                        <span class="order-item-price"><?php echo number_format($item['price'] * $item['quantity'], 2, '.', ' '); ?> ₽</span>
-                                    </div>
-                                <?php endforeach; ?>
-                            </div>
-
-                            <div class="order-footer">
-                                <span class="order-total">Итого: <?php echo number_format($order['total'], 2, '.', ' '); ?> ₽</span>
-                                <a href="order_details.php?id=<?php echo $order['id']; ?>" class="btn btn-outline">Подробности</a>
-                            </div>
+            <?php $orders = getUserOrders($user_id); ?>
+            <?php if (!empty($orders)): ?>
+            <div class="orders-list">
+                <?php foreach ($orders as $order): ?>
+                <div class="order-card">
+                    <div class="order-header">
+                        <div>
+                            <span class="order-number">Заказ #<?php echo e($order['id']); ?></span>
+                            <span class="order-date"><?php echo date('d.m.Y H:i', strtotime($order['created_at'])); ?></span>
                         </div>
-                    <?php endforeach; ?>
+                        <span class="status-badge status-<?php echo $order['status']; ?>"><?php echo getOrderStatusName($order['status']); ?></span>
+                    </div>
+                    <div class="order-items">
+                        <?php $items = getOrderItems($order['id']); foreach ($items as $item): ?>
+                        <div class="order-item">
+                            <?php if (!empty($item['product_image'])): ?>
+                            <img src="<?php echo e($item['product_image']); ?>" alt="<?php echo e($item['product_name']); ?>" class="order-item-image">
+                            <?php endif; ?>
+                            <div class="order-item-details">
+                                <span class="order-item-name"><?php echo e($item['product_name']); ?></span>
+                                <span class="order-item-quantity"><?php echo $item['quantity']; ?> шт.</span>
+                            </div>
+                            <span class="order-item-price"><?php echo formatPrice($item['price'] * $item['quantity']); ?></span>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                    <div class="order-footer">
+                        <span class="order-total">Итого: <?php echo formatPrice($order['total']); ?></span>
+                        <a href="/users/order_detail.php?order_id=<?php echo $order['id']; ?>" class="btn btn-sm btn-view">Подробнее</a>
+                    </div>
                 </div>
+                <?php endforeach; ?>
+            </div>
+            <?php else: ?>
+            <div class="empty-state">
+                <div class="empty-cart-icon">📦</div>
+                <h2>У вас пока нет заказов</h2>
+                <a href="/shop.php" class="btn btn-outline">Перейти в каталог</a>
+            </div>
             <?php endif; ?>
         </div>
     </div>
