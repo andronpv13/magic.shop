@@ -40,8 +40,9 @@ function getProducts($category = null, $limit = null) {
 
 function getProductById($id) {
     global $conn;
-    $stmt = $conn->prepare("SELECT p.*, c.name AS category_name FROM products p LEFT JOIN categories c ON p.category_id = c.id WHERE p.id = ? AND p.active = 1");
-    $stmt->bind_param("i", $id); $stmt->execute();
+    $stmt = $conn->prepare("SELECT p.*, c.name AS category_name FROM products p LEFT JOIN categories c ON p.category_id = c.id WHERE p.id = ?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
     return $stmt->get_result()->fetch_assoc();
 }
 
