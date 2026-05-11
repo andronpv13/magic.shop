@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $category = trim($_POST['category'] ?? '');
     $stock = (int)($_POST['stock'] ?? 0);
     $is_new = isset($_POST['is_new']) ? 1 : 0;
-    
+
     if (empty($name)) {
         $error = 'Укажите название товара';
     } elseif ($price <= 0) {
@@ -30,17 +30,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $image_path = null;
         if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
             $upload_result = uploadProductImage($_FILES['image']);
-            
+
             if ($upload_result['success']) {
                 $image_path = $upload_result['filename'];
             } else {
                 $error = $upload_result['message'];
             }
         }
-        
+
         if (empty($error)) {
             $result = addProductModerator($name, $description, $price, $category, $stock, $is_new, $image_path, $_SESSION['user_id']);
-            
+
             if ($result['success']) {
                 header('Location: products_md.php?success=added');
                 exit;
@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="product-form-main">
                     <div class="form-group">
                         <label for="name">Название товара: *</label>
-                        <input type="text" id="name" name="name" required 
+                        <input type="text" id="name" name="name" required
                                value="<?php echo e($_POST['name'] ?? ''); ?>">
                     </div>
 
@@ -85,21 +85,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="form-row">
                         <div class="form-group">
                             <label for="price">Цена (₽): *</label>
-                            <input type="number" id="price" name="price" step="0.01" min="0" required 
-                                   value="<?php echo e($_POST['price'] ?? ''); ?>">
+                            <input type="number" id="price" name="price" step="0.01" min="0.01" required
+                                   placeholder="Введите цену">
                         </div>
 
                         <div class="form-group">
                             <label for="stock">Остаток на складе: *</label>
-                            <input type="number" id="stock" name="stock" min="0" required 
+                            <input type="number" id="stock" name="stock" min="0" required
                                    value="<?php echo e($_POST['stock'] ?? '0'); ?>">
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label for="category">Категория:</label>
-                        <input type="text" id="category" name="category" 
-                               value="<?php echo e($_POST['category'] ?? ''); ?>" 
+                        <input type="text" id="category" name="category"
+                               value="<?php echo e($_POST['category'] ?? ''); ?>"
                                list="categories-list" placeholder="Выберите или введите новую">
                         <datalist id="categories-list">
                             <?php
