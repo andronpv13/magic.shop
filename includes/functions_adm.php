@@ -59,7 +59,8 @@ function addProduct($n, $d, $p, $cat, $st, $nw, $img, $cb) {
     }
     $stmt = $conn->prepare("INSERT INTO products (name,description,price,category_id,stock,is_new,image,created_by) VALUES (?,?,?,?,?,?,?,?)");
     $stmt->bind_param("ssdiissi", $n, $d, $p, $category_id, $st, $nw, $img, $cb);
-    return ['success' => $stmt->execute(), 'message' => $stmt->execute() ? 'Товар добавлен' : 'Ошибка при добавлении товара'];
+    $success = $stmt->execute();
+    return ['success' => $success, 'message' => $success ? 'Товар добавлен' : 'Ошибка при добавлении товара'];
 }
 
 function editProduct($id, $n, $d, $p, $cat, $st, $nw, $img) {
