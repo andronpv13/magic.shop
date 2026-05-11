@@ -186,7 +186,7 @@ function getUserOrders($user_id) {
 
 function getOrderItems($order_id) {
     global $conn;
-    $stmt = $conn->prepare("SELECT oi.quantity, oi.price, p.name as product_name FROM order_items oi JOIN products p ON oi.product_id = p.id WHERE oi.order_id = ?");
+    $stmt = $conn->prepare("SELECT oi.quantity, oi.price, p.name as product_name, p.image as product_image FROM order_items oi JOIN products p ON oi.product_id = p.id WHERE oi.order_id = ?");
     $stmt->bind_param("i", $order_id);
     $stmt->execute();
     return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
