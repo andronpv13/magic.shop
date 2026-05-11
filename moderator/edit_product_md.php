@@ -27,8 +27,9 @@ if (!isProductOwner($product_id, $_SESSION['user_id'])) {
 
 $product = getProductById($product_id);
 
+// Товар может быть неактивным (удалённым), но модератор должен иметь возможность это увидеть
 if (!$product) {
-    echo '<div class="container section"><p class="empty-state">Товар не найден</p></div>';
+    echo '<div class="container section"><p class="empty-state">Товар не найден или был удалён</p></div>';
     require_once __DIR__ . '/../includes/footer.php';
     exit;
 }
@@ -125,7 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="form-group">
                         <label for="category">Категория:</label>
                         <input type="text" id="category" name="category"
-                               value="<?php echo e($product['category'] ?? ''); ?>"
+                               value="<?php echo e($product['category_name'] ?? ''); ?>"
                                list="categories-list">
                         <datalist id="categories-list">
                             <?php
