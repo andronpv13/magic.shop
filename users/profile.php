@@ -23,60 +23,6 @@ if (!$user) {
     exit;
 }
 
-$success = '';
-$error = '';
-
-// Обработка обновления профиля
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
-    $name = trim($_POST['name'] ?? '');
-    $email = trim($_POST['email'] ?? '');
-
-    if (empty($name)) {
-        $error = 'Укажите имя';
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $error = 'Укажите корректный email';
-    } else {
-        // Проверка uniqueness email
-        $existing_user = getUserByEmail($email);
-        if ($existing_user && $existing_user['id'] != $user_id) {
-            $error = 'Этот email уже используется';
-        } else {
-            $result = updateUserProfile($user_id, $name, $email);
-
-            if ($result['success']) {
-                $success = 'Профиль обновлен';
-                $user = getUserById($user_id);
-                $_SESSION['user_name'] = $name;
-            } else {
-                $error = $result['message'];
-            }
-        }
-    }
-}
-
-// Обработка смены пароля
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
-    $current_password = $_POST['current_password'] ?? '';
-    $new_password = $_POST['new_password'] ?? '';
-    $confirm_password = $_POST['confirm_password'] ?? '';
-
-    if (empty($current_password) || empty($new_password) || empty($confirm_password)) {
-        $error = 'Заполните все поля';
-    } elseif ($new_password !== $confirm_password) {
-        $error = 'Новые пароли не совпадают';
-    } elseif (strlen($new_password) < 6) {
-        $error = 'Пароль должен быть не менее 6 символов';
-    } else {
-        $result = changeUserPassword($user_id, $current_password, $new_password);
-
-        if ($result['success']) {
-            $success = 'Пароль изменен';
-        } else {
-            $error = $result['message'];
-        }
-    }
-}
-
 // Получение истории заказов
 $orders = getUserOrders($user_id);
 ?>
@@ -91,72 +37,29 @@ $orders = getUserOrders($user_id);
 
         <h1 class="page-title">Личный кабинет</h1>
 
-        <?php if ($success): ?>
-            <div class="alert alert-success"><?php echo e($success); ?></div>
-        <?php endif; ?>
-
-        <?php if ($error): ?>
-            <div class="alert alert-error"><?php echo e($error); ?></div>
-        <?php endif; ?>
-
         <div class="profile-layout">
             <!-- Информация о пользователе -->
             <div class="profile-section">
                 <h2>Информация о пользователе</h2>
-                <form method="POST" class="profile-form">
-                    <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                    <input type="hidden" name="update_profile" value="1">
-
-                    <div class="form-group">
-                        <label for="name">Имя: *</label>
-                        <input type="text" id="name" name="name" required
-                               value="<?php echo e(trim(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? ''))); ?>">
+                <div class="profile-info">
+                    <div class="info-row">
+                        <span class="info-label">Имя:</span>
+                        <span class="info-value"><?php echo e(trim(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? ''))); ?></span>
                     </div>
-
-                    <div class="form-group">
-                        <label for="email">Email: *</label>
-                        <input type="email" id="email" name="email" required
-                               value="<?php echo e($user['email']); ?>">
+                    <div class="info-row">
+                        <span class="info-label">Email:</span>
+                        <span class="info-value"><?php echo e($user['email']); ?></span>
                     </div>
-
-                    <div class="form-group">
-                        <label>Роль:</label>
-                        <p class="form-hint"><?php echo e(ucfirst($user['role'])); ?></p>
+                    <div class="info-row">
+                        <span class="info-label">Роль:</span>
+                        <span class="info-value"><?php echo e(ucfirst($user['role'])); ?></span>
                     </div>
-
-                    <div class="form-group">
-                        <label>Дата регистрации:</label>
-                        <p class="form-hint"><?php echo date('d.m.Y H:i', strtotime($user['created_at'])); ?></p>
+                    <div class="info-row">
+                        <span class="info-label">Дата регистрации:</span>
+                        <span class="info-value"><?php echo date('d.m.Y H:i', strtotime($user['created_at'])); ?></span>
                     </div>
-
-                    <button type="submit" class="btn btn-primary">Сохранить изменения</button>
-                </form>
-            </div>
-
-            <!-- Смена пароля -->
-            <div class="profile-section">
-                <h2>Смена пароля</h2>
-                <form method="POST" class="profile-form">
-                    <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                    <input type="hidden" name="change_password" value="1">
-
-                    <div class="form-group">
-                        <label for="current_password">Текущий пароль: *</label>
-                        <input type="password" id="current_password" name="current_password" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="new_password">Новый пароль: *</label>
-                        <input type="password" id="new_password" name="new_password" required minlength="6">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="confirm_password">Подтвердите пароль: *</label>
-                        <input type="password" id="confirm_password" name="confirm_password" required minlength="6">
-                    </div>
-
-                    <button type="submit" class="btn btn-primary">Изменить пароль</button>
-                </form>
+                </div>
+                <a href="edit_profile.php" class="btn btn-primary">Редактировать профиль</a>
             </div>
         </div>
 
@@ -239,14 +142,29 @@ $orders = getUserOrders($user_id);
     font-size: 1.5rem;
 }
 
-.profile-form .form-group {
+.profile-info {
     margin-bottom: 1.5rem;
 }
 
-.form-hint {
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    font-weight: 500;
     color: var(--text-secondary);
-    font-size: 0.9rem;
-    margin-top: 0.5rem;
+}
+
+.info-value {
+    color: var(--text-primary);
+    font-weight: 400;
 }
 
 .orders-section {
@@ -395,6 +313,11 @@ $orders = getUserOrders($user_id);
         flex-direction: column;
         gap: 1rem;
         align-items: flex-start;
+    }
+
+    .info-row {
+        flex-direction: column;
+        gap: 0.25rem;
     }
 }
 </style>
