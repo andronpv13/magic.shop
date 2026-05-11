@@ -112,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="form-row">
                         <div class="form-group">
                             <label for="price">Цена (₽): *</label>
-                            <input type="number" id="price" name="price" step="0.01" min="0" required
+                            <input type="number" id="price" name="price" step="0.01" min="0.01" required
                                    value="<?php echo e($product['price']); ?>">
                         </div>
 
