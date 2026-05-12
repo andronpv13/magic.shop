@@ -9,8 +9,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-// Проверка CSRF токена
-if (!isset($_POST['csrf_token']) || !verifyCsrfToken($_POST['csrf_token'])) {
+// Проверка CSRF токена с использованием csrf_verify()
+if (!csrf_verify()) {
     log_action('CSRF violation in order status update', ['user_id' => $_SESSION['user_id'] ?? null]);
     header('Location: /admin/manage_orders.php?error=csrf');
     exit;
