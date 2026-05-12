@@ -100,11 +100,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // AJAX проверка уникальности с CSRF токеном
         try {
-            const response = await fetch('/users/check_user.php', {
+            const response = await fetch((window.apiBaseUrl || '../') + 'users/check_user.php', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-CSRF-TOKEN': getCsrfToken()
+                    'Content-Type': 'application/x-www-form-urlencoded'
                 },
                 body: new URLSearchParams({ type: 'username', value: value })
             });
@@ -134,11 +133,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // AJAX проверка уникальности с CSRF токеном
         try {
-            const response = await fetch('/users/check_user.php', {
+            const response = await fetch((window.apiBaseUrl || '../') + 'users/check_user.php', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-CSRF-TOKEN': getCsrfToken()
+                    'Content-Type': 'application/x-www-form-urlencoded'
                 },
                 body: new URLSearchParams({ type: 'email', value: value })
             });
