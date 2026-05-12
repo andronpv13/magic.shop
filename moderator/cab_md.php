@@ -29,7 +29,7 @@ $current_user = getCurrentUser();
             </div>
             <div class="info-row">
                 <span class="info-label">Отчество:</span>
-                <span class="info-value"><?php echo e($current_user['patronymic'] ?? ''); ?></span>
+                <span class="info-value"><?php echo e($current_user['middle_name'] ?? ''); ?></span>
             </div>
             <div class="info-row">
                 <span class="info-label">Телефон:</span>
@@ -37,7 +37,16 @@ $current_user = getCurrentUser();
             </div>
             <div class="info-row">
                 <span class="info-label">Адрес:</span>
-                <span class="info-value"><?php echo e($current_user['address'] ?? ''); ?></span>
+                <span class="info-value"><?php
+                    $address_parts = array_filter([
+                        $current_user['region'] ?? '',
+                        $current_user['city'] ?? '',
+                        $current_user['street'] ?? '',
+                        $current_user['house'] ?? '',
+                        $current_user['apartment'] ?? ''
+                    ]);
+                    echo e(implode(' ', $address_parts));
+                ?></span>
             </div>
         </div>
         <a href="/moderator/edit_cab_md.php" class="btn btn-primary">Редактировать данные</a>
