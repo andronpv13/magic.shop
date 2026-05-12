@@ -182,14 +182,36 @@ function csrf_verify() {
 }
 
 // CSRF проверка для AJAX запросов
+// 🔒 УЛУЧШЕННАЯ ПРОВЕРКА: требует обязательного наличия токена и проверяет сессию
 function csrf_verify_ajax() {
+    // Получаем токен из заголовка X-CSRF-Token или из POST-данных
     $csrfToken = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? $_POST['csrf_token'] ?? '';
-    if (empty($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $csrfToken)) {
-        log_error('AJAX CSRF validation failed');
+
+    // 🔒 Проверка: токен должен быть непустым
+    if (empty($csrfToken)) {
+        log_error('AJAX CSRF validation failed - empty token provided', 'SECURITY');
         return false;
     }
-    // Обновляем токен после успешной проверки
+
+    // 🔒 Проверка: сессионный токен должен существовать
+    if (empty($_SESSION['csrf_token'])) {
+        log_error('AJAX CSRF validation failed - no session token', 'SECURITY');
+        return false;
+    }
+
+    // 🔒 Сравнение токенов с защитой от timing-атак
+    if (!hash_equals($_SESSION['csrf_token'], $csrfToken)) {
+        log_error(sprintf(
+            'AJAX CSRF validation failed - token mismatch (session_len=%d, provided_len=%d)',
+            strlen($_SESSION['csrf_token']),
+            strlen($csrfToken)
+        ), 'SECURITY');
+        return false;
+    }
+
+    // 🔒 Обновляем токен после успешной проверки (защита от replay-атак)
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+
     return true;
 }
 
