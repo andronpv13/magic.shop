@@ -4,9 +4,7 @@
 * Разработчик: АВВА © 2025
 */
 $page_title = 'Редактирование профиля - Админ-панель';
-require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/header.php';
-require_once __DIR__ . '/../includes/functions_adm.php';
 requireAdmin();
 
 $current_user = getCurrentUser();
