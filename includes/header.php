@@ -58,45 +58,4 @@ if (!isset($_SESSION['csrf_token'])) {
 </nav>
 </header>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const hamburger = document.getElementById('hamburger-menu');
-    const navLinks = document.getElementById('nav-links');
-
-    if (hamburger && navLinks) {
-        console.log('Hamburger menu found, adding click listener');
-
-        // Обработчик клика по кнопке гамбургера
-        hamburger.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-
-            // Переключаем классы active
-            hamburger.classList.toggle('active');
-            navLinks.classList.toggle('active');
-
-            console.log('Menu toggled:', navLinks.classList.contains('active'));
-        });
-
-        // Закрываем меню при клике вне его области
-        document.addEventListener('click', function(e) {
-            if (!hamburger.contains(e.target) && !navLinks.contains(e.target)) {
-                hamburger.classList.remove('active');
-                navLinks.classList.remove('active');
-            }
-        });
-
-        // Закрываем меню при клике на ссылку
-        const navLinkItems = navLinks.querySelectorAll('.nav-link');
-        navLinkItems.forEach(function(link) {
-            link.addEventListener('click', function() {
-                hamburger.classList.remove('active');
-                navLinks.classList.remove('active');
-            });
-        });
-    } else {
-        console.error('Hamburger or nav-links not found');
-    }
-});
-</script>
 <main>
