@@ -53,8 +53,8 @@ $message = $_GET['message'] ?? '';
                     <tbody>
                         <?php foreach ($products as $product): ?>
                             <tr>
-                                <td><?php echo $product['id']; ?></td>
-                                <td>
+                                <td data-label="ID"><?php echo $product['id']; ?></td>
+                                <td data-label="Изображение">
                                     <div class="table-image">
                                         <?php if ($product['image']): ?>
                                             <img src="<?php echo getProductImage($product['image']); ?>" alt="<?php echo e($product['name']); ?>">
@@ -63,7 +63,7 @@ $message = $_GET['message'] ?? '';
                                         <?php endif; ?>
                                     </div>
                                 </td>
-                                <td>
+                                <td data-label="Название">
                                     <a href="/shop.php?product_id=<?php echo $product['id']; ?>">
                                         <?php echo e($product['name']); ?>
                                     </a>
@@ -71,23 +71,23 @@ $message = $_GET['message'] ?? '';
                                         <span class="badge badge-new">NEW</span>
                                     <?php endif; ?>
                                 </td>
-                                <td><?php echo e($product['category_name'] ?? '-'); ?></td>
-                                <td><?php echo number_format($product['price'], 0, ',', ' '); ?> ₽</td>
-                                <td>
+                                <td data-label="Категория"><?php echo e($product['category_name'] ?? '-'); ?></td>
+                                <td data-label="Цена"><?php echo number_format($product['price'], 0, ',', ' '); ?> ₽</td>
+                                <td data-label="Остаток">
                                     <?php if ($product['stock'] > 0): ?>
                                         <span class="in-stock"><?php echo $product['stock']; ?> шт</span>
                                     <?php else: ?>
                                         <span class="out-of-stock">Нет</span>
                                     <?php endif; ?>
                                 </td>
-                                <td>
+                                <td data-label="Статус">
                                     <?php if ($product['active'] == 1): ?>
                                         <span class="badge badge-success">Активен</span>
                                     <?php else: ?>
                                         <span class="badge badge-error">Удалён</span>
                                     <?php endif; ?>
                                 </td>
-                                <td>
+                                <td data-label="Действия">
                                     <div class="table-actions">
                                         <?php if ($product['active'] == 1): ?>
                                             <a href="edit_product_md.php?id=<?php echo $product['id']; ?>" class="btn btn-sm btn-edit">
