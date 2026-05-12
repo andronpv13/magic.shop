@@ -207,21 +207,72 @@ function getOrderDetails($order_id, $user_id) {
  * @param string $status Новый статус
  * @return array Результат операции
  *
- * ⚠️ ВАЖНО: Проверка прав доступа должна выполняться в вызывающем коде!
- * Используйте requireAdmin() или requireModerator() перед вызовом этой функции.
+ * ⚠️ ВАЖНО: Эта функция теперь включает внутреннюю проверку прав доступа!
+ * Вызывающий код ДОЛЖЕН проверять права через requireAdmin() или requireModerator() ПЕРЕД вызовом,
+ * но функция также выполняет дополнительную проверку для защиты от случайных вызовов.
  */
 function updateOrderStatus($order_id, $status) {
     global $conn;
 
-    // Проверка: функция не проверяет права internally - это должно делаться снаружи
-    // Для безопасности убедитесь, что вызывающий код проверил роль пользователя
+    // 🔒 ВНУТРЕННЯЯ ПРОВЕРКА ПРАВ: Функция требует авторизации и роли администратора/модератора
+    if (!isLoggedIn()) {
+        log_error('updateOrderStatus: Unauthorized access attempt - user not logged in', 'SECURITY');
+        return ['success' => false, 'message' => 'Требуется авторизация'];
+    }
 
-    $stmt = $conn->prepare("UPDATE orders SET status = ? WHERE id = ?");
-    $stmt->bind_param("si", $status, $order_id);
-    $success = $stmt->execute();
+    // Проверка роли пользователя
+    $allowed_roles = ['admin', 'moderator'];
+    if (!in_array($_SESSION['role'], $allowed_roles, true)) {
+        log_error(sprintf(
+            'updateOrderStatus: Unauthorized role access attempt - user_id=%d, role=%s',
+            $_SESSION['user_id'] ?? 0,
+            $_SESSION['role'] ?? 'none'
+        ), 'SECURITY');
+        return ['success' => false, 'message' => 'Недостаточно прав для выполнения операции'];
+    }
+
+    // Дополнительная валидация статуса
+    $valid_statuses = ['pending', 'payment', 'completed', 'cancelled'];
+    if (!in_array($status, $valid_statuses, true)) {
+        log_error(sprintf(
+            'updateOrderStatus: Invalid status attempt - order_id=%d, status=%s',
+            $order_id,
+            $status
+        ), 'SECURITY');
+        return ['success' => false, 'message' => 'Недопустимый статус заказа'];
+    }
+
+    // Проверка существования заказа
+    $stmt = $conn->prepare("SELECT id FROM orders WHERE id = ?");
+    $stmt->bind_param("i", $order_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows === 0) {
+        log_error('updateOrderStatus: Order not found - order_id=' . $order_id, 'WARNING');
+        $stmt->close();
+        return ['success' => false, 'message' => 'Заказ не найден'];
+    }
     $stmt->close();
 
-    return ['success' => $success];
+    // Обновление статуса заказа с использованием подготовленного выражения
+    $stmt = $conn->prepare("UPDATE orders SET status = ?, updated_at = NOW() WHERE id = ?");
+    $stmt->bind_param("si", $status, $order_id);
+    $success = $stmt->execute();
+    $affected_rows = $stmt->affected_rows;
+    $stmt->close();
+
+    if ($success && $affected_rows > 0) {
+        log_action('Order status updated', [
+            'order_id' => $order_id,
+            'new_status' => $status,
+            'user_id' => $_SESSION['user_id'],
+            'role' => $_SESSION['role']
+        ]);
+        return ['success' => true, 'message' => 'Статус заказа обновлён'];
+    }
+
+    return ['success' => false, 'message' => 'Ошибка при обновлении статуса заказа'];
 }
 
 // === Отзывы ===
