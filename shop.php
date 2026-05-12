@@ -1,12 +1,11 @@
 <?php
 require_once 'includes/header.php';
-require_once 'includes/functions.php';
 
 // Получаем все категории
 $categories = getCategories();
 
 // Получаем ID категории из URL
-$category = isset($_GET['category']) ? sanitize($_GET['category']) : null;
+$category = isset($_GET['category']) ? (int)$_GET['category'] : null;
 
 // Получаем ID товара из URL
 $product_id = isset($_GET['id']) ? (int)$_GET['id'] : null;
@@ -19,11 +18,11 @@ if ($product_id) {
     }
     ?>
     <div class="product-detail">
-        <img src="<?php echo getProductImage($product['image']); ?>" alt="<?php echo sanitize($product['name']); ?>">
+        <img src="<?php echo getProductImage($product['image']); ?>" alt="<?php echo e($product['name']); ?>">
         <div class="product-info">
-            <h1><?php echo sanitize($product['name']); ?></h1>
+            <h1><?php echo e($product['name']); ?></h1>
             <p class="price"><?php echo number_format($product['price'], 0, '', ' '); ?> ₽</p>
-            <p class="description"><?php echo sanitize($product['description']); ?></p>
+            <p class="description"><?php echo e($product['description']); ?></p>
             <div class="product-actions">
                 <div class="quantity-selector">
                     <button class="quantity-btn decrease" data-product-id="<?php echo $product['id']; ?>">-</button>
@@ -45,8 +44,8 @@ if ($product_id) {
             <select id="category-select" onchange="if (this.value) window.location.href='?category=' + this.value; else window.location.href='?';">
                 <option value="">Все товары</option>
                 <?php foreach ($categories as $cat): ?>
-                    <option value="<?php echo $cat; ?>" <?php if ($category === $cat) echo 'selected'; ?>>
-                        <?php echo sanitize($cat); ?>
+                    <option value="<?php echo e($cat); ?>" <?php if ($category === $cat) echo 'selected'; ?>>
+                        <?php echo e($cat); ?>
                     </option>
                 <?php endforeach; ?>
             </select>
@@ -60,11 +59,11 @@ if ($product_id) {
                 $imagePath = !empty($product['image']) ? 'product/' . $product['image'] : 'no_photo.png';
                 ?>
                 <a href="shop.php?id=<?php echo $product['id']; ?>" class="product-image-link">
-                    <img src="<?php echo getProductImage($product['image']); ?>" alt="<?php echo sanitize($product['name']); ?>">
+                    <img src="<?php echo getProductImage($product['image']); ?>" alt="<?php echo e($product['name']); ?>">
                     <span class="image-overlay">Подробнее</span>
                 </a>
                 <div class="card-content">
-                    <h3><?php echo sanitize($product['name']); ?></h3>
+                    <h3><?php echo e($product['name']); ?></h3>
                     <p class="price"><?php echo number_format($product['price'], 0, '', ' '); ?> ₽</p>
                     <div class="btn-container">
                         <button class="add-to-basket btn" data-product-id="<?php echo $product['id']; ?>" data-quantity="1">В корзину</button>
