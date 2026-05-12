@@ -22,7 +22,7 @@ if (!is_dir(LOG_DIR)) {
 }
 
 // Загрузка переменных окружения из файла .env
-$env_file = dirname(__DIR__) . '/includes/config/.env';
+$env_file = __DIR__ . '/config/.env';
 if (file_exists($env_file)) {
     $env_lines = file($env_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     foreach ($env_lines as $line) {
