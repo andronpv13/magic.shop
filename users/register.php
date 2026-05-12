@@ -21,7 +21,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'] ?? '';
     $confirm_password = $_POST['confirm_password'] ?? '';
 
-    // Серверная валидация (дублирует клиентскую для безопасности)
+    // Серверная валидация (дублирует клиентскую для безопасности - это правильная практика:
+    // клиентская валидация для UX, серверная для безопасности)
     if (strlen($username) < 4 || strlen($username) > 10 || !preg_match('/^[a-zA-Zа-яА-ЯёЁ]+$/', $username)) {
         $errors[] = "Логин должен содержать от 4 до 10 букв без пробелов и спецсимволов.";
     }
@@ -81,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Регистрация - Волшебная ЛАВКА</title>
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/magic.css">
     <style>
         /* Дополнительные стили специально для формы регистрации */
         .auth-container {
