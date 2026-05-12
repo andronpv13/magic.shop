@@ -156,17 +156,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .password-wrapper .form-control {
-            padding-right: 80px; /* Место под глаз И галочку */
+            padding-right: 50px; /* Место только под глаз, галочка будет поверх */
         }
 
         /* Кнопка глаза */
         .password-toggle {
             position: absolute;
-            right: 45px; /* Слева от галочки/крестика */
+            right: 30px; /* Позиция справа внутри input */
             top: 50%;
             transform: translateY(-50%);
             background: none;
-            border: none;
+            border: none !important;
             cursor: pointer;
             color: #777;
             font-size: 1.2rem;
@@ -175,11 +175,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             justify-content: center;
             width: 24px;
             height: 24px;
-            z-index: 2;
+            z-index: 100;
+            padding: 0;
+            outline: none !important;
         }
 
         .password-toggle:hover {
             color: var(--primary-color);
+        }
+
+        /* Состояние фокуса для кнопки глаза */
+        .password-toggle:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+            border-radius: 4px;
         }
 
         /* Иконка глаза через CSS (SVG background) */
