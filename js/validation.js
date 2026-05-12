@@ -78,6 +78,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Получаем CSRF токен из meta тега
+    function getCsrfToken() {
+        const meta = document.querySelector('meta[name="csrf-token"]');
+        return meta ? meta.getAttribute('content') : '';
+    }
+
     // --- Логика валидации полей ---
 
     // 1. Валидация Логина
@@ -92,9 +98,16 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // AJAX проверка уникальности
+        // AJAX проверка уникальности с CSRF токеном
         try {
-            const response = await fetch(`${window.apiBaseUrl || ''}includes/check_user.php?username=${encodeURIComponent(value)}`);
+            const response = await fetch('/includes/check_user.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRF-TOKEN': getCsrfToken()
+                },
+                body: new URLSearchParams({ type: 'username', value: value })
+            });
             const data = await response.json();
 
             // Если available: true, значит логин свободен
@@ -119,9 +132,16 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // AJAX проверка уникальности
+        // AJAX проверка уникальности с CSRF токеном
         try {
-            const response = await fetch(`${window.apiBaseUrl || ''}includes/check_user.php?email=${encodeURIComponent(value)}`);
+            const response = await fetch('/includes/check_user.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRF-TOKEN': getCsrfToken()
+                },
+                body: new URLSearchParams({ type: 'email', value: value })
+            });
             const data = await response.json();
 
             validationState.email = data.available === true;
