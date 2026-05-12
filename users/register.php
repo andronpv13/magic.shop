@@ -1,507 +1,304 @@
 <?php
-/**
-* Страница регистрации "Волшебная ЛАВКА"
-* Разработчик: АВВА © 2025
-*/
-$page_title = 'Регистрация';
-require_once __DIR__ . '/../includes/config.php';
-require_once __DIR__ . '/../includes/functions.php';
+session_start();
+require_once '../includes/config.php';
+require_once '../includes/functions.php';
 
+// Если пользователь уже авторизован, перенаправляем
 if (isLoggedIn()) {
-    header("Location: /index.php");
-    exit;
+    redirect(getRoleRedirect($_SESSION['user_role']));
 }
 
-$message = '';
-$msgType = '';
+$errors = [];
+$success = '';
 
+// Обработка POST запроса
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Проверка CSRF токена
-    if (!csrf_verify()) {
-        $message = "Ошибка безопасности (CSRF).";
-        $msgType = 'error';
-    } else {
-        $username = trim($_POST['username'] ?? '');
-        $email = trim($_POST['email'] ?? '');
-        $password = $_POST['password'] ?? '';
-        $confirm_password = $_POST['confirm_password'] ?? '';
+    $username = trim($_POST['username'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $password = $_POST['password'] ?? '';
+    $confirm_password = $_POST['confirm_password'] ?? '';
 
-        if (empty($username) || empty($password) || empty($email)) {
-            $message = "Все поля обязательны для заполнения.";
-            $msgType = 'error';
-        } elseif ($password !== $confirm_password) {
-            $message = "Пароли не совпадают.";
-            $msgType = 'error';
-        } elseif (strlen($password) < 6) {
-            $message = "Пароль должен быть не менее 6 символов.";
-            $msgType = 'error';
-        } else {
-            $result = registerUser($username, $email, $password);
-            if ($result['success']) {
-                $_SESSION['just_registered'] = true;
-                header("Location: /users/edit_profile.php");
-                exit;
-            } else {
-                $message = $result['message'];
-                $msgType = 'error';
-            }
+    // Серверная валидация (дублирует клиентскую для безопасности)
+    if (strlen($username) < 4 || strlen($username) > 10 || !preg_match('/^[a-zA-Zа-яА-ЯёЁ]+$/', $username)) {
+        $errors[] = "Логин должен содержать от 4 до 10 букв без пробелов и спецсимволов.";
+    }
+
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors[] = "Некорректный формат email.";
+    }
+
+    if (strlen($password) < 6) {
+        $errors[] = "Пароль должен быть не менее 6 символов.";
+    }
+
+    if ($password !== $confirm_password) {
+        $errors[] = "Пароли не совпадают.";
+    }
+
+    // Проверка на существование (если нет ошибок формата)
+    if (empty($errors)) {
+        $stmt = $pdo->prepare("SELECT id FROM users WHERE username = ? OR email = ?");
+        $stmt->execute([$username, $email]);
+        if ($stmt->fetch()) {
+            $errors[] = "Пользователь с таким логином или email уже существует.";
+        }
+    }
+
+    // Регистрация
+    if (empty($errors)) {
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+        $role = 'customer'; // По умолчанию покупатель
+
+        try {
+            $stmt = $pdo->prepare("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)");
+            $stmt->execute([$username, $email, $hashed_password, $role]);
+
+            $_SESSION['user_id'] = $pdo->lastInsertId();
+            $_SESSION['user_name'] = $username;
+            $_SESSION['user_role'] = $role;
+
+            redirect('profile.php');
+        } catch (PDOException $e) {
+            $errors[] = "Ошибка регистрации: " . $e->getMessage();
         }
     }
 }
-
-require_once __DIR__ . '/../includes/header.php';
 ?>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация - Волшебная ЛАВКА</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        /* Дополнительные стили специально для формы регистрации */
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: calc(100vh - 200px);
+            padding: 2rem 1rem;
+        }
 
-<section class="section">
-    <div class="container">
-        <div class="auth-container">
-            <div class="auth-card auth-card-wide">
-                <h1 class="auth-title">✨ Регистрация</h1>
-                <p class="auth-subtitle">Станьте частью волшебного сообщества</p>
+        .auth-card-wide {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 700px; /* Увеличенная ширина */
+        }
 
-                <?php if ($message): ?>
-                    <div class="alert alert-<?php echo $msgType; ?>"><?php echo e($message); ?></div>
-                <?php endif; ?>
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
 
-                <form action="/users/register.php" method="POST" class="auth-form" id="registerForm">
-                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
 
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="username">Логин</label>
-                            <div class="input-wrapper">
-                                <input type="text" id="username" name="username" class="form-control"
-                                       value="<?php echo e($_POST['username'] ?? ''); ?>" required
-                                       minlength="4" maxlength="10" pattern="[A-Za-zА-Яа-яЁё]+"
-                                       autocomplete="off">
-                                <button type="button" class="status-icon" tabindex="-1"></button>
-                            </div>
-                            <small id="username-feedback" class="feedback-message"></small>
-                        </div>
-                        <div class="form-group">
-                            <label for="email">Email</label>
-                            <div class="input-wrapper">
-                                <input type="email" id="email" name="email" class="form-control" required autocomplete="off">
-                                <button type="button" class="status-icon" tabindex="-1"></button>
-                            </div>
-                            <small id="email-feedback" class="feedback-message"></small>
-                        </div>
-                    </div>
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-sizing: border-box; /* Важно для padding */
+        }
 
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="password">Пароль</label>
-                            <div class="input-wrapper">
-                                <input type="password" id="password" name="password" class="form-control" required minlength="6">
-                                <button type="button" class="password-toggle" data-target="password" aria-label="Показать пароль">👁️</button>
-                                <button type="button" class="status-icon" tabindex="-1"></button>
-                            </div>
-                            <small id="password-feedback" class="feedback-message"></small>
-                        </div>
-                        <div class="form-group">
-                            <label for="confirm_password">Повторите пароль</label>
-                            <div class="input-wrapper">
-                                <input type="password" id="confirm_password" name="confirm_password" class="form-control" required>
-                                <button type="button" class="password-toggle" data-target="confirm_password" aria-label="Показать пароль">👁️</button>
-                                <button type="button" class="status-icon" tabindex="-1"></button>
-                            </div>
-                            <small id="confirm-password-feedback" class="feedback-message"></small>
-                        </div>
-                    </div>
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
 
-                    <button type="submit" class="btn btn-primary btn-block btn-lg" id="submitBtn" disabled>Создать аккаунт</button>
-                </form>
+        /* Стили валидации */
+        .form-control.success {
+            border-color: #2ecc71;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232ecc71' width='20px' height='20px'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center; /* Галочка справа */
+            background-size: 20px;
+            padding-right: 40px; /* Место под галочку */
+        }
 
-                <div class="auth-footer">
-                    <p>Уже есть аккаунт? <a href="../login.php">Войти</a></p>
+        .form-control.error {
+            border-color: #e74c3c;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23e74c3c' width='20px' height='20px'%3E%3Cpath d='M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center; /* Крестик справа */
+            background-size: 20px;
+            padding-right: 40px; /* Место под крестик */
+        }
+
+        /* Обертка для полей пароля */
+        .password-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .password-wrapper .form-control {
+            padding-right: 80px; /* Место под глаз И галочку */
+        }
+
+        /* Кнопка глаза */
+        .password-toggle {
+            position: absolute;
+            right: 45px; /* Слева от галочки/крестика */
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #777;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            z-index: 2;
+        }
+
+        .password-toggle:hover {
+            color: var(--primary-color);
+        }
+
+        /* Иконка глаза через CSS (SVG background) */
+        .password-toggle::before {
+            content: '';
+            display: block;
+            width: 20px;
+            height: 20px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z'%3E%3C/path%3E%3Ccircle cx='12' cy='12' r='3'%3E%3C/circle%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+            transition: opacity 0.2s;
+        }
+
+        /* Перечеркнутый глаз (активное состояние - пароль виден) */
+        .password-toggle.active::before {
+             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24'%3E%3C/path%3E%3Cline x1='1' y1='1' x2='23' y2='23'%3E%3C/line%3E%3C/svg%3E");
+        }
+
+        .btn-block {
+            width: 100%;
+            padding: 0.8rem;
+            font-size: 1.1rem;
+            margin-top: 1rem;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+        .alert-error {
+            background-color: #fdecea;
+            color: #c0392b;
+            border: 1px solid #fadbd8;
+        }
+        .alert-success {
+            background-color: #eafaf1;
+            color: #27ae60;
+            border: 1px solid #d5f5e3;
+        }
+    </style>
+</head>
+<body>
+    <?php include '../includes/header.php'; ?>
+
+    <div class="auth-container">
+        <div class="auth-card-wide">
+            <h2 style="text-align: center; margin-bottom: 1.5rem;">Регистрация</h2>
+
+            <?php if (!empty($errors)): ?>
+                <div class="alert alert-error">
+                    <?php foreach ($errors as $error): ?>
+                        <div><?= htmlspecialchars($error) ?></div>
+                    <?php endforeach; ?>
                 </div>
-            </div>
+            <?php endif; ?>
+
+            <?php if ($success): ?>
+                <div class="alert alert-success"><?= htmlspecialchars($success) ?></div>
+            <?php endif; ?>
+
+            <form id="registerForm" method="POST" action="">
+                <!-- Логин -->
+                <div class="form-group">
+                    <label for="username">Логин (4-10 букв)</label>
+                    <input type="text"
+                           id="username"
+                           name="username"
+                           class="form-control"
+                           placeholder="Введите логин"
+                           required
+                           autocomplete="off">
+                </div>
+
+                <!-- Email -->
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email"
+                           id="email"
+                           name="email"
+                           class="form-control"
+                           placeholder="example@mail.ru"
+                           required
+                           autocomplete="off">
+                </div>
+
+                <!-- Пароль -->
+                <div class="form-group">
+                    <label for="password">Пароль (мин. 6 символов)</label>
+                    <div class="password-wrapper">
+                        <input type="password"
+                               id="password"
+                               name="password"
+                               class="form-control"
+                               placeholder="Введите пароль"
+                               required>
+                        <!-- Кнопка глаза добавляется через JS -->
+                    </div>
+                </div>
+
+                <!-- Подтверждение пароля -->
+                <div class="form-group">
+                    <label for="confirm_password">Подтвердите пароль</label>
+                    <div class="password-wrapper">
+                        <input type="password"
+                               id="confirm_password"
+                               name="confirm_password"
+                               class="form-control"
+                               placeholder="Повторите пароль"
+                               required>
+                        <!-- Кнопка глаза добавляется через JS -->
+                    </div>
+                </div>
+
+                <button type="submit" id="submitBtn" class="btn btn-primary btn-block">Зарегистрироваться</button>
+            </form>
+
+            <p style="text-align: center; margin-top: 1.5rem;">
+                Уже есть аккаунт? <a href="login.php">Войти</a>
+            </p>
         </div>
     </div>
-</section>
 
-<?php require_once __DIR__ . '/../includes/footer.php'; ?>
+    <?php include '../includes/footer.php'; ?>
 
-<!-- Скрипт валидации -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const usernameInput = document.getElementById('username');
-    const emailInput = document.getElementById('email');
-    const passwordInput = document.getElementById('password');
-    const confirmPasswordInput = document.getElementById('confirm_password');
-    const submitBtn = document.getElementById('submitBtn');
-
-    // Элементы статусов
-    const usernameStatus = document.querySelector('#username + .status-icon');
-    const emailStatus = document.querySelector('#email + .status-icon');
-    const passwordStatus = document.querySelector('#password + .password-toggle + .status-icon');
-    const confirmPasswordStatus = document.querySelector('#confirm_password + .password-toggle + .status-icon');
-
-    // Элементы сообщений
-    const usernameFeedback = document.getElementById('username-feedback');
-    const emailFeedback = document.getElementById('email-feedback');
-    const passwordFeedback = document.getElementById('password-feedback');
-    const confirmPasswordFeedback = document.getElementById('confirm-password-feedback');
-
-    // Флаги валидности
-    let isUsernameValid = false;
-    let isEmailValid = false;
-    let isPasswordValid = false;
-    let isConfirmPasswordValid = false;
-
-    // Debounce функция для AJAX запросов
-    function debounce(func, delay) {
-        let timeoutId;
-        return function(...args) {
-            clearTimeout(timeoutId);
-            timeoutId = setTimeout(() => func.apply(this, args), delay);
-        };
-    }
-
-    // Проверка логина
-    const checkUsername = debounce(function() {
-        const value = usernameInput.value.trim();
-
-        // Сброс состояния
-        usernameStatus.className = 'status-icon';
-        usernameFeedback.className = 'feedback-message';
-        usernameFeedback.textContent = '';
-
-        // Проверка длины
-        if (value.length === 0) {
-            isUsernameValid = false;
-            updateSubmitButton();
-            return;
-        }
-
-        if (value.length < 4) {
-            usernameStatus.textContent = '✗';
-            usernameStatus.classList.add('invalid');
-            usernameFeedback.textContent = 'Минимум 4 символа';
-            usernameFeedback.classList.add('invalid');
-            isUsernameValid = false;
-            updateSubmitButton();
-            return;
-        }
-
-        if (value.length > 10) {
-            usernameStatus.textContent = '✗';
-            usernameStatus.classList.add('invalid');
-            usernameFeedback.textContent = 'Максимум 10 символов';
-            usernameFeedback.classList.add('invalid');
-            isUsernameValid = false;
-            updateSubmitButton();
-            return;
-        }
-
-        // Проверка на буквы без пробелов и спецсимволов
-        const letterPattern = /^[A-Za-zА-Яа-яЁё]+$/;
-        if (!letterPattern.test(value)) {
-            usernameStatus.textContent = '✗';
-            usernameStatus.classList.add('invalid');
-            usernameFeedback.textContent = 'Только буквы, без пробелов и спецсимволов';
-            usernameFeedback.classList.add('invalid');
-            isUsernameValid = false;
-            updateSubmitButton();
-            return;
-        }
-
-        // AJAX проверка на существование
-        fetch('/users/check_user.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: 'type=username&value=' + encodeURIComponent(value)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.exists) {
-                usernameStatus.textContent = '✗';
-                usernameStatus.classList.add('invalid');
-                usernameFeedback.textContent = 'Логин уже занят';
-                usernameFeedback.classList.add('invalid');
-                isUsernameValid = false;
-            } else {
-                usernameStatus.textContent = '✓';
-                usernameStatus.classList.add('valid');
-                usernameFeedback.textContent = 'Логин доступен';
-                usernameFeedback.classList.add('valid');
-                isUsernameValid = true;
-            }
-            updateSubmitButton();
-        })
-        .catch(error => {
-            console.error('Ошибка проверки логина:', error);
-            isUsernameValid = false;
-            updateSubmitButton();
-        });
-    }, 500);
-
-    // Проверка email
-    const checkEmail = debounce(function() {
-        const value = emailInput.value.trim();
-
-        // Сброс состояния
-        emailStatus.className = 'status-icon';
-        emailFeedback.className = 'feedback-message';
-        emailFeedback.textContent = '';
-
-        if (value.length === 0) {
-            isEmailValid = false;
-            updateSubmitButton();
-            return;
-        }
-
-        // Проверка формата email
-        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailPattern.test(value)) {
-            emailStatus.textContent = '✗';
-            emailStatus.classList.add('invalid');
-            emailFeedback.textContent = 'Некорректный формат email';
-            emailFeedback.classList.add('invalid');
-            isEmailValid = false;
-            updateSubmitButton();
-            return;
-        }
-
-        // AJAX проверка на существование
-        fetch('/users/check_user.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: 'type=email&value=' + encodeURIComponent(value)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.exists) {
-                emailStatus.textContent = '✗';
-                emailStatus.classList.add('invalid');
-                emailFeedback.textContent = 'Email уже зарегистрирован';
-                emailFeedback.classList.add('invalid');
-                isEmailValid = false;
-            } else {
-                emailStatus.textContent = '✓';
-                emailStatus.classList.add('valid');
-                emailFeedback.textContent = 'Email доступен';
-                emailFeedback.classList.add('valid');
-                isEmailValid = true;
-            }
-            updateSubmitButton();
-        })
-        .catch(error => {
-            console.error('Ошибка проверки email:', error);
-            isEmailValid = false;
-            updateSubmitButton();
-        });
-    }, 500);
-
-    // Проверка пароля
-    function checkPassword() {
-        const value = passwordInput.value;
-
-        // Сброс состояния
-        passwordStatus.className = 'status-icon';
-        passwordFeedback.className = 'feedback-message';
-        passwordFeedback.textContent = '';
-
-        if (value.length === 0) {
-            isPasswordValid = false;
-            checkConfirmPassword(); // Перепроверка подтверждения
-            updateSubmitButton();
-            return;
-        }
-
-        if (value.length < 6) {
-            passwordStatus.textContent = '✗';
-            passwordStatus.classList.add('invalid');
-            passwordFeedback.textContent = 'Минимум 6 символов';
-            passwordFeedback.classList.add('invalid');
-            isPasswordValid = false;
-        } else {
-            passwordStatus.textContent = '✓';
-            passwordStatus.classList.add('valid');
-            passwordFeedback.textContent = '';
-            passwordFeedback.classList.add('valid');
-            isPasswordValid = true;
-        }
-
-        checkConfirmPassword(); // Перепроверка подтверждения пароля
-        updateSubmitButton();
-    }
-
-    // Проверка подтверждения пароля
-    function checkConfirmPassword() {
-        const passwordValue = passwordInput.value;
-        const confirmValue = confirmPasswordInput.value;
-
-        // Сброс состояния
-        confirmPasswordStatus.className = 'status-icon';
-        confirmPasswordFeedback.className = 'feedback-message';
-        confirmPasswordFeedback.textContent = '';
-
-        if (confirmValue.length === 0) {
-            isConfirmPasswordValid = false;
-            updateSubmitButton();
-            return;
-        }
-
-        if (passwordValue !== confirmValue) {
-            confirmPasswordStatus.textContent = '✗';
-            confirmPasswordStatus.classList.add('invalid');
-            confirmPasswordFeedback.textContent = 'Пароли не совпадают';
-            confirmPasswordFeedback.classList.add('invalid');
-            isConfirmPasswordValid = false;
-        } else {
-            confirmPasswordStatus.textContent = '✓';
-            confirmPasswordStatus.classList.add('valid');
-            confirmPasswordFeedback.textContent = '';
-            confirmPasswordFeedback.classList.add('valid');
-            isConfirmPasswordValid = true;
-        }
-
-        updateSubmitButton();
-    }
-
-    // Обновление кнопки отправки
-    function updateSubmitButton() {
-        if (isUsernameValid && isEmailValid && isPasswordValid && isConfirmPasswordValid) {
-            submitBtn.disabled = false;
-        } else {
-            submitBtn.disabled = true;
-        }
-    }
-
-    // Обработчики событий
-    usernameInput.addEventListener('input', checkUsername);
-    emailInput.addEventListener('input', checkEmail);
-    passwordInput.addEventListener('input', checkPassword);
-    confirmPasswordInput.addEventListener('input', checkConfirmPassword);
-
-    // Переключатель видимости пароля
-    document.querySelectorAll('.password-toggle').forEach(button => {
-        button.addEventListener('click', function() {
-            const targetId = this.getAttribute('data-target');
-            const input = document.getElementById(targetId);
-
-            if (input.type === 'password') {
-                input.type = 'text';
-                this.textContent = '👁️';
-                this.classList.add('active');
-            } else {
-                input.type = 'password';
-                this.textContent = '👁️';
-                this.classList.remove('active');
-            }
-        });
-    });
-});
-</script>
-
-<!-- Стили для валидации -->
-<style>
-    .form-row { display: flex; gap: 1rem; }
-    .form-row .form-group { flex: 1; }
-
-    /* Увеличенная ширина формы регистрации */
-    .auth-card-wide {
-        max-width: 700px !important;
-    }
-
-    /* Контейнер поля ввода с иконкой */
-    .input-wrapper {
-        position: relative;
-        display: flex;
-        align-items: center;
-    }
-
-    .input-wrapper input {
-        width: 100%;
-        padding-right: 5rem;
-    }
-
-    /* Иконка статуса (галочка/крестик) */
-    .status-icon {
-        position: absolute;
-        right: 10px;
-        font-size: 1.2rem;
-        pointer-events: none;
-        background: none;
-        border: none;
-        cursor: default;
-        padding: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 2;
-    }
-
-    .status-icon.valid::after {
-        content: '✓';
-        color: #32CD32;
-    }
-
-    .status-icon.invalid::after {
-        content: '✗';
-        color: #DC143C;
-    }
-
-    /* Кнопка просмотра пароля (глаз) */
-    .password-toggle {
-        position: absolute;
-        right: 40px;
-        background: none;
-        border: none;
-        cursor: pointer;
-        font-size: 1.1rem;
-        padding: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #666;
-        z-index: 2;
-    }
-
-    .password-toggle:hover {
-        color: #333;
-    }
-
-    .password-toggle.active::before {
-        content: '';
-        position: absolute;
-        width: 100%;
-        height: 2px;
-        background: #DC143C;
-        transform: rotate(-45deg);
-    }
-
-    /* Сообщение обратной связи */
-    .feedback-message {
-        display: block;
-        margin-top: 0.3rem;
-        font-size: 0.85rem;
-        min-height: 1.2em;
-    }
-
-    .feedback-message.valid {
-        color: #32CD32;
-    }
-
-    .feedback-message.invalid {
-        color: #DC143C;
-    }
-
-    @media (max-width: 600px) {
-        .form-row { flex-direction: column; gap: 0; }
-        .password-toggle {
-            right: 35px;
-        }
-        .status-icon {
-            right: 10px;
-        }
-        .input-wrapper input {
-            padding-right: 5rem;
-        }
-    }
-</style>
+    <!-- Подключение внешнего скрипта валидации -->
+    <script>
+        // Передаем базовый URL для API в внешний скрипт
+        window.apiBaseUrl = '../';
+    </script>
+    <script src="../js/validation.js" defer></script>
+</body>
+</html>
