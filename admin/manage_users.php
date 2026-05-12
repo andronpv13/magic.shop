@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_moderator'])) {
         $password = $_POST['password'] ?? '';
         $first_name = trim($_POST['first_name'] ?? '');
         $last_name = trim($_POST['last_name'] ?? '');
-        
+
         if (empty($username) || empty($email) || empty($password)) {
             $error = 'Заполните обязательные поля';
         } elseif (strlen($password) < 6) {
@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_user'])) {
         $error = 'Ошибка безопасности. Попробуйте обновить страницу.';
     } else {
         $user_id = (int)$_POST['delete_user'];
-        
+
         // Проверка: нельзя удалить самого себя (на уровне PHP)
         if ($user_id === $_SESSION['user_id']) {
             $error = 'Вы не можете удалить свой аккаунт.';
@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reset_password'])) {
     } else {
         $user_id = (int)$_POST['user_id'];
         $new_password = $_POST['new_password'] ?? '';
-        
+
         if (empty($new_password)) {
             $error = 'Введите новый пароль';
         } elseif (strlen($new_password) < 6) {
@@ -102,7 +102,7 @@ $users = getAllUsers();
         <?php if ($success): ?>
             <div class="alert alert-success"><?php echo e($success); ?></div>
         <?php endif; ?>
-        
+
         <?php if ($error): ?>
             <div class="alert alert-error"><?php echo e($error); ?></div>
         <?php endif; ?>
@@ -124,11 +124,11 @@ $users = getAllUsers();
                     <tbody>
                         <?php foreach ($users as $user): ?>
                             <tr>
-                                <td><?php echo $user['id']; ?></td>
-                                <td><?php echo e($user['username']); ?></td>
-                                <td><?php echo e($user['email']); ?></td>
-                                <td><?php echo e(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? '')); ?></td>
-                                <td>
+                                <td data-label="ID"><?php echo $user['id']; ?></td>
+                                <td data-label="Логин"><?php echo e($user['username']); ?></td>
+                                <td data-label="Email"><?php echo e($user['email']); ?></td>
+                                <td data-label="Имя"><?php echo e(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? '')); ?></td>
+                                <td data-label="Роль">
                                     <span class="role-badge role-<?php echo $user['role']; ?>">
                                         <?php
                                         $role_names = ['admin' => 'Админ', 'moderator' => 'Модератор', 'customer' => 'Покупатель'];
@@ -136,15 +136,15 @@ $users = getAllUsers();
                                         ?>
                                     </span>
                                 </td>
-                                <td><?php echo date('d.m.Y', strtotime($user['created_at'])); ?></td>
-                                <td>
+                                <td data-label="Дата регистрации"><?php echo date('d.m.Y', strtotime($user['created_at'])); ?></td>
+                                <td data-label="Действия">
                                     <div class="table-actions">
                                         <?php if ($user['id'] != $_SESSION['user_id']): ?>
-                                            <button class="btn btn-sm btn-reset-password" 
+                                            <button class="btn btn-sm btn-reset-password"
                                                     onclick="document.getElementById('resetPasswordModal').style.display='block'; document.getElementById('reset_user_id').value=<?php echo $user['id']; ?>">
                                                 🔑
                                             </button>
-                                            <form method="POST" style="display: inline;" 
+                                            <form method="POST" style="display: inline;"
                                                   onsubmit="return confirm('Удалить пользователя <?php echo e($user['username']); ?>?');">
                                                 <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
                                                 <input type="hidden" name="delete_user" value="<?php echo $user['id']; ?>">
@@ -174,7 +174,7 @@ $users = getAllUsers();
         <h2>Добавить модератора</h2>
         <form method="POST">
             <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-            
+
             <div class="form-group">
                 <label for="username">Логин: *</label>
                 <input type="text" id="username" name="username" required>
@@ -209,7 +209,7 @@ $users = getAllUsers();
         <h2>Сброс пароля</h2>
         <form method="POST">
             <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-            
+
             <input type="hidden" name="user_id" id="reset_user_id">
             <div class="form-group">
                 <label for="new_password">Новый пароль: * (мин. 6 символов)</label>
