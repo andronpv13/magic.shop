@@ -2,13 +2,6 @@
 require_once __DIR__ . '/../includes/config.php';
 header('Content-Type: application/json');
 
-// Проверка CSRF токена для AJAX запросов
-if (!csrf_verify_ajax()) {
-    http_response_code(403);
-    echo json_encode(['error' => 'CSRF validation failed']);
-    exit;
-}
-
 $type = $_POST['type'] ?? $_GET['type'] ?? '';
 $value = trim($_POST['value'] ?? $_GET['value'] ?? '');
 
