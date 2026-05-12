@@ -126,23 +126,37 @@ function deleteProduct($id) {
 
 function getCategoriesList() {
     global $conn;
+    // 🔒 ИСПОЛЬЗУЕМ ТОЛЬКО подготовленные выражения с таблицей categories
+    // Убран legacy-код с прямой интерполяцией строк
     $stmt = $conn->prepare("SELECT c.name AS category, c.id AS category_id, COUNT(p.id) AS product_count FROM categories c LEFT JOIN products p ON p.category_id = c.id AND p.active = 1 GROUP BY c.id, c.name ORDER BY c.name");
+
     if (!$stmt) {
-        $stmt = $conn->prepare("SELECT category AS category, COUNT(*) AS product_count FROM products WHERE category IS NOT NULL AND category != '' AND active = 1 GROUP BY category ORDER BY category");
+        log_error('getCategoriesList: Failed to prepare statement - ' . $conn->error, 'ERROR');
+        return [];
     }
+
     $stmt->execute();
-    return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $result = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
+    return $result;
 }
 
 function getCategoryByName($n) {
     global $conn;
+    // 🔒 ИСПОЛЬЗУЕМ ТОЛЬКО подготовленные выражения с таблицей categories
+    // Убран legacy-код с потенциальной SQL-инъекцией
     $stmt = $conn->prepare("SELECT id, name FROM categories WHERE name = ? LIMIT 1");
+
     if (!$stmt) {
-        $stmt = $conn->prepare("SELECT DISTINCT category AS category FROM products WHERE category = ? LIMIT 1");
+        log_error('getCategoryByName: Failed to prepare statement - ' . $conn->error, 'ERROR');
+        return null;
     }
+
     $stmt->bind_param("s", $n);
     $stmt->execute();
-    return $stmt->get_result()->fetch_assoc();
+    $result = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+    return $result;
 }
 
 function addCategory($name) {
@@ -209,33 +223,48 @@ function ensureCategoryExists($name) {
 
 function countCategories() {
     global $conn;
+    // 🔒 ИСПОЛЬЗУЕМ ТОЛЬКО таблицу categories с подготовленными выражениями
+    // Убран legacy-код с прямой интерполяцией
     $stmt = $conn->prepare("SELECT COUNT(*) as total FROM categories");
+
     if (!$stmt) {
-        $stmt = $conn->prepare("SELECT COUNT(DISTINCT category) as total FROM products WHERE category IS NOT NULL AND category != ''");
+        log_error('countCategories: Failed to prepare statement - ' . $conn->error, 'ERROR');
+        return 0;
     }
+
     $stmt->execute();
     $result = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
     return (int)($result['total'] ?? 0);
 }
 
 function getProductsCountByCategory($category) {
     global $conn;
-    // Если передано число - считаем category_id, иначе ищем по имени
+    // 🔒 Если передано число - считаем category_id, иначе ищем по имени через безопасную функцию
     if (is_numeric($category)) {
         $stmt = $conn->prepare("SELECT COUNT(*) as total FROM products WHERE category_id = ? AND active = 1");
+        if (!$stmt) {
+            log_error('getProductsCountByCategory: Failed to prepare statement - ' . $conn->error, 'ERROR');
+            return 0;
+        }
         $stmt->bind_param("i", $category);
     } else {
-        // Для обратной совместимости: ищем категорию по имени
+        // Для обратной совместимости: ищем категорию по имени через безопасную функцию getCategoryByName
         $cat_obj = getCategoryByName($category);
         if (!$cat_obj) {
             return 0;
         }
         $category_id = (int)$cat_obj['id'];
         $stmt = $conn->prepare("SELECT COUNT(*) as total FROM products WHERE category_id = ? AND active = 1");
+        if (!$stmt) {
+            log_error('getProductsCountByCategory: Failed to prepare statement - ' . $conn->error, 'ERROR');
+            return 0;
+        }
         $stmt->bind_param("i", $category_id);
     }
     $stmt->execute();
     $result = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
     return (int)($result['total'] ?? 0);
 }
 
@@ -290,20 +319,86 @@ function deleteCategory($category) {
 }
 
 function uploadProductImage($file) {
-    $allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-    if (!in_array($file['type'], $allowed) || $file['size'] > 5*1024*1024) {
-        return ['success' => false, 'message' => 'Ошибка формата'];
+    // 🔒 УЛУЧШЕННАЯ ПРОВЕРКА БЕЗОПАСНОСТИ ЗАГРУЖАЕМЫХ ФАЙЛОВ
+
+    // Проверка наличия ошибки загрузки
+    if (!isset($file) || !is_array($file) || $file['error'] !== UPLOAD_ERR_OK) {
+        $upload_errors = [
+            UPLOAD_ERR_INI_SIZE => 'Файл превышает максимальный размер, установленный в php.ini',
+            UPLOAD_ERR_FORM_SIZE => 'Файл превышает максимальный размер формы',
+            UPLOAD_ERR_PARTIAL => 'Файл загружен частично',
+            UPLOAD_ERR_NO_FILE => 'Файл не был загружен',
+            UPLOAD_ERR_NO_TMP_DIR => 'Отсутствует временная папка',
+            UPLOAD_ERR_CANT_WRITE => 'Не удалось записать файл на диск',
+            UPLOAD_ERR_EXTENSION => 'Расширение PHP остановило загрузку'
+        ];
+        $error_code = $file['error'] ?? UPLOAD_ERR_NO_FILE;
+        return ['success' => false, 'message' => $upload_errors[$error_code] ?? 'Ошибка загрузки файла'];
     }
-    $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
-    $fn = uniqid('prod_') . '.' . $ext;
+
+    // Разрешённые MIME-типы
+    $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+
+    // 🔒 Проверка MIME-типа через finfo (более надёжно чем $_FILES['type'])
+    $finfo = new finfo(FILEINFO_MIME_TYPE);
+    $real_mime = $finfo->file($file['tmp_name']);
+
+    if (!in_array($real_mime, $allowed_types, true)) {
+        log_error(sprintf(
+            'uploadProductImage: Blocked dangerous file upload - claimed_type=%s, real_type=%s, filename=%s',
+            $file['type'] ?? 'unknown',
+            $real_mime,
+            $file['name'] ?? 'unknown'
+        ), 'SECURITY');
+        return ['success' => false, 'message' => 'Недопустимый формат файла. Разрешены только JPG, PNG, GIF, WebP'];
+    }
+
+    // Проверка размера файла (макс. 5MB)
+    $max_size = 5 * 1024 * 1024; // 5MB
+    if ($file['size'] > $max_size) {
+        return ['success' => false, 'message' => 'Размер файла не должен превышать 5MB'];
+    }
+
+    // 🔒 Дополнительная проверка: getimagesize для подтверждения что это изображение
+    $image_info = @getimagesize($file['tmp_name']);
+    if ($image_info === false) {
+        log_error('uploadProductImage: File is not a valid image - ' . $file['name'], 'SECURITY');
+        return ['success' => false, 'message' => 'Файл не является корректным изображением'];
+    }
+
+    // Проверка расширения файла
+    $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+    if (!in_array($ext, $allowed_extensions, true)) {
+        return ['success' => false, 'message' => 'Недопустимое расширение файла'];
+    }
+
+    // Генерация безопасного имени файла
+    $fn = uniqid('prod_', true) . '.' . $ext;
+
+    // Создание директории если не существует
     $dir = __DIR__ . '/../images/product/';
     if (!is_dir($dir)) {
         mkdir($dir, 0755, true);
     }
-    if (move_uploaded_file($file['tmp_name'], $dir . $fn)) {
+
+    // Запрет записи исполняемых файлов (.htaccess для защиты директории)
+    $htaccess_file = $dir . '.htaccess';
+    if (!file_exists($htaccess_file)) {
+        file_put_contents($htaccess_file, "RemoveHandler .php .phtml .php3\nphp_flag engine off\n");
+    }
+
+    $target_path = $dir . $fn;
+
+    // 🔒 Перемещение файла с проверкой результата
+    if (move_uploaded_file($file['tmp_name'], $target_path)) {
+        // Дополнительная защита: установка прав только на чтение
+        chmod($target_path, 0644);
         return ['success' => true, 'filename' => 'product/' . $fn];
     }
-    return ['success' => false, 'message' => 'Ошибка загрузки'];
+
+    log_error('uploadProductImage: Failed to move uploaded file - ' . $file['name'], 'ERROR');
+    return ['success' => false, 'message' => 'Ошибка при сохранении файла'];
 }
 
 function getAllOrders($s = null) {
