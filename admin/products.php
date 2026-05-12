@@ -84,43 +84,43 @@ $use_categories = isset($_SESSION['use_categories']) ? $_SESSION['use_categories
                         <tbody>
                             <?php foreach ($products as $product): ?>
                                 <tr>
-                                    <td>
+                                    <td data-label="Изображение">
                                         <?php if ($product['image']): ?>
                                             <div class="table-image">
-                                                <img src="<?php echo getProductImage($product['image']); ?>" alt="<?php echo e($product['name']); ?>" style="width: 50px; height: 50px; object-fit: cover;">
+                                                <img src="<?php echo getProductImage($product['image']); ?>" alt="<?php echo e($product['name']); ?>">
                                             </div>
                                         <?php else: ?>
                                             <div class="table-image-placeholder">🎁</div>
                                         <?php endif; ?>
                                     </td>
-                                    <td>
+                                    <td data-label="Название">
                                         <a href="/admin/edit_product.php?id=<?php echo $product['id']; ?>">
                                             <?php echo e($product['name']); ?>
                                         </a>
                                     </td>
-                                    <td>
+                                    <td data-label="Категория">
                                         <?php if (!empty($product['category_name'])): ?>
                                             <?php echo e($product['category_name']); ?>
                                         <?php else: ?>
                                             Без категории
                                         <?php endif; ?>
                                     </td>
-                                    <td><?php echo number_format($product['price'], 0, ',', ' '); ?> ₽</td>
-                                    <td><?php echo $product['stock']; ?></td>
-                                    <td>
+                                    <td data-label="Цена"><?php echo number_format($product['price'], 0, ',', ' '); ?> ₽</td>
+                                    <td data-label="Остаток"><?php echo $product['stock']; ?></td>
+                                    <td data-label="Статус">
                                         <?php if ($product['is_new']): ?>
                                             <span class="badge badge-new">NEW</span>
                                         <?php endif; ?>
                                     </td>
-                                    <td>
+                                    <td data-label="Действия">
                                         <div class="table-actions">
-                                            <a href="/admin/edit_product.php?id=<?php echo $product['id']; ?>" class="btn btn-sm btn-edit">
-                                                Редактировать
+                                            <a href="/admin/edit_product.php?id=<?php echo $product['id']; ?>" class="btn btn-sm btn-edit" title="Редактировать">
+                                                ✏️
                                             </a>
                                             <form method="POST" style="display: inline;" onsubmit="return confirm('Вы уверены, что хотите удалить этот товар?');">
                                                 <input type="hidden" name="delete" value="<?php echo $product['id']; ?>">
                                                 <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-                                                <button type="submit" class="btn btn-sm btn-delete">Удалить</button>
+                                                <button type="submit" class="btn btn-sm btn-delete" title="Удалить">🗑️</button>
                                             </form>
                                         </div>
                                     </td>
