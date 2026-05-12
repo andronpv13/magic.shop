@@ -1,95 +1,185 @@
-// Валидация форм на стороне клиента
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('registerForm');
+    if (!form) return;
 
-document.addEventListener('DOMContentLoaded', function() {
-    // Валидация формы регистрации
-    const registerForm = document.querySelector('.register-form');
-    if (registerForm) {
-        registerForm.addEventListener('submit', function(e) {
-            const username = this.querySelector('[name="username"]');
-            const email = this.querySelector('[name="email"]');
-            const password = this.querySelector('[name="password"]');
-            const confirmPassword = this.querySelector('[name="confirm_password"]');
+    // Элементы формы
+    const usernameInput = document.getElementById('username');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirm_password');
+    const submitBtn = document.getElementById('submitBtn');
 
-            let errors = [];
+    let validationState = {
+        username: false,
+        email: false,
+        password: false,
+        confirm: false
+    };
 
-            if (username && username.value.length < 3) {
-                errors.push('Имя пользователя должно быть не менее 3 символов');
-            }
+    // --- Утилиты ---
 
-            if (email && !isValidEmail(email.value)) {
-                errors.push('Некорректный email адрес');
-            }
+    // Debounce для AJAX запросов
+    function debounce(func, delay) {
+        let timeout;
+        return function (...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), delay);
+        };
+    }
 
-            if (password && password.value.length < 6) {
-                errors.push('Пароль должен быть не менее 6 символов');
-            }
+    // Обновление состояния кнопки отправки
+    function updateSubmitButton() {
+        const isValid = Object.values(validationState).every(Boolean);
+        if (submitBtn) {
+            submitBtn.disabled = !isValid;
+            submitBtn.style.opacity = isValid ? '1' : '0.6';
+            submitBtn.style.cursor = isValid ? 'pointer' : 'not-allowed';
+        }
+    }
 
-            if (password && confirmPassword && password.value !== confirmPassword.value) {
-                errors.push('Пароли не совпадают');
-            }
+    // Установка статуса валидации для поля
+    function setFieldStatus(inputElement, isValid, errorClass = 'error', successClass = 'success') {
+        if (!inputElement) return;
 
-            if (errors.length > 0) {
-                e.preventDefault();
-                alert(errors.join('\n'));
-            }
+        // Удаляем предыдущие классы
+        inputElement.classList.remove(errorClass, successClass);
+
+        // Добавляем новый статус
+        if (isValid) {
+            inputElement.classList.add(successClass);
+        } else {
+            inputElement.classList.add(errorClass);
+        }
+    }
+
+    // Переключение видимости пароля
+    function initPasswordToggle(inputId) {
+        const input = document.getElementById(inputId);
+        if (!input) return;
+
+        const wrapper = input.parentElement;
+        // Ищем или создаем кнопку глаза
+        let toggleBtn = wrapper.querySelector('.password-toggle');
+
+        if (!toggleBtn) {
+            toggleBtn = document.createElement('button');
+            toggleBtn.type = 'button';
+            toggleBtn.className = 'password-toggle';
+            toggleBtn.setAttribute('aria-label', 'Показать/скрыть пароль');
+            wrapper.appendChild(toggleBtn);
+        }
+
+        toggleBtn.addEventListener('click', () => {
+            const isPassword = input.type === 'password';
+            input.type = isPassword ? 'text' : 'password';
+
+            // Меняем иконку (через класс для CSS)
+            toggleBtn.classList.toggle('active', !isPassword);
         });
     }
 
-    // Валидация формы заказа
-    const orderForm = document.querySelector('.order-form');
-    if (orderForm) {
-        orderForm.addEventListener('submit', function(e) {
-            const name = this.querySelector('[name="name"]');
-            const phone = this.querySelector('[name="phone"]');
+    // --- Логика валидации полей ---
 
-            let errors = [];
+    // 1. Валидация Логина
+    const validateUsername = debounce(async () => {
+        const value = usernameInput.value.trim();
+        const regex = /^[a-zA-Zа-яА-ЯёЁ]{4,10}$/;
 
-            if (name && name.value.length < 2) {
-                errors.push('Введите корректное имя');
-            }
+        if (!regex.test(value)) {
+            validationState.username = false;
+            setFieldStatus(usernameInput, false);
+            updateSubmitButton();
+            return;
+        }
 
-            if (phone && !isValidPhone(phone.value)) {
-                errors.push('Введите корректный номер телефона');
-            }
+        // AJAX проверка уникальности
+        try {
+            const response = await fetch(`${window.apiBaseUrl || ''}includes/check_user.php?username=${encodeURIComponent(value)}`);
+            const data = await response.json();
 
-            if (errors.length > 0) {
-                e.preventDefault();
-                alert(errors.join('\n'));
-            }
-        });
+            // Если available: true, значит логин свободен
+            validationState.username = data.available === true;
+            setFieldStatus(usernameInput, validationState.username);
+        } catch (e) {
+            validationState.username = false;
+            setFieldStatus(usernameInput, false);
+        }
+        updateSubmitButton();
+    }, 500);
+
+    // 2. Валидация Email
+    const validateEmail = debounce(async () => {
+        const value = emailInput.value.trim();
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (!regex.test(value)) {
+            validationState.email = false;
+            setFieldStatus(emailInput, false);
+            updateSubmitButton();
+            return;
+        }
+
+        // AJAX проверка уникальности
+        try {
+            const response = await fetch(`${window.apiBaseUrl || ''}includes/check_user.php?email=${encodeURIComponent(value)}`);
+            const data = await response.json();
+
+            validationState.email = data.available === true;
+            setFieldStatus(emailInput, validationState.email);
+        } catch (e) {
+            validationState.email = false;
+            setFieldStatus(emailInput, false);
+        }
+        updateSubmitButton();
+    }, 500);
+
+    // 3. Валидация Пароля
+    const validatePassword = () => {
+        const value = passwordInput.value;
+        const isValid = value.length >= 6;
+
+        validationState.password = isValid;
+        setFieldStatus(passwordInput, isValid);
+
+        // Если поле подтверждения уже заполнено, перепроверяем его
+        if (confirmPasswordInput.value) {
+            validateConfirmPassword();
+        }
+
+        updateSubmitButton();
+    };
+
+    // 4. Валидация Подтверждения пароля
+    const validateConfirmPassword = () => {
+        const pass = passwordInput.value;
+        const confirm = confirmPasswordInput.value;
+        const isValid = confirm.length > 0 && pass === confirm;
+
+        validationState.confirm = isValid;
+        setFieldStatus(confirmPasswordInput, isValid);
+        updateSubmitButton();
+    };
+
+    // --- Инициализация слушателей ---
+
+    if (usernameInput) {
+        usernameInput.addEventListener('input', validateUsername);
     }
 
-    // Валидация формы отзыва
-    const reviewForm = document.querySelector('.review-form');
-    if (reviewForm) {
-        reviewForm.addEventListener('submit', function(e) {
-            const rating = this.querySelector('[name="rating"]');
-            const comment = this.querySelector('[name="comment"]');
-
-            let errors = [];
-
-            if (rating && !rating.value) {
-                errors.push('Выберите оценку');
-            }
-
-            if (comment && comment.value.length < 10) {
-                errors.push('Комментарий должен быть не менее 10 символов');
-            }
-
-            if (errors.length > 0) {
-                e.preventDefault();
-                alert(errors.join('\n'));
-            }
-        });
+    if (emailInput) {
+        emailInput.addEventListener('input', validateEmail);
     }
+
+    if (passwordInput) {
+        passwordInput.addEventListener('input', validatePassword);
+        initPasswordToggle('password');
+    }
+
+    if (confirmPasswordInput) {
+        confirmPasswordInput.addEventListener('input', validateConfirmPassword);
+        initPasswordToggle('confirm_password');
+    }
+
+    // Блокируем кнопку изначально
+    updateSubmitButton();
 });
-
-function isValidEmail(email) {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(email);
-}
-
-function isValidPhone(phone) {
-    const re = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/;
-    return re.test(phone.replace(/\s/g, ''));
-}
