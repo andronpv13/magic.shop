@@ -1,11 +1,14 @@
 <?php
-session_start();
 require_once '../includes/config.php';
 require_once '../includes/functions.php';
 
 // Если пользователь уже авторизован, перенаправляем
 if (isLoggedIn()) {
-    redirect(getRoleRedirect($_SESSION['user_role']));
+    switch ($_SESSION['role']) {
+        case 'admin': redirect('/admin/index.php'); break;
+        case 'moderator': redirect('/moderator/index_md.php'); break;
+        default: redirect('/index.php');
+    }
 }
 
 $errors = [];
@@ -37,11 +40,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Проверка на существование (если нет ошибок формата)
     if (empty($errors)) {
-        $stmt = $pdo->prepare("SELECT id FROM users WHERE username = ? OR email = ?");
-        $stmt->execute([$username, $email]);
-        if ($stmt->fetch()) {
+        $stmt = $conn->prepare("SELECT id FROM users WHERE username = ? OR email = ?");
+        $stmt->bind_param("ss", $username, $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($result->fetch_assoc()) {
             $errors[] = "Пользователь с таким логином или email уже существует.";
         }
+        $stmt->close();
     }
 
     // Регистрация
@@ -50,16 +56,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $role = 'customer'; // По умолчанию покупатель
 
         try {
-            $stmt = $pdo->prepare("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)");
-            $stmt->execute([$username, $email, $hashed_password, $role]);
+            $stmt = $conn->prepare("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)");
+            $stmt->bind_param("ssss", $username, $email, $hashed_password, $role);
+            $stmt->execute();
 
-            $_SESSION['user_id'] = $pdo->lastInsertId();
-            $_SESSION['user_name'] = $username;
-            $_SESSION['user_role'] = $role;
+            $_SESSION['user_id'] = $conn->insert_id;
+            $_SESSION['username'] = $username;
+            $_SESSION['role'] = $role;
 
             redirect('profile.php');
-        } catch (PDOException $e) {
+        } catch (Exception $e) {
             $errors[] = "Ошибка регистрации: " . $e->getMessage();
+        } finally {
+            if (isset($stmt)) {
+                $stmt->close();
+            }
         }
     }
 }
