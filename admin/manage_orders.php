@@ -59,14 +59,14 @@ $orders = getAllOrders($filter);
                     <tbody>
                         <?php foreach ($orders as $order): ?>
                             <tr>
-                                <td><?php echo $order['id']; ?></td>
-                                <td><?php echo date('d.m.Y H:i', strtotime($order['created_at'])); ?></td>
-                                <td>
+                                <td data-label="№"><?php echo $order['id']; ?></td>
+                                <td data-label="Дата"><?php echo date('d.m.Y H:i', strtotime($order['created_at'])); ?></td>
+                                <td data-label="Покупатель">
                                     <?php echo e($order['username'] ?? 'Гость'); ?><br>
                                     <small><?php echo e($order['email'] ?? ''); ?></small>
                                 </td>
-                                <td><?php echo number_format($order['total'], 0, ',', ' '); ?> ₽</td>
-                                <td>
+                                <td data-label="Сумма"><?php echo number_format($order['total'], 0, ',', ' '); ?> ₽</td>
+                                <td data-label="Статус">
                                     <span class="status-badge status-<?php echo $order['status']; ?>">
                                         <?php
                                         $status_names = [
@@ -79,7 +79,7 @@ $orders = getAllOrders($filter);
                                         ?>
                                     </span>
                                 </td>
-                                <td>
+                                <td data-label="Действия">
                                     <a href="order_details.php?id=<?php echo $order['id']; ?>" class="btn btn-sm btn-view">
                                         👁️ Просмотр
                                     </a>
