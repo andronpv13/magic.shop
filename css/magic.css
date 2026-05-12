@@ -193,8 +193,19 @@ img {
 button, input, textarea, select {
     font-family: inherit;
     font-size: inherit;
+}
+
+/* Кнопки должны иметь курсор pointer по умолчанию */
+button {
+    cursor: pointer;
+}
+
+/* Исключение для кнопок внутри input - они управляются своими стилями */
+.password-toggle {
     border: none;
     outline: none;
+    background: none;
+    cursor: pointer;
 }
 
 /* --------------------------------------------------------------------------
