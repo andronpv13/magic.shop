@@ -31,7 +31,7 @@ $user = getUserById($user_id);
             </div>
             <div class="info-row">
                 <span class="info-label">Отчество:</span>
-                <span class="info-value"><?php echo e($user['patronymic'] ?? ''); ?></span>
+                <span class="info-value"><?php echo e($user['middle_name'] ?? ''); ?></span>
             </div>
             <div class="info-row">
                 <span class="info-label">Телефон:</span>
@@ -39,7 +39,16 @@ $user = getUserById($user_id);
             </div>
             <div class="info-row">
                 <span class="info-label">Адрес:</span>
-                <span class="info-value"><?php echo e($user['address'] ?? ''); ?></span>
+                <span class="info-value"><?php
+                    $address_parts = array_filter([
+                        $user['region'] ?? '',
+                        $user['city'] ?? '',
+                        $user['street'] ?? '',
+                        $user['house'] ?? '',
+                        $user['apartment'] ?? ''
+                    ]);
+                    echo e(implode(' ', $address_parts));
+                ?></span>
             </div>
         </div>
         <a href="/admin/edit_cab.php" class="btn btn-primary">Редактировать данные</a>
