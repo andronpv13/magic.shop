@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // AJAX проверка уникальности с CSRF токеном
         try {
-            const response = await fetch('/includes/check_user.php', {
+            const response = await fetch('/users/check_user.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -134,7 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // AJAX проверка уникальности с CSRF токеном
         try {
-            const response = await fetch('/includes/check_user.php', {
+            const response = await fetch('/users/check_user.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
