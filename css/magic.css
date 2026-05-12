@@ -337,6 +337,7 @@ header {
     top: 0;
     z-index: 1003;
     box-shadow: var(--shadow-medium), var(--glow-purple);
+    overflow: visible;
 }
 
 .navbar {
@@ -349,6 +350,7 @@ header {
     gap: var(--spacing-lg);
     flex-wrap: wrap;
     min-height: 70px;
+    position: relative;
 }
 
 .logo {
@@ -2622,7 +2624,7 @@ footer {
 
     .nav-links.active {
         display: flex;
-        z-index: 1009;
+        z-index: 1011;
         position: absolute;
         top: 100%;
         left: 0;
@@ -2690,6 +2692,7 @@ footer {
     .navbar {
         flex-direction: row;
         justify-content: space-between;
+        position: relative;
     }
 
     .nav-links {
@@ -2713,7 +2716,7 @@ footer {
 
     .nav-links.active {
         display: flex;
-        z-index: 1009;
+        z-index: 1011;
         position: absolute;
         top: 100%;
         left: 0;
