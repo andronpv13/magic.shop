@@ -254,7 +254,7 @@ function regenerateSessionId() {
     }
 }
 
-// Валидация email с проверкой домена
+// Валидация email с проверкой домена (упрощённая для production)
 function validateEmail($email) {
     if (empty($email) || strlen($email) > MAX_EMAIL_LENGTH) {
         return false;
@@ -267,17 +267,21 @@ function validateEmail($email) {
         return false;
     }
 
-    // Проверка существования домена (опционально, можно отключить в dev)
+    // Проверка существования домена через DNS (только для production и только как дополнительная проверка)
+    // В development или при отсутствии DNS записей - разрешаем email с корректным форматом
     $domain = substr(strrchr($email, "@"), 1);
+
+    // Проверяем наличие MX или A записей
     if (checkdnsrr($domain, 'MX') || checkdnsrr($domain, 'A')) {
         return true;
     }
 
-    // В production режиме требуем существование DNS записей
-    if (getenv('APP_ENV') === 'production') {
-        return false;
-    }
-
+    // Если DNS проверка не прошла, просто логируем предупреждение и разрешаем email
+    // Это нужно для:
+    // 1. Локальных доменов (.local, .test и т.д.)
+    // 2. Email без публичных DNS записей (корпоративные домены)
+    // 3. Development окружений без доступа к DNS
+    log_error("Email domain without DNS records (allowed): $domain", 'INFO');
     return true;
 }
 
