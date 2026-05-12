@@ -74,7 +74,7 @@ require_once __DIR__ . '/../includes/header.php';
                                        value="<?php echo e($_POST['username'] ?? ''); ?>" required
                                        minlength="4" maxlength="10" pattern="[A-Za-zА-Яа-яЁё]+"
                                        autocomplete="off">
-                                <span id="username-status" class="status-icon"></span>
+                                <button type="button" class="status-icon" tabindex="-1"></button>
                             </div>
                             <small id="username-feedback" class="feedback-message"></small>
                         </div>
@@ -82,7 +82,7 @@ require_once __DIR__ . '/../includes/header.php';
                             <label for="email">Email</label>
                             <div class="input-wrapper">
                                 <input type="email" id="email" name="email" class="form-control" required autocomplete="off">
-                                <span id="email-status" class="status-icon"></span>
+                                <button type="button" class="status-icon" tabindex="-1"></button>
                             </div>
                             <small id="email-feedback" class="feedback-message"></small>
                         </div>
@@ -94,7 +94,7 @@ require_once __DIR__ . '/../includes/header.php';
                             <div class="input-wrapper">
                                 <input type="password" id="password" name="password" class="form-control" required minlength="6">
                                 <button type="button" class="password-toggle" data-target="password" aria-label="Показать пароль">👁️</button>
-                                <span id="password-status" class="status-icon"></span>
+                                <button type="button" class="status-icon" tabindex="-1"></button>
                             </div>
                             <small id="password-feedback" class="feedback-message"></small>
                         </div>
@@ -103,7 +103,7 @@ require_once __DIR__ . '/../includes/header.php';
                             <div class="input-wrapper">
                                 <input type="password" id="confirm_password" name="confirm_password" class="form-control" required>
                                 <button type="button" class="password-toggle" data-target="confirm_password" aria-label="Показать пароль">👁️</button>
-                                <span id="confirm-password-status" class="status-icon"></span>
+                                <button type="button" class="status-icon" tabindex="-1"></button>
                             </div>
                             <small id="confirm-password-feedback" class="feedback-message"></small>
                         </div>
@@ -132,10 +132,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const submitBtn = document.getElementById('submitBtn');
 
     // Элементы статусов
-    const usernameStatus = document.getElementById('username-status');
-    const emailStatus = document.getElementById('email-status');
-    const passwordStatus = document.getElementById('password-status');
-    const confirmPasswordStatus = document.getElementById('confirm-password-status');
+    const usernameStatus = document.querySelector('#username + .status-icon');
+    const emailStatus = document.querySelector('#email + .status-icon');
+    const passwordStatus = document.querySelector('#password + .password-toggle + .status-icon');
+    const confirmPasswordStatus = document.querySelector('#confirm_password + .password-toggle + .status-icon');
 
     // Элементы сообщений
     const usernameFeedback = document.getElementById('username-feedback');
@@ -387,10 +387,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (input.type === 'password') {
                 input.type = 'text';
-                this.textContent = '🙈';
+                this.textContent = '👁️';
+                this.classList.add('active');
             } else {
                 input.type = 'password';
                 this.textContent = '👁️';
+                this.classList.remove('active');
             }
         });
     });
@@ -402,6 +404,11 @@ document.addEventListener('DOMContentLoaded', function() {
     .form-row { display: flex; gap: 1rem; }
     .form-row .form-group { flex: 1; }
 
+    /* Увеличенная ширина формы регистрации */
+    .auth-card-wide {
+        max-width: 700px !important;
+    }
+
     /* Контейнер поля ввода с иконкой */
     .input-wrapper {
         position: relative;
@@ -411,7 +418,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     .input-wrapper input {
         width: 100%;
-        padding-right: 3.5rem;
+        padding-right: 5rem;
     }
 
     /* Иконка статуса (галочка/крестик) */
@@ -420,20 +427,30 @@ document.addEventListener('DOMContentLoaded', function() {
         right: 10px;
         font-size: 1.2rem;
         pointer-events: none;
+        background: none;
+        border: none;
+        cursor: default;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2;
     }
 
-    .status-icon.valid {
+    .status-icon.valid::after {
+        content: '✓';
         color: #32CD32;
     }
 
-    .status-icon.invalid {
+    .status-icon.invalid::after {
+        content: '✗';
         color: #DC143C;
     }
 
     /* Кнопка просмотра пароля (глаз) */
     .password-toggle {
         position: absolute;
-        right: 35px;
+        right: 40px;
         background: none;
         border: none;
         cursor: pointer;
@@ -443,10 +460,20 @@ document.addEventListener('DOMContentLoaded', function() {
         align-items: center;
         justify-content: center;
         color: #666;
+        z-index: 2;
     }
 
     .password-toggle:hover {
         color: #333;
+    }
+
+    .password-toggle.active::before {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 2px;
+        background: #DC143C;
+        transform: rotate(-45deg);
     }
 
     /* Сообщение обратной связи */
@@ -468,10 +495,13 @@ document.addEventListener('DOMContentLoaded', function() {
     @media (max-width: 600px) {
         .form-row { flex-direction: column; gap: 0; }
         .password-toggle {
-            right: 30px;
+            right: 35px;
+        }
+        .status-icon {
+            right: 10px;
         }
         .input-wrapper input {
-            padding-right: 3rem;
+            padding-right: 5rem;
         }
     }
 </style>
