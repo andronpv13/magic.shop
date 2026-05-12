@@ -2584,13 +2584,14 @@ footer {
 
     .hamburger-menu {
         display: flex;
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
+        order: 2;
+        position: relative;
+        left: auto;
+        transform: none;
         z-index: 1010;
         margin: 0;
-        top: 50%;
-        margin-top: -12px;
+        top: auto;
+        margin-top: 0;
     }
 
     .basket-icon {
@@ -2692,6 +2693,29 @@ footer {
     }
 
     .nav-links {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: rgba(26, 26, 46, 0.98);
+        backdrop-filter: blur(10px);
+        flex-direction: column;
+        padding: var(--spacing-lg);
+        gap: var(--spacing-md);
+        box-shadow: var(--shadow-strong), var(--glow-purple);
+        border-top: 2px solid var(--color-purple-bright);
+        animation: slideIn 0.3s ease-out;
+        order: 4;
+        width: 100%;
+        z-index: 1006;
+    }
+
+    .nav-links.active {
+        display: flex;
+        z-index: 1009;
+        position: absolute;
+        top: 100%;
         left: 0;
         right: 0;
     }
