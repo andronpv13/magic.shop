@@ -200,11 +200,28 @@ function getOrderDetails($order_id, $user_id) {
     return $order;
 }
 
+/**
+ * Обновление статуса заказа
+ *
+ * @param int $order_id ID заказа
+ * @param string $status Новый статус
+ * @return array Результат операции
+ *
+ * ⚠️ ВАЖНО: Проверка прав доступа должна выполняться в вызывающем коде!
+ * Используйте requireAdmin() или requireModerator() перед вызовом этой функции.
+ */
 function updateOrderStatus($order_id, $status) {
     global $conn;
+
+    // Проверка: функция не проверяет права internally - это должно делаться снаружи
+    // Для безопасности убедитесь, что вызывающий код проверил роль пользователя
+
     $stmt = $conn->prepare("UPDATE orders SET status = ? WHERE id = ?");
     $stmt->bind_param("si", $status, $order_id);
-    return ['success' => $stmt->execute()];
+    $success = $stmt->execute();
+    $stmt->close();
+
+    return ['success' => $success];
 }
 
 // === Отзывы ===
@@ -288,7 +305,7 @@ function getBasketCount() {
     foreach ($_SESSION['basket'] as $item) {
         $count += (int)$item['quantity'];
     }
-    return $count;
+    return (int)$count;
 }
 
 function getBasketTotal() {
