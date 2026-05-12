@@ -177,30 +177,34 @@ function ensureCategoryExists($name) {
     global $conn;
     $name = trim($name);
     if ($name === '') {
-        return false;
+        return ['success' => false, 'message' => 'Название категории не может быть пустым', 'id' => null];
     }
 
     $stmt = $conn->prepare("SELECT id FROM categories WHERE name = ? LIMIT 1");
     if (!$stmt) {
         // Fallback for legacy databases without a dedicated categories table.
-        return true;
+        log_error('ensureCategoryExists: categories table not available');
+        return ['success' => false, 'message' => 'Таблица категорий недоступна', 'id' => null];
     }
     $stmt->bind_param("s", $name);
     $stmt->execute();
     $result = $stmt->get_result()->fetch_assoc();
     if ($result) {
-        return ['id' => (int)$result['id'], 'name' => $name];
+        return ['success' => true, 'id' => (int)$result['id'], 'name' => $name, 'created' => false];
     }
 
     $stmt = $conn->prepare("INSERT INTO categories (name) VALUES (?)");
     if (!$stmt) {
-        return true;
+        log_error('ensureCategoryExists: cannot prepare INSERT statement');
+        return ['success' => false, 'message' => 'Ошибка подготовки запроса', 'id' => null];
     }
     $stmt->bind_param("s", $name);
     if ($stmt->execute()) {
-        return ['id' => (int)$conn->insert_id, 'name' => $name];
+        return ['success' => true, 'id' => (int)$conn->insert_id, 'name' => $name, 'created' => true];
     }
-    return false;
+
+    log_error('ensureCategoryExists: failed to insert category: ' . $conn->error);
+    return ['success' => false, 'message' => 'Ошибка при создании категории: ' . $conn->error, 'id' => null];
 }
 
 function countCategories() {
@@ -253,8 +257,20 @@ function deleteCategory($category) {
     $stmt = $conn->prepare("DELETE FROM categories WHERE id = ?");
     if ($stmt) {
         $stmt->bind_param("i", $category_id);
-        $stmt->execute();
+        if (!$stmt->execute()) {
+            log_error('deleteCategory: failed to delete category: ' . $conn->error);
+            return ['success' => false, 'message' => 'Ошибка при удалении категории: ' . $conn->error];
+        }
+        $affected = $stmt->affected_rows;
         $stmt->close();
+
+        // Если ни одна строка не была затронута, категория не существовала
+        if ($affected === 0) {
+            return ['success' => false, 'message' => 'Категория не найдена'];
+        }
+    } else {
+        log_error('deleteCategory: cannot prepare DELETE statement: ' . $conn->error);
+        return ['success' => false, 'message' => 'Ошибка подготовки запроса'];
     }
 
     // Затем устанавливаем category_id = NULL для всех товаров этой категории
@@ -263,11 +279,14 @@ function deleteCategory($category) {
     $stmt = $conn->prepare("UPDATE products SET category_id = NULL WHERE category_id = ?");
     if ($stmt) {
         $stmt->bind_param("i", $category_id);
-        $stmt->execute();
+        if (!$stmt->execute()) {
+            log_error('deleteCategory: failed to update products: ' . $conn->error);
+            // Это не критичная ошибка, категория уже удалена
+        }
         $stmt->close();
     }
 
-    return ['success' => true];
+    return ['success' => true, 'message' => 'Категория удалена'];
 }
 
 function uploadProductImage($file) {
