@@ -66,15 +66,27 @@ document.addEventListener('DOMContentLoaded', () => {
             toggleBtn.type = 'button';
             toggleBtn.className = 'password-toggle';
             toggleBtn.setAttribute('aria-label', 'Показать/скрыть пароль');
+            toggleBtn.innerHTML = ''; // Очищаем содержимое, иконка через CSS ::before
             wrapper.appendChild(toggleBtn);
         }
 
-        toggleBtn.addEventListener('click', () => {
+        // Удаляем предыдущие обработчики (клонированием)
+        const newBtn = toggleBtn.cloneNode(true);
+        toggleBtn.parentNode.replaceChild(newBtn, toggleBtn);
+        toggleBtn = newBtn;
+
+        toggleBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
             const isPassword = input.type === 'password';
             input.type = isPassword ? 'text' : 'password';
 
             // Меняем иконку (через класс для CSS)
             toggleBtn.classList.toggle('active', !isPassword);
+
+            // Возвращаем фокус на input для удобства
+            input.focus();
         });
     }
 
