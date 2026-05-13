@@ -7,14 +7,13 @@
 $page_title = 'Мои товары - Панель модератора';
 require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/functions_md.php';
-require_once __DIR__ . '/../includes/functions.php';
 
 requireModerator();
 
 // Удаление товара
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_product'])) {
     $product_id = (int)$_POST['delete_product'];
-    $moderator_id = (int)$_POST['moderator_id'];
+    $moderator_id = $_SESSION['user_id'];
     $result = deleteProductModerator($product_id, $moderator_id);
     header('Location: products_md.php?message=' . urlencode($result['message']));
     exit;
@@ -46,14 +45,15 @@ $message = $_GET['message'] ?? '';
                             <th>Категория</th>
                             <th>Цена</th>
                             <th>Остаток</th>
+                            <th>Статус</th>
                             <th>Действия</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($products as $product): ?>
                             <tr>
-                                <td><?php echo $product['id']; ?></td>
-                                <td>
+                                <td data-label="ID"><?php echo $product['id']; ?></td>
+                                <td data-label="Изображение">
                                     <div class="table-image">
                                         <?php if ($product['image']): ?>
                                             <img src="<?php echo getProductImage($product['image']); ?>" alt="<?php echo e($product['name']); ?>">
@@ -62,7 +62,7 @@ $message = $_GET['message'] ?? '';
                                         <?php endif; ?>
                                     </div>
                                 </td>
-                                <td>
+                                <td data-label="Название">
                                     <a href="/shop.php?product_id=<?php echo $product['id']; ?>">
                                         <?php echo e($product['name']); ?>
                                     </a>
@@ -70,26 +70,37 @@ $message = $_GET['message'] ?? '';
                                         <span class="badge badge-new">NEW</span>
                                     <?php endif; ?>
                                 </td>
-                                <td><?php echo e($product['category'] ?? '-'); ?></td>
-                                <td><?php echo number_format($product['price'], 0, ',', ' '); ?> ₽</td>
-                                <td>
+                                <td data-label="Категория"><?php echo e($product['category_name'] ?? '-'); ?></td>
+                                <td data-label="Цена"><?php echo number_format($product['price'], 0, ',', ' '); ?> ₽</td>
+                                <td data-label="Остаток">
                                     <?php if ($product['stock'] > 0): ?>
                                         <span class="in-stock"><?php echo $product['stock']; ?> шт</span>
                                     <?php else: ?>
                                         <span class="out-of-stock">Нет</span>
                                     <?php endif; ?>
                                 </td>
-                                <td>
+                                <td data-label="Статус">
+                                    <?php if ($product['active'] == 1): ?>
+                                        <span class="badge badge-success">Активен</span>
+                                    <?php else: ?>
+                                        <span class="badge badge-error">Удалён</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td data-label="Действия">
                                     <div class="table-actions">
-                                        <a href="edit_product_md.php?id=<?php echo $product['id']; ?>" class="btn btn-sm btn-edit">
-                                            ✏️
-                                        </a>
-                                        <form method="POST" style="display: inline;" 
-                                              onsubmit="return confirm('Удалить товар <?php echo e($product['name']); ?>?');">
-                                            <input type="hidden" name="delete_product" value="<?php echo $product['id']; ?>">
-                                            <input type="hidden" name="moderator_id" value="<?php echo $_SESSION['user_id']; ?>">
-                                            <button type="submit" class="btn btn-sm btn-delete">🗑️</button>
-                                        </form>
+                                        <?php if ($product['active'] == 1): ?>
+                                            <a href="edit_product_md.php?id=<?php echo $product['id']; ?>" class="btn btn-sm btn-edit">
+                                                ✏️
+                                            </a>
+                                            <form method="POST" style="display: inline;"
+                                                  onsubmit="return confirm('Удалить товар <?php echo e($product['name']); ?>?');">
+                                                <input type="hidden" name="delete_product" value="<?php echo $product['id']; ?>">
+                                                <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                                <button type="submit" class="btn btn-sm btn-delete">🗑️</button>
+                                            </form>
+                                        <?php else: ?>
+                                            <span class="form-hint">Товар удалён</span>
+                                        <?php endif; ?>
                                     </div>
                                 </td>
                             </tr>

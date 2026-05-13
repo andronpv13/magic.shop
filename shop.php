@@ -1,12 +1,11 @@
 <?php
-require_once 'includes/header.php';
-require_once 'includes/functions.php';
+require_once __DIR__ . '/includes/header.php';
 
 // Получаем все категории
 $categories = getCategories();
 
-// Получаем ID категории из URL
-$category = isset($_GET['category']) ? sanitize($_GET['category']) : null;
+// Получаем ИМЯ категории из URL (а не ID)
+$category = isset($_GET['category']) ? trim($_GET['category']) : '';
 
 // Получаем ID товара из URL
 $product_id = isset($_GET['id']) ? (int)$_GET['id'] : null;
@@ -19,18 +18,18 @@ if ($product_id) {
     }
     ?>
     <div class="product-detail">
-        <img src="<?php echo getProductImage($product['image']); ?>" alt="<?php echo sanitize($product['name']); ?>">
+        <img src="<?php echo getProductImage($product['image']); ?>" alt="<?php echo e($product['name']); ?>">
         <div class="product-info">
-            <h1><?php echo sanitize($product['name']); ?></h1>
+            <h1><?php echo e($product['name']); ?></h1>
             <p class="price"><?php echo number_format($product['price'], 0, '', ' '); ?> ₽</p>
-            <p class="description"><?php echo sanitize($product['description']); ?></p>
+            <p class="description"><?php echo e($product['description']); ?></p>
             <div class="product-actions">
                 <div class="quantity-selector">
-                    <button class="quantity-btn decrease">-</button>
-                    <input type="number" class="quantity-input" value="1" min="1" max="99">
-                    <button class="quantity-btn increase">+</button>
+                    <button class="quantity-btn decrease" data-product-id="<?php echo $product['id']; ?>">-</button>
+                    <input type="number" class="quantity-input" data-product-id="<?php echo $product['id']; ?>" value="1" min="1" max="99">
+                    <button class="quantity-btn increase" data-product-id="<?php echo $product['id']; ?>">+</button>
                 </div>
-                <button class="add-to-basket btn btn-primary" data-product-id="<?php echo $product['id']; ?>" data-quantity="1">Добавить в корзину</button>
+                <button class="add-to-basket btn btn-primary" data-product-id="<?php echo $product['id']; ?>" data-quantity="1">В корзину</button>
             </div>
         </div>
     </div>
@@ -39,15 +38,18 @@ if ($product_id) {
     // Показываем каталог товаров
     $products = getProducts($category);
     ?>
-    <h1>Каталог товаров</h1>
-
-    <div class="category-filters">
-        <button class="category-btn <?php if (!$category) echo 'active'; ?>" data-category="">Все товары</button>
-        <?php foreach ($categories as $cat): ?>
-            <button class="category-btn <?php if ($category === $cat) echo 'active'; ?>" data-category="<?php echo $cat; ?>">
-                <?php echo sanitize($cat); ?>
-            </button>
-        <?php endforeach; ?>
+    <div class="shop-header">
+        <h1 class="shop-title">Каталог товаров</h1>
+        <div class="category-filter">
+            <select id="category-select" onchange="if (this.value) window.location.href='?category=' + this.value; else window.location.href='?';">
+                <option value="">Все товары</option>
+                <?php foreach ($categories as $cat): ?>
+                    <option value="<?php echo e($cat); ?>" <?php if ($category === $cat) echo 'selected'; ?>>
+                        <?php echo e($cat); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
     </div>
 
     <div class="products-grid">
@@ -56,9 +58,12 @@ if ($product_id) {
                 <?php
                 $imagePath = !empty($product['image']) ? 'product/' . $product['image'] : 'no_photo.png';
                 ?>
-                <img src="<?php echo getProductImage($product['image']); ?>" alt="<?php echo sanitize($product['name']); ?>">
+                <a href="shop.php?id=<?php echo $product['id']; ?>" class="product-image-link">
+                    <img src="<?php echo getProductImage($product['image']); ?>" alt="<?php echo e($product['name']); ?>">
+                    <span class="image-overlay">Подробнее</span>
+                </a>
                 <div class="card-content">
-                    <h3><?php echo sanitize($product['name']); ?></h3>
+                    <h3><?php echo e($product['name']); ?></h3>
                     <p class="price"><?php echo number_format($product['price'], 0, '', ' '); ?> ₽</p>
                     <div class="btn-container">
                         <button class="add-to-basket btn" data-product-id="<?php echo $product['id']; ?>" data-quantity="1">В корзину</button>
@@ -71,4 +76,4 @@ if ($product_id) {
 }
 ?>
 
-<?php require_once 'includes/footer.php'; ?>
+<?php require_once __DIR__ . '/includes/footer.php'; ?>

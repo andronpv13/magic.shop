@@ -23,19 +23,26 @@ if (!isset($_SESSION['csrf_token'])) {
     <div class="logo">
         <a href="/index.php">
             <img src="/images/logo_.png" alt="Волшебная ЛАВКА" class="logo-img magic">
-            <!--<span class="logo-text">Волшебная ЛАВКА</span>-->
         </a>
     </div>
-    <div class="nav-links">
+    <button class="hamburger-menu" id="hamburger-menu" aria-label="Меню">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+    <div class="nav-links" id="nav-links">
         <a href="/index.php" class="nav-link">Главная</a>
         <a href="/shop.php" class="nav-link">Каталог</a>
         <?php if (isLoggedIn()): ?>
             <?php if ($_SESSION['role'] === 'admin'): ?>
                 <a href="/admin/index.php" class="nav-link">Админка</a>
+                <a href="/admin/cab.php" class="nav-link">Личный кабинет</a>
             <?php elseif ($_SESSION['role'] === 'moderator'): ?>
                 <a href="/moderator/index_md.php" class="nav-link">Модерация</a>
+                <a href="/moderator/cab_md.php" class="nav-link">Личный кабинет</a>
+            <?php else: ?>
+                <a href="/users/profile.php" class="nav-link">Личный кабинет</a>
             <?php endif; ?>
-            <a href="/users/profile.php" class="nav-link">Личный кабинет</a>
             <a href="/logout.php" class="nav-link">Выйти</a>
         <?php else: ?>
             <a href="/login.php" class="nav-link">Войти</a>
@@ -49,4 +56,5 @@ if (!isset($_SESSION['csrf_token'])) {
     </div>
 </nav>
 </header>
+
 <main>

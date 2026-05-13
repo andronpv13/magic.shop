@@ -5,8 +5,8 @@
  */
 
 $page_title = 'Админ-панель';
-require_once __DIR__ . '/../includes/functions_adm.php';
 require_once __DIR__ . '/../includes/header.php';
+require_once __DIR__ . '/../includes/functions_adm.php';
 
 requireAdmin();
 
@@ -94,10 +94,10 @@ $stats = getAdminStats();
                 <p>Просмотр и удаление отзывов</p>
             </a>
             
-            <a href="cab.php" class="admin-nav-card">
+            <a href="settings.php" class="admin-nav-card">
                 <span class="admin-nav-icon">⚙️</span>
                 <h3>Настройки сайта</h3>
-                <p>Изменение профиля, оформление сайта</p>
+                <p>Изменение оформления сайта</p>
             </a>
         </div>
     </div>

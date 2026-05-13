@@ -5,8 +5,7 @@
  */
 
 // Подключаем конфигурацию и функции
-require_once __DIR__ . '/../includes/config.php';
-require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/functions_adm.php';
 
 // Проверяем права администратора
@@ -20,128 +19,127 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-// Проверяем существование необходимых функций
-$required_functions = ['getCategoryByName', 'addCategory', 'getProductsCountByCategory', 'deleteCategory', 'countCategories'];
-foreach ($required_functions as $func) {
-    if (!function_exists($func)) {
-        echo json_encode(['success' => false, 'message' => 'Функция не найдена: ' . $func]);
-        exit;
-    }
-}
-
-// Обработка добавления категории
-if (isset($_POST['name'])) {
-    $name = trim($_POST['name']);
-
-    if (empty($name) || mb_strlen($name) > 50) {
-        echo json_encode(['success' => false, 'message' => 'Название категории должно быть от 1 до 50 символов']);
-        exit;
-    }
-    
-    // Проверяем валидность названия категории
-    if (!preg_match('/^[а-яёА-ЯЁa-zA-Z0-9\s\-_\.&()#:\/]+$/u', $name)) {
-        echo json_encode(['success' => false, 'message' => 'Название категории содержит недопустимые символы']);
-        exit;
-    }
-    
-    // Проверяем максимальное количество категорий
-    $max_categories = 20;
-    $current_categories = countCategories();
-    if ($current_categories >= $max_categories) {
-        echo json_encode(['success' => false, 'message' => 'Достигнуто максимальное количество категорий']);
-        exit;
-    }
-    
-    try {
-        // Проверяем, существует ли уже такая категория
-        $existing_cat = getCategoryByName($name);
-        if ($existing_cat) {
-            echo json_encode(['success' => false, 'message' => 'Категория с таким названием уже существует']);
+    // Проверяем существование необходимых функций
+    $required_functions = ['getCategoryByName', 'addCategory', 'getProductsCountByCategory', 'deleteCategory', 'countCategories'];
+    foreach ($required_functions as $func) {
+        if (!function_exists($func)) {
+            echo json_encode(['success' => false, 'message' => 'Функция не найдена: ' . $func]);
             exit;
         }
-        
-        // Добавляем новую категорию
-        $result = addCategory($name);
-        
-        if ($result['success']) {
-            // Логируем действие
-            if (function_exists('logAction')) {
-                logAction("Добавлена категория: $name");
-            }
-            echo json_encode(['success' => true, 'category' => $name]);
-        } else {
-            echo json_encode(['success' => false, 'message' => $result['message']]);
-        }
-    } catch (Exception $e) {
-        error_log("Ошибка базы данных: " . $e->getMessage());
-        echo json_encode(['success' => false, 'message' => 'Ошибка базы данных']);
-    }
-    exit;
-}
-
-if (isset($_POST['category'])) {
-    $category = trim($_POST['category']);
-
-    if ($category === '') {
-        echo json_encode(['success' => false, 'message' => 'Некорректное название категории']);
-        exit;
     }
 
-    try {
-        $products_count = getProductsCountByCategory($category);
-        if ($products_count > 0) {
-            echo json_encode(['success' => false, 'message' => 'Невозможно удалить категорию, в которой есть товары']);
+    // Обработка добавления категории
+    if (isset($_POST['name'])) {
+        $name = trim($_POST['name']);
+
+        if (empty($name) || mb_strlen($name) > 50) {
+            echo json_encode(['success' => false, 'message' => 'Название категории должно быть от 1 до 50 символов']);
             exit;
         }
 
-        $result = deleteCategory($category);
-
-        if ($result['success']) {
-            if (function_exists('logAction')) {
-                logAction("Удалена категория: $category");
-            }
-            echo json_encode(['success' => true, 'message' => 'Категория удалена']);
-        } else {
-            echo json_encode(['success' => false, 'message' => $result['message']]);
+        // Проверяем валидность названия категории
+        if (!preg_match('/^[а-яёА-ЯЁa-zA-Z0-9\s\-\_\.&()#:\\/]+$/u', $name)) {
+            echo json_encode(['success' => false, 'message' => 'Название категории содержит недопустимые символы']);
+            exit;
         }
-    } catch (Exception $e) {
-        error_log('Ошибка базы данных: ' . $e->getMessage());
-        echo json_encode(['success' => false, 'message' => 'Ошибка базы данных']);
+
+        // Проверяем максимальное количество категорий
+        $max_categories = 20;
+        $current_categories = countCategories();
+        if ($current_categories >= $max_categories) {
+            echo json_encode(['success' => false, 'message' => 'Достигнуто максимальное количество категорий']);
+            exit;
+        }
+
+        try {
+            // Проверяем, существует ли уже такая категория
+            $existing_cat = getCategoryByName($name);
+            if ($existing_cat) {
+                echo json_encode(['success' => false, 'message' => 'Категория с таким названием уже существует']);
+                exit;
+            }
+
+            // Добавляем новую категорию
+            $result = addCategory($name);
+
+            if ($result['success']) {
+                // Логируем действие
+                if (function_exists('logAction')) {
+                    logAction("Добавлена категория: $name");
+                }
+                echo json_encode(['success' => true, 'category' => $name]);
+            } else {
+                echo json_encode(['success' => false, 'message' => $result['message']]);
+            }
+        } catch (Exception $e) {
+            error_log("Ошибка базы данных: " . $e->getMessage());
+            echo json_encode(['success' => false, 'message' => 'Ошибка базы данных']);
+        }
+        exit;
     }
-    exit;
-}
+
+    // Обработка удаления категории
+    if (isset($_POST['category'])) {
+        $category = trim($_POST['category']);
+
+        if ($category === '') {
+            echo json_encode(['success' => false, 'message' => 'Некорректное название категории']);
+            exit;
+        }
+
+        try {
+            $products_count = getProductsCountByCategory($category);
+            if ($products_count > 0) {
+                echo json_encode(['success' => false, 'message' => 'Невозможно удалить категорию, в которой есть товары']);
+                exit;
+            }
+
+            $result = deleteCategory($category);
+
+            if ($result['success']) {
+                if (function_exists('logAction')) {
+                    logAction("Удалена категория: $category");
+                }
+                echo json_encode(['success' => true, 'message' => 'Категория удалена']);
+            } else {
+                echo json_encode(['success' => false, 'message' => $result['message']]);
+            }
+        } catch (Exception $e) {
+            error_log('Ошибка базы данных: ' . $e->getMessage());
+            echo json_encode(['success' => false, 'message' => 'Ошибка базы данных']);
+        }
+        exit;
+    }
 
     // Если ни одно из действий не выполнено
     echo json_encode(['success' => false, 'message' => 'Неверный запрос']);
     exit;
 }
 
+// Если это не POST-запрос, показываем страницу управления категориями
 $categories = getCategoriesList();
 
 $page_title = 'Управление категориями';
-require_once __DIR__ . '/../includes/header.php';
+
 ?>
 
 <section class="section">
     <div class="container">
         <nav class="breadcrumbs">
-            <a href="/admin/index.php">Админ-панель</a>
-            <span class="separator">/</span>
-            <span class="current">Категории</span>
+            <a href="/admin/products.php">Управление товарами</a>
         </nav>
 
         <h1 class="page-title">Управление категориями</h1>
 
         <div class="category-management">
             <div class="add-category-form">
-                <h2>Добавить категорию</h2>
                 <form id="new-category-form">
                     <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
                     <div class="form-group">
-                        <label for="new-category-name">Название категории</label>
+                        <label for="new-category-name">Название:</label>
                         <input type="text" id="new-category-name" name="name" required>
                     </div>
-                    <button type="submit" class="btn btn-primary">Добавить</button>
+                    <button type="submit" class="btn btn-primary">Добавить категорию</button>
                 </form>
             </div>
 

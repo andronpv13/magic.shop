@@ -1,7 +1,6 @@
 <?php
 $page_title = 'Оплата заказа';
 require_once 'includes/header.php';
-require_once 'includes/functions.php';
 if (!isLoggedIn()) { header('Location: /login.php'); exit; }
 $order_id = isset($_GET['order_id']) ? (int)$_GET['order_id'] : 0;
 if (!$order_id) { header('Location: /users/orders.php'); exit; }
@@ -21,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 <section class="section"><div class="container">
-    <h1 class="page-title">Оплата заказа #<?php echo $order_id; ?></h1>
+    <h1 class="page-title">Оплата заказа №<?php echo $order_id; ?></h1>
     <?php if ($success): ?>
     <div class="alert alert-success"><h2>🎉 Спасибо за покупку!</h2><p>Ваш заказ успешно оплачен.</p><a href="/users/orders.php" class="btn btn-primary">Перейти к моим заказам</a></div>
     <?php else: ?>

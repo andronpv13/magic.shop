@@ -1,18 +1,14 @@
 <?php
-require_once __DIR__ . '/config.php';
-
 // === Категории ===
 function getCategories() {
     global $conn;
-    $stmt = $conn->prepare("SELECT name AS category FROM categories ORDER BY name");
-    if (!$stmt) {
-        $stmt = $conn->prepare("SELECT DISTINCT category AS category FROM products WHERE category IS NOT NULL AND category != '' ORDER BY category");
-    }
+    // Получаем все категории из таблицы categories
+    $stmt = $conn->prepare("SELECT name FROM categories ORDER BY name");
     $stmt->execute();
     $result = $stmt->get_result();
     $categories = [];
     while ($row = $result->fetch_assoc()) {
-        $categories[] = $row['category'];
+        $categories[] = $row['name'];
     }
     return $categories;
 }
@@ -20,14 +16,15 @@ function getCategories() {
 // === Товары ===
 function getProducts($category = null, $limit = null) {
     global $conn;
-    $sql = "SELECT p.*, p.category AS category_name, u.username as creator_name
+    $sql = "SELECT p.*, c.name AS category_name, u.username as creator_name
             FROM products p
+            LEFT JOIN categories c ON p.category_id = c.id
             LEFT JOIN users u ON p.created_by = u.id
             WHERE p.active = 1";
-    
-    if ($category) $sql .= " AND p.category = ?";
+
+    if ($category) $sql .= " AND c.name = ?";
     if ($limit) $sql .= " LIMIT ?";
-    
+
     $stmt = $conn->prepare($sql);
     if ($category && $limit) {
         $stmt->bind_param("si", $category, $limit);
@@ -36,15 +33,16 @@ function getProducts($category = null, $limit = null) {
     } elseif ($limit) {
         $stmt->bind_param("i", $limit);
     }
-    
+
     $stmt->execute();
     return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 }
 
 function getProductById($id) {
     global $conn;
-    $stmt = $conn->prepare("SELECT p.*, p.category AS category_name FROM products p WHERE p.id = ? AND p.active = 1");
-    $stmt->bind_param("i", $id); $stmt->execute();
+    $stmt = $conn->prepare("SELECT p.*, c.name AS category_name FROM products p LEFT JOIN categories c ON p.category_id = c.id WHERE p.id = ?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
     return $stmt->get_result()->fetch_assoc();
 }
 
@@ -62,6 +60,48 @@ function getUserById($id) {
     $stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
     $stmt->bind_param("i", $id); $stmt->execute();
     return $stmt->get_result()->fetch_assoc();
+}
+
+function getUserByEmail($email) {
+    global $conn;
+    $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    return $stmt->get_result()->fetch_assoc();
+}
+
+function updateUserProfile($user_id, $name, $email) {
+    global $conn;
+    // Разделяем имя на first_name и last_name если есть пробел
+    $name_parts = explode(' ', trim($name), 2);
+    $first_name = $name_parts[0] ?? '';
+    $last_name = $name_parts[1] ?? '';
+
+    $stmt = $conn->prepare("UPDATE users SET first_name = ?, last_name = ?, email = ? WHERE id = ?");
+    $stmt->bind_param("sssi", $first_name, $last_name, $email, $user_id);
+
+    if ($stmt->execute()) {
+        return ['success' => true];
+    }
+    return ['success' => false, 'message' => 'Ошибка при обновлении профиля'];
+}
+
+function changeUserPassword($user_id, $current_password, $new_password) {
+    global $conn;
+    $user = getUserById($user_id);
+
+    if (!$user || !password_verify($current_password, $user['password'])) {
+        return ['success' => false, 'message' => 'Неверный текущий пароль'];
+    }
+
+    $hash = password_hash($new_password, PASSWORD_DEFAULT);
+    $stmt = $conn->prepare("UPDATE users SET password = ? WHERE id = ?");
+    $stmt->bind_param("si", $hash, $user_id);
+
+    if ($stmt->execute()) {
+        return ['success' => true];
+    }
+    return ['success' => false, 'message' => 'Ошибка при смене пароля'];
 }
 
 function getCurrentUser() {
@@ -91,7 +131,7 @@ function registerUser($username, $email, $password) {
     $hash = password_hash($password, PASSWORD_DEFAULT);
     $stmt = $conn->prepare("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, 'customer')");
     $stmt->bind_param("sss", $username, $email, $hash);
-    
+
     if ($stmt->execute()) {
         $_SESSION['user_id'] = $conn->insert_id;
         $_SESSION['username'] = $username;
@@ -108,13 +148,13 @@ function createOrder($user_id, $items, $address = '', $comment = '') {
     try {
         $total = 0;
         foreach ($items as $item) $total += $item['price'] * $item['quantity'];
-        
+
         // ✅ ИСПРАВЛЕНО: Добавлены адрес и комментарий в запрос
         $stmt = $conn->prepare("INSERT INTO orders (user_id, total, delivery_address, comment, status) VALUES (?, ?, ?, ?, 'pending')");
         $stmt->bind_param("idss", $user_id, $total, $address, $comment);
         $stmt->execute();
         $order_id = $conn->insert_id;
-        
+
         foreach ($items as $item) {
             $stmt = $conn->prepare("INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)");
             $stmt->bind_param("iiid", $order_id, $item['id'], $item['quantity'], $item['price']);
@@ -143,7 +183,7 @@ function getUserOrders($user_id) {
 
 function getOrderItems($order_id) {
     global $conn;
-    $stmt = $conn->prepare("SELECT oi.quantity, oi.price, p.name as product_name FROM order_items oi JOIN products p ON oi.product_id = p.id WHERE oi.order_id = ?");
+    $stmt = $conn->prepare("SELECT oi.quantity, oi.price, p.name as product_name, p.image as product_image FROM order_items oi JOIN products p ON oi.product_id = p.id WHERE oi.order_id = ?");
     $stmt->bind_param("i", $order_id);
     $stmt->execute();
     return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
@@ -160,11 +200,79 @@ function getOrderDetails($order_id, $user_id) {
     return $order;
 }
 
+/**
+ * Обновление статуса заказа
+ *
+ * @param int $order_id ID заказа
+ * @param string $status Новый статус
+ * @return array Результат операции
+ *
+ * ⚠️ ВАЖНО: Эта функция теперь включает внутреннюю проверку прав доступа!
+ * Вызывающий код ДОЛЖЕН проверять права через requireAdmin() или requireModerator() ПЕРЕД вызовом,
+ * но функция также выполняет дополнительную проверку для защиты от случайных вызовов.
+ */
 function updateOrderStatus($order_id, $status) {
     global $conn;
-    $stmt = $conn->prepare("UPDATE orders SET status = ? WHERE id = ?");
+
+    // 🔒 ВНУТРЕННЯЯ ПРОВЕРКА ПРАВ: Функция требует авторизации и роли администратора/модератора
+    if (!isLoggedIn()) {
+        log_error('updateOrderStatus: Unauthorized access attempt - user not logged in', 'SECURITY');
+        return ['success' => false, 'message' => 'Требуется авторизация'];
+    }
+
+    // Проверка роли пользователя
+    $allowed_roles = ['admin', 'moderator'];
+    if (!in_array($_SESSION['role'], $allowed_roles, true)) {
+        log_error(sprintf(
+            'updateOrderStatus: Unauthorized role access attempt - user_id=%d, role=%s',
+            $_SESSION['user_id'] ?? 0,
+            $_SESSION['role'] ?? 'none'
+        ), 'SECURITY');
+        return ['success' => false, 'message' => 'Недостаточно прав для выполнения операции'];
+    }
+
+    // Дополнительная валидация статуса
+    $valid_statuses = ['pending', 'payment', 'completed', 'cancelled'];
+    if (!in_array($status, $valid_statuses, true)) {
+        log_error(sprintf(
+            'updateOrderStatus: Invalid status attempt - order_id=%d, status=%s',
+            $order_id,
+            $status
+        ), 'SECURITY');
+        return ['success' => false, 'message' => 'Недопустимый статус заказа'];
+    }
+
+    // Проверка существования заказа
+    $stmt = $conn->prepare("SELECT id FROM orders WHERE id = ?");
+    $stmt->bind_param("i", $order_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows === 0) {
+        log_error('updateOrderStatus: Order not found - order_id=' . $order_id, 'WARNING');
+        $stmt->close();
+        return ['success' => false, 'message' => 'Заказ не найден'];
+    }
+    $stmt->close();
+
+    // Обновление статуса заказа с использованием подготовленного выражения
+    $stmt = $conn->prepare("UPDATE orders SET status = ?, updated_at = NOW() WHERE id = ?");
     $stmt->bind_param("si", $status, $order_id);
-    return ['success' => $stmt->execute()];
+    $success = $stmt->execute();
+    $affected_rows = $stmt->affected_rows;
+    $stmt->close();
+
+    if ($success && $affected_rows > 0) {
+        log_action('Order status updated', [
+            'order_id' => $order_id,
+            'new_status' => $status,
+            'user_id' => $_SESSION['user_id'],
+            'role' => $_SESSION['role']
+        ]);
+        return ['success' => true, 'message' => 'Статус заказа обновлён'];
+    }
+
+    return ['success' => false, 'message' => 'Ошибка при обновлении статуса заказа'];
 }
 
 // === Отзывы ===
@@ -197,7 +305,7 @@ function addToBasket($product_id, $quantity) {
     $product = getProductById($product_id);
     if (!$product) return false;
     if (!isset($_SESSION['basket'])) $_SESSION['basket'] = [];
-    
+
     $found = false;
     foreach ($_SESSION['basket'] as &$item) {
         if ($item['id'] == $product_id) {
@@ -208,10 +316,10 @@ function addToBasket($product_id, $quantity) {
     }
     if (!$found) {
         $_SESSION['basket'][] = [
-            'id' => $product['id'], 
+            'id' => $product['id'],
             'name' => $product['name'],
-            'price' => $product['price'], 
-            'image' => $product['image'], 
+            'price' => $product['price'],
+            'image' => $product['image'],
             'quantity' => $quantity
         ];
     }
@@ -248,7 +356,7 @@ function getBasketCount() {
     foreach ($_SESSION['basket'] as $item) {
         $count += (int)$item['quantity'];
     }
-    return $count;
+    return (int)$count;
 }
 
 function getBasketTotal() {
@@ -267,34 +375,34 @@ function formatPrice($p) { return number_format((float)$p, 0, ',', ' ') . ' ₽'
 /**
  * Возвращает корректный путь к изображению товара.
  * Проверяет наличие файла на сервере. Если файл отсутствует или имя пустое — возвращает заглушку.
- * 
+ *
  * @param string $image_val Значение из базы данных (например 'product/image.jpg')
  * @return string Полный URL путь
  */
 function getProductImage($image_val) {
     $fallback = '/images/no_photo.png';
-    
+
     // 1. Если в базе пусто — сразу заглушка
     if (empty($image_val)) {
         return $fallback;
     }
-    
+
     // 2. Нормализуем путь (убираем лишние слеши)
     $path = ltrim($image_val, '/');
-    
+
     // Если в базе записано только имя файла, добавляем папку product/
     if (strpos($path, 'product/') === false) {
         $path = 'product/' . $path;
     }
-    
+
     // 3. Проверяем физическое наличие файла на сервере
     // __DIR__ указывает на папку includes/, поднимаемся на уровень выше к корню
     $full_server_path = __DIR__ . '/../images/' . $path;
-    
+
     if (file_exists($full_server_path)) {
         return '/images/' . $path;
     }
-    
+
     // 4. Файл потерян — возвращаем заглушку
     return $fallback;
 }

@@ -32,12 +32,12 @@ $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
     $new_status = $_POST['status'] ?? '';
     $allowed_statuses = ['pending', 'payment', 'completed', 'cancelled'];
-    
+
     if (!in_array($new_status, $allowed_statuses)) {
         $error = 'Недопустимый статус';
     } else {
         $result = updateOrderStatusModerator($order_id, $new_status);
-        
+
         if ($result['success']) {
             $success = $result['message'];
             $order = getOrderDetailsModerator($order_id);
@@ -63,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
         <?php if ($success): ?>
             <div class="alert alert-success"><?php echo e($success); ?></div>
         <?php endif; ?>
-        
+
         <?php if ($error): ?>
             <div class="alert alert-error"><?php echo e($error); ?></div>
         <?php endif; ?>
@@ -72,13 +72,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
             <!-- Информация о заказе -->
             <div class="order-info-section">
                 <h2>Информация о заказе</h2>
-                
+
                 <div class="order-details">
                     <div class="detail-row">
                         <span>Дата создания:</span>
                         <span><?php echo date('d.m.Y H:i', strtotime($order['created_at'])); ?></span>
                     </div>
-                    
+
                     <div class="detail-row">
                         <span>Статус:</span>
                         <span class="status-badge status-<?php echo $order['status']; ?>">
@@ -93,19 +93,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
                             ?>
                         </span>
                     </div>
-                    
+
                     <div class="detail-row">
                         <span>Сумма:</span>
-                        <span class="order-total"><?php echo number_format($order['total_amount'], 0, ',', ' '); ?> ₽</span>
+                        <span class="order-total"><?php echo number_format($order['total'], 0, ',', ' '); ?> ₽</span>
                     </div>
-                    
+
                     <?php if (!empty($order['delivery_address'])): ?>
                         <div class="detail-row">
                             <span>Адрес доставки:</span>
                             <span><?php echo nl2br(e($order['delivery_address'])); ?></span>
                         </div>
                     <?php endif; ?>
-                    
+
                     <?php if (!empty($order['comment'])): ?>
                         <div class="detail-row">
                             <span>Комментарий:</span>
@@ -117,7 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
                 <!-- Смена статуса -->
                 <form method="POST" class="status-form">
                     <h3>Изменить статус</h3>
-                    
+
                     <div class="form-group">
                         <select name="status" required>
                             <option value="pending" <?php echo $order['status'] === 'pending' ? 'selected' : ''; ?>>Ожидает</option>
@@ -126,7 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
                             <option value="cancelled" <?php echo $order['status'] === 'cancelled' ? 'selected' : ''; ?>>Отменён</option>
                         </select>
                     </div>
-                    
+
                     <button type="submit" name="update_status" class="btn btn-primary">Обновить статус</button>
                 </form>
             </div>
@@ -134,7 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
             <!-- Информация о покупателе -->
             <div class="customer-info-section">
                 <h2>Покупатель</h2>
-                
+
                 <div class="customer-details">
                     <p><strong>Имя:</strong> <?php echo e($order['first_name'] ?? $order['username']); ?></p>
                     <p><strong>Email:</strong> <?php echo e($order['email'] ?? '-'); ?></p>
@@ -146,7 +146,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
         <!-- Позиции заказа -->
         <div class="order-items-section">
             <h2>Состав заказа</h2>
-            
+
             <?php if (!empty($order['items'])): ?>
                 <div class="table-container">
                     <table class="data-table">

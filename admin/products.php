@@ -1,9 +1,4 @@
 <?php
-
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 /**
  * Управление товарами "Волшебная ЛАВКА"
  * Разработчик: АВВА © 2025
@@ -19,15 +14,19 @@ requireAdmin();
 $success = '';
 $error = '';
 
-// Обработка удаления товара
-if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
-    $product_id = (int)$_GET['delete'];
-    $result = deleteProduct($product_id);
-    
-    if ($result['success']) {
-        $success = $result['message'];
+// Обработка удаления товара (только POST с CSRF)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete'])) {
+    if (!csrf_verify()) {
+        $error = 'Ошибка безопасности (CSRF)';
     } else {
-        $error = $result['message'];
+        $product_id = (int)$_POST['delete'];
+        $result = deleteProduct($product_id);
+
+        if ($result['success']) {
+            $success = $result['message'];
+        } else {
+            $error = $result['message'];
+        }
     }
 }
 
@@ -43,36 +42,22 @@ $use_categories = isset($_SESSION['use_categories']) ? $_SESSION['use_categories
 
 <section class="section">
     <div class="container">
-        <nav class="breadcrumbs">
-            <a href="/admin/index.php">Админ-панель</a>
-            <span class="separator">/</span>
-            <span class="current">Товары</span>
-        </nav>
-
         <h1 class="page-title">Управление товарами</h1>
 
         <?php if ($success): ?>
             <div class="alert alert-success"><?php echo e($success); ?></div>
         <?php endif; ?>
-        
+
         <?php if ($error): ?>
             <div class="alert alert-error"><?php echo e($error); ?></div>
         <?php endif; ?>
 
         <!-- Панель управления категориями -->
         <div class="category-control-panel">
-            <div class="form-group">
-                <label class="checkbox-label">
-                    <input type="checkbox" id="use_categories" name="use_categories" value="1" 
-                           onchange="toggleCategories(this)" <?php echo $use_categories ? 'checked' : ''; ?>>
-                    Использовать категории
-                </label>
-            </div>
-            
             <a href="/admin/manage_category.php" class="btn btn-primary">
                 Управление категориями
             </a>
-            
+
             <a href="/admin/add_product.php" class="btn btn-primary">
                 Добавить товар
             </a>
@@ -81,7 +66,7 @@ $use_categories = isset($_SESSION['use_categories']) ? $_SESSION['use_categories
         <!-- Список товаров -->
         <div class="products-list">
             <h2>Список товаров</h2>
-            
+
             <?php if (!empty($products)): ?>
                 <div class="table-container">
                     <table class="data-table">
@@ -99,43 +84,44 @@ $use_categories = isset($_SESSION['use_categories']) ? $_SESSION['use_categories
                         <tbody>
                             <?php foreach ($products as $product): ?>
                                 <tr>
-                                    <td>
+                                    <td data-label="Изображение">
                                         <?php if ($product['image']): ?>
                                             <div class="table-image">
-                                                <img src="<?php echo getProductImage($product['image']); ?>" alt="<?php echo e($product['name']); ?>" style="width: 50px; height: 50px; object-fit: cover;">
+                                                <img src="<?php echo getProductImage($product['image']); ?>" alt="<?php echo e($product['name']); ?>">
                                             </div>
                                         <?php else: ?>
                                             <div class="table-image-placeholder">🎁</div>
                                         <?php endif; ?>
                                     </td>
-                                    <td>
+                                    <td data-label="Название">
                                         <a href="/admin/edit_product.php?id=<?php echo $product['id']; ?>">
                                             <?php echo e($product['name']); ?>
                                         </a>
                                     </td>
-                                    <td>
+                                    <td data-label="Категория">
                                         <?php if (!empty($product['category_name'])): ?>
                                             <?php echo e($product['category_name']); ?>
                                         <?php else: ?>
                                             Без категории
                                         <?php endif; ?>
                                     </td>
-                                    <td><?php echo number_format($product['price'], 0, ',', ' '); ?> ₽</td>
-                                    <td><?php echo $product['stock']; ?></td>
-                                    <td>
+                                    <td data-label="Цена"><?php echo number_format($product['price'], 0, ',', ' '); ?> ₽</td>
+                                    <td data-label="Остаток"><?php echo $product['stock']; ?></td>
+                                    <td data-label="Статус">
                                         <?php if ($product['is_new']): ?>
                                             <span class="badge badge-new">NEW</span>
                                         <?php endif; ?>
                                     </td>
-                                    <td>
+                                    <td data-label="Действия">
                                         <div class="table-actions">
-                                            <a href="/admin/edit_product.php?id=<?php echo $product['id']; ?>" class="btn btn-sm btn-edit">
-                                                Редактировать
+                                            <a href="/admin/edit_product.php?id=<?php echo $product['id']; ?>" class="btn btn-sm btn-edit" title="Редактировать">
+                                                ✏️
                                             </a>
-                                            <a href="/admin/products.php?delete=<?php echo $product['id']; ?>" class="btn btn-sm btn-delete"
-                                               onclick="return confirm('Вы уверены, что хотите удалить этот товар?');">
-                                                Удалить
-                                            </a>
+                                            <form method="POST" style="display: inline;" onsubmit="return confirm('Вы уверены, что хотите удалить этот товар?');">
+                                                <input type="hidden" name="delete" value="<?php echo $product['id']; ?>">
+                                                <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                                                <button type="submit" class="btn btn-sm btn-delete" title="Удалить">🗑️</button>
+                                            </form>
                                         </div>
                                     </td>
                                 </tr>

@@ -1,22 +1,28 @@
 <?php
 $page_title = 'Оставить отзыв';
-require_once '../includes/header.php';
-require_once '../includes/functions.php';
+require_once __DIR__ . '/../includes/config.php';
+require_once __DIR__ . '/../includes/header.php';
+require_once __DIR__ . '/../includes/functions.php';
 $purchased = getPurchasedProducts($_SESSION['user_id']);
 $success = $error = '';
 
 if (!isLoggedIn()) { header('Location: /login.php'); exit; }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $pid = (int)($_POST['product_id'] ?? 0);
-    $rating = (int)($_POST['rating'] ?? 0);
-    $comment = trim($_POST['comment'] ?? '');
-    if ($rating < 1 || $rating > 5 || empty($comment)) { $error = 'Укажите оценку и комментарий'; }
-    else {
-        if (addReview($_SESSION['user_id'], $pid, $rating, $comment)) {
-            $success = 'Спасибо за отзыв! Он будет опубликован после проверки.';
-            $purchased = getPurchasedProducts($_SESSION['user_id']);
-        } else $error = 'Ошибка сохранения отзыва';
+    // Проверка CSRF токена
+    if (!csrf_verify()) {
+        $error = 'Ошибка безопасности (CSRF)';
+    } else {
+        $pid = (int)($_POST['product_id'] ?? 0);
+        $rating = (int)($_POST['rating'] ?? 0);
+        $comment = trim($_POST['comment'] ?? '');
+        if ($rating < 1 || $rating > 5 || empty($comment)) { $error = 'Укажите оценку и комментарий'; }
+        else {
+            if (addReview($_SESSION['user_id'], $pid, $rating, $comment)) {
+                $success = 'Спасибо за отзыв! Он будет опубликован после проверки.';
+                $purchased = getPurchasedProducts($_SESSION['user_id']);
+            } else $error = 'Ошибка сохранения отзыва';
+        }
     }
 }
 ?>
@@ -45,4 +51,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php endif; ?>
     <a href="/users/profile.php" class="back-link">← Вернуться в профиль</a>
 </div></section>
-<?php require_once '../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../includes/footer.php'; ?>

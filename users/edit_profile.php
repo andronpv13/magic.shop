@@ -1,6 +1,5 @@
 <?php
-require_once '../includes/header.php';
-require_once '../includes/functions.php';
+require_once __DIR__ . '/../includes/header.php';
 
 if (!isLoggedIn()) {
     header('Location: /login.php');
@@ -21,54 +20,59 @@ $errors = [];
 $success = false;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = trim($_POST['username'] ?? '');
-    $email = trim($_POST['email'] ?? '');
-    $first_name = trim($_POST['first_name'] ?? '');
-    $last_name = trim($_POST['last_name'] ?? '');
-    $middle_name = trim($_POST['middle_name'] ?? '');
-    $phone = trim($_POST['phone'] ?? '');
-    $zip_code = trim($_POST['zip_code'] ?? '');
-    $region = trim($_POST['region'] ?? '');
-    $city = trim($_POST['city'] ?? '');
-    $street = trim($_POST['street'] ?? '');
-    $house = trim($_POST['house'] ?? '');
-    $apartment = trim($_POST['apartment'] ?? '');
-    $password = $_POST['password'] ?? '';
-    $password_confirm = $_POST['password_confirm'] ?? '';
+    // Проверка CSRF токена
+    if (!csrf_verify()) {
+        $errors[] = 'Ошибка безопасности (CSRF)';
+    } else {
+        $username = trim($_POST['username'] ?? '');
+        $email = trim($_POST['email'] ?? '');
+        $first_name = trim($_POST['first_name'] ?? '');
+        $last_name = trim($_POST['last_name'] ?? '');
+        $middle_name = trim($_POST['middle_name'] ?? '');
+        $phone = trim($_POST['phone'] ?? '');
+        $zip_code = trim($_POST['zip_code'] ?? '');
+        $region = trim($_POST['region'] ?? '');
+        $city = trim($_POST['city'] ?? '');
+        $street = trim($_POST['street'] ?? '');
+        $house = trim($_POST['house'] ?? '');
+        $apartment = trim($_POST['apartment'] ?? '');
+        $password = $_POST['password'] ?? '';
+        $password_confirm = $_POST['password_confirm'] ?? '';
 
-    if (empty($username)) $errors[] = 'Введите логин';
-    if (empty($email)) $errors[] = 'Введите email';
-    elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = 'Некорректный Email';
-    
-    if (!empty($password)) {
-        if ($password !== $password_confirm) $errors[] = 'Пароли не совпадают';
-        if (strlen($password) < 6) $errors[] = 'Пароль минимум 6 символов';
-    }
+        if (empty($username)) $errors[] = 'Введите логин';
+        if (empty($email)) $errors[] = 'Введите email';
+        elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = 'Некорректный Email';
 
-    if (empty($errors)) {
         if (!empty($password)) {
-            $hash = password_hash($password, PASSWORD_DEFAULT);
-            // Запрос с обновлением пароля
-            $stmt = $conn->prepare("UPDATE users SET username=?, email=?, first_name=?, last_name=?, middle_name=?, phone=?, zip_code=?, region=?, city=?, street=?, house=?, apartment=?, password=? WHERE id=?");
-            $stmt->bind_param("sssssssssssssi", $username, $email, $first_name, $last_name, $middle_name, $phone, $zip_code, $region, $city, $street, $house, $apartment, $hash, $uid);
-        } else {
-            // Запрос без обновления пароля
-            $stmt = $conn->prepare("UPDATE users SET username=?, email=?, first_name=?, last_name=?, middle_name=?, phone=?, zip_code=?, region=?, city=?, street=?, house=?, apartment=? WHERE id=?");
-            $stmt->bind_param("ssssssssssssi", $username, $email, $first_name, $last_name, $middle_name, $phone, $zip_code, $region, $city, $street, $house, $apartment, $uid);
+            if ($password !== $password_confirm) $errors[] = 'Пароли не совпадают';
+            if (strlen($password) < 6) $errors[] = 'Пароль минимум 6 символов';
         }
 
-        if ($stmt->execute()) {
-            $_SESSION['username'] = $username;
-            // Обновляем локальные данные для отображения
-            $current_user = array_merge($current_user, [
-                'username' => $username, 'email' => $email,
-                'first_name' => $first_name, 'last_name' => $last_name, 'middle_name' => $middle_name,
-                'phone' => $phone, 'zip_code' => $zip_code, 'region' => $region,
-                'city' => $city, 'street' => $street, 'house' => $house, 'apartment' => $apartment
-            ]);
-            $success = true;
-        } else {
-            $errors[] = 'Ошибка обновления: ' . $conn->error;
+        if (empty($errors)) {
+            if (!empty($password)) {
+                $hash = password_hash($password, PASSWORD_DEFAULT);
+                // Запрос с обновлением пароля
+                $stmt = $conn->prepare("UPDATE users SET username=?, email=?, first_name=?, last_name=?, middle_name=?, phone=?, zip_code=?, region=?, city=?, street=?, house=?, apartment=?, password=? WHERE id=?");
+                $stmt->bind_param("sssssssssssssi", $username, $email, $first_name, $last_name, $middle_name, $phone, $zip_code, $region, $city, $street, $house, $apartment, $hash, $uid);
+            } else {
+                // Запрос без обновления пароля
+                $stmt = $conn->prepare("UPDATE users SET username=?, email=?, first_name=?, last_name=?, middle_name=?, phone=?, zip_code=?, region=?, city=?, street=?, house=?, apartment=? WHERE id=?");
+                $stmt->bind_param("ssssssssssssi", $username, $email, $first_name, $last_name, $middle_name, $phone, $zip_code, $region, $city, $street, $house, $apartment, $uid);
+            }
+
+            if ($stmt->execute()) {
+                $_SESSION['username'] = $username;
+                // Обновляем локальные данные для отображения
+                $current_user = array_merge($current_user, [
+                    'username' => $username, 'email' => $email,
+                    'first_name' => $first_name, 'last_name' => $last_name, 'middle_name' => $middle_name,
+                    'phone' => $phone, 'zip_code' => $zip_code, 'region' => $region,
+                    'city' => $city, 'street' => $street, 'house' => $house, 'apartment' => $apartment
+                ]);
+                $success = true;
+            } else {
+                $errors[] = 'Ошибка обновления: ' . $conn->error;
+            }
         }
     }
 }
@@ -107,11 +111,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <form method="POST" class="auth-form">
                     <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
-                    
+
                     <h3>Основные данные</h3>
                     <div class="form-group"><label>Логин</label><input type="text" name="username" value="<?php echo e($current_user['username']); ?>" required></div>
                     <div class="form-group"><label>Email</label><input type="email" name="email" value="<?php echo e($current_user['email']); ?>" required></div>
-                    
+
                     <div class="form-row">
                         <div class="form-group"><label>Имя</label><input type="text" name="first_name" value="<?php echo e($current_user['first_name'] ?? ''); ?>"></div>
                         <div class="form-group"><label>Фамилия</label><input type="text" name="last_name" value="<?php echo e($current_user['last_name'] ?? ''); ?>"></div>
@@ -120,20 +124,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="form-group"><label>Телефон</label><input type="tel" name="phone" value="<?php echo e($current_user['phone'] ?? ''); ?>"></div>
 
                     <h3>Адрес доставки</h3>
+                    <h4>Пожалуйста заполните ваш адрес для возможности оформления доставки</h4>
                     <div class="form-row">
                         <div class="form-group"><label>Индекс</label><input type="text" name="zip_code" value="<?php echo e($current_user['zip_code'] ?? ''); ?>"></div>
-                        <div class="form-group"><label>Регион</label><input type="text" name="region" value="<?php echo e($current_user['region'] ?? ''); ?>"></div>
+                        <div class="form-group"><label>Область</label><input type="text" name="region" value="<?php echo e($current_user['region'] ?? ''); ?>"></div>
                     </div>
                     <div class="form-group"><label>Город</label><input type="text" name="city" value="<?php echo e($current_user['city'] ?? ''); ?>"></div>
                     <div class="form-group"><label>Улица</label><input type="text" name="street" value="<?php echo e($current_user['street'] ?? ''); ?>"></div>
                     <div class="form-row">
-                        <div class="form-group"><label>Дом</label><input type="text" name="house" value="<?php echo e($current_user['house'] ?? ''); ?>"></div>
-                        <div class="form-group"><label>Кв.</label><input type="text" name="apartment" value="<?php echo e($current_user['apartment'] ?? ''); ?>"></div>
+                        <div class="form-group"><label>№ Дома</label><input type="text" name="house" value="<?php echo e($current_user['house'] ?? ''); ?>"></div>
+                        <div class="form-group"><label>№ Кв.</label><input type="text" name="apartment" value="<?php echo e($current_user['apartment'] ?? ''); ?>"></div>
                     </div>
 
                     <h3>Смена пароля</h3>
-                    <div class="form-group"><label>Новый пароль</label><input type="password" name="password"></div>
-                    <div class="form-group"><label>Подтверждение</label><input type="password" name="password_confirm"></div>
+                    <h4>Оставьте поля пустыми, чтобы не менять пароль</h4>
+                    <div class="form-group"><label>Новый пароль</label><input type="password" name="password"><label>Подтверждение</label><input type="password" name="password_confirm"></div>
 
                     <button type="submit" class="btn btn-primary btn-block">Сохранить</button>
                 </form>
@@ -141,4 +146,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 </section>
-<?php require_once '../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../includes/footer.php'; ?>

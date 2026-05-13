@@ -7,7 +7,6 @@
 $page_title = 'Редактировать товар - Панель модератора';
 require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/functions_md.php';
-require_once __DIR__ . '/../includes/functions.php';
 
 requireModerator();
 
@@ -27,8 +26,9 @@ if (!isProductOwner($product_id, $_SESSION['user_id'])) {
 
 $product = getProductById($product_id);
 
+// Товар может быть неактивным (удалённым), но модератор должен иметь возможность это увидеть
 if (!$product) {
-    echo '<div class="container section"><p class="empty-state">Товар не найден</p></div>';
+    echo '<div class="container section"><p class="empty-state">Товар не найден или был удалён</p></div>';
     require_once __DIR__ . '/../includes/footer.php';
     exit;
 }
@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $category = trim($_POST['category'] ?? '');
     $stock = (int)($_POST['stock'] ?? 0);
     $is_new = isset($_POST['is_new']) ? 1 : 0;
-    
+
     if (empty($name)) {
         $error = 'Укажите название товара';
     } elseif ($price <= 0) {
@@ -52,17 +52,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $image_path = null;
         if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
             $upload_result = uploadProductImage($_FILES['image']);
-            
+
             if ($upload_result['success']) {
                 $image_path = $upload_result['filename'];
             } else {
                 $error = $upload_result['message'];
             }
         }
-        
+
         if (empty($error)) {
             $result = editProductModerator($product_id, $name, $description, $price, $category, $stock, $is_new, $image_path, $_SESSION['user_id']);
-            
+
             if ($result['success']) {
                 $success = 'Товар обновлен';
                 $product = getProductById($product_id);
@@ -89,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php if ($success): ?>
             <div class="alert alert-success"><?php echo e($success); ?></div>
         <?php endif; ?>
-        
+
         <?php if ($error): ?>
             <div class="alert alert-error"><?php echo e($error); ?></div>
         <?php endif; ?>
@@ -99,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="product-form-main">
                     <div class="form-group">
                         <label for="name">Название товара: *</label>
-                        <input type="text" id="name" name="name" required 
+                        <input type="text" id="name" name="name" required
                                value="<?php echo e($product['name']); ?>">
                     </div>
 
@@ -111,21 +111,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="form-row">
                         <div class="form-group">
                             <label for="price">Цена (₽): *</label>
-                            <input type="number" id="price" name="price" step="0.01" min="0" required 
+                            <input type="number" id="price" name="price" step="0.01" min="0.01" required
                                    value="<?php echo e($product['price']); ?>">
                         </div>
 
                         <div class="form-group">
                             <label for="stock">Остаток на складе: *</label>
-                            <input type="number" id="stock" name="stock" min="0" required 
+                            <input type="number" id="stock" name="stock" min="0" required
                                    value="<?php echo e($product['stock']); ?>">
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label for="category">Категория:</label>
-                        <input type="text" id="category" name="category" 
-                               value="<?php echo e($product['category'] ?? ''); ?>" 
+                        <input type="text" id="category" name="category"
+                               value="<?php echo e($product['category_name'] ?? ''); ?>"
                                list="categories-list">
                         <datalist id="categories-list">
                             <?php
@@ -178,6 +178,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <form method="POST" action="products_md.php" onsubmit="return confirm('Вы уверены, что хотите удалить этот товар?');">
                 <input type="hidden" name="delete_product" value="<?php echo $product_id; ?>">
                 <input type="hidden" name="moderator_id" value="<?php echo $_SESSION['user_id']; ?>">
+                <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
                 <button type="submit" class="btn btn-danger">Удалить товар</button>
             </form>
         </div>

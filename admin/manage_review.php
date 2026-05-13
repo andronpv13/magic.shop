@@ -7,7 +7,6 @@
 $page_title = 'Отзывы - Админ-панель';
 require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/functions_adm.php';
-require_once __DIR__ . '/../includes/functions.php';
 
 requireAdmin();
 
@@ -19,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_review'])) {
     } else {
         $review_id = (int)$_POST['delete_review'];
         $result = deleteReview($review_id);
-        
+
         // Проверяем результат перед редиректом
         if ($result['success']) {
             header('Location: manage_review.php?message=' . urlencode($result['message']));
@@ -62,24 +61,24 @@ $message = $_GET['message'] ?? $message ?? '';
                     <tbody>
                         <?php foreach ($reviews as $review): ?>
                             <tr>
-                                <td><?php echo $review['id']; ?></td>
-                                <td><?php echo e($review['username']); ?></td>
-                                <td>
+                                <td data-label="ID"><?php echo $review['id']; ?></td>
+                                <td data-label="Автор"><?php echo e($review['username']); ?></td>
+                                <td data-label="Товар">
                                     <a href="/shop.php?product_id=<?php echo $review['product_id']; ?>">
                                         <?php echo e($review['product_name']); ?>
                                     </a>
                                 </td>
-                                <td>
+                                <td data-label="Оценка">
                                     <span class="review-stars">
                                         <?php echo str_repeat('⭐', $review['rating']); ?>
                                     </span>
                                 </td>
-                                <td class="review-comment-cell">
+                                <td data-label="Комментарий" class="review-comment-cell">
                                     <?php echo e($review['comment']); ?>
                                 </td>
-                                <td><?php echo date('d.m.Y', strtotime($review['created_at'])); ?></td>
-                                <td>
-                                    <form method="POST" style="display: inline;" 
+                                <td data-label="Дата"><?php echo date('d.m.Y', strtotime($review['created_at'])); ?></td>
+                                <td data-label="Действия">
+                                    <form method="POST" style="display: inline;"
                                           onsubmit="return confirm('Удалить этот отзыв?');">
                                         <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
                                         <input type="hidden" name="delete_review" value="<?php echo $review['id']; ?>">
