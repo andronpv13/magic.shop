@@ -5,7 +5,9 @@
  */
 
 $page_title = 'Мой профиль - Волшебная ЛАВКА';
+require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/header.php';
+require_once __DIR__ . '/../includes/functions.php';
 
 if (!isLoggedIn()) {
     header('Location: /login.php');
@@ -24,7 +26,14 @@ if (!$user) {
 
 <section class="section">
     <div class="container">
+        <nav class="breadcrumbs">
+            <a href="../index.php">Главная</a>
+            <span class="separator">/</span>
+            <span class="current">Мой профиль</span>
+        </nav>
+
         <h1 class="page-title">Личный кабинет</h1>
+
         <div class="profile-section">
             <h2>Информация о пользователе</h2>
             <div class="profile-info">
@@ -71,19 +80,7 @@ if (!$user) {
 
         <div class="profile-section orders-section">
             <h2>История заказов</h2>
-            <?php $orders = getUserOrders($user_id); ?>
-            <?php if (!empty($orders)): ?>
-            <div class="orders-list">
-                <?php echo orders.php; ?>
-                
-            </div>
-            <?php else: ?>
-            <div class="empty-state">
-                <div class="empty-cart-icon">📦</div>
-                <h2>У вас пока нет заказов</h2>
-                <a href="/shop.php" class="btn btn-outline">Перейти в каталог</a>
-            </div>
-            <?php endif; ?>
+            <?php include __DIR__ . '/orders.php'; ?>
         </div>
     </div>
 </section>
