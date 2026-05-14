@@ -1,13 +1,10 @@
 <?php
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/functions_adm.php';
-<<<<<<< HEAD
 
 // ============================================
 // ФУНКЦИИ ДЛЯ МОДЕРАТОРА
 // ============================================
-=======
->>>>>>> 17aa9fe80430601b55ac05d1a95d326b8163eefa
 
 function getModeratorStats($uid) {
     global $conn;
@@ -98,8 +95,4 @@ function updateOrderStatusModerator($id,$st) {
         return ['success' => false, 'message' => 'Недостаточно прав для изменения статуса заказа'];
     }
     return updateOrderStatusAdmin($id,$st);
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 17aa9fe80430601b55ac05d1a95d326b8163eefa

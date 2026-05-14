@@ -80,18 +80,11 @@ document.addEventListener('DOMContentLoaded', () => {
             e.stopPropagation();
 
             const isPassword = input.type === 'password';
-<<<<<<< HEAD
             // Переключаем тип input
             input.type = isPassword ? 'text' : 'password';
 
             // Меняем иконку: если показываем пароль (type='text'), добавляем класс active для перечёркнутого глаза
             toggleBtn.classList.toggle('active', isPassword);
-=======
-            input.type = isPassword ? 'text' : 'password';
-
-            // Меняем иконку (через класс для CSS)
-            toggleBtn.classList.toggle('active', !isPassword);
->>>>>>> 17aa9fe80430601b55ac05d1a95d326b8163eefa
 
             // Возвращаем фокус на input для удобства
             input.focus();
@@ -174,12 +167,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // 3. Валидация Пароля
     const validatePassword = () => {
         const value = passwordInput.value;
-<<<<<<< HEAD
         // Пароль должен быть не менее 6 символов и не содержать пробелы и tab
         const isValid = value.length >= 6 && !/[\s\t]/.test(value);
-=======
-        const isValid = value.length >= 6;
->>>>>>> 17aa9fe80430601b55ac05d1a95d326b8163eefa
 
         validationState.password = isValid;
         setFieldStatus(passwordInput, isValid);
@@ -225,8 +214,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Блокируем кнопку изначально
     updateSubmitButton();
-<<<<<<< HEAD
 });
-=======
-});
->>>>>>> 17aa9fe80430601b55ac05d1a95d326b8163eefa
