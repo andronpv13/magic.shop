@@ -47,6 +47,7 @@ target/
 # System files
 .DS_Store
 Thumbs.db
+.env
 
 # Coverage
 coverage/
