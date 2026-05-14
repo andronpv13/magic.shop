@@ -5,9 +5,7 @@
  */
 
 $page_title = 'Мой профиль - Волшебная ЛАВКА';
-require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/header.php';
-require_once __DIR__ . '/../includes/functions.php';
 
 if (!isLoggedIn()) {
     header('Location: /login.php');
@@ -80,46 +78,7 @@ if (!$user) {
 
         <div class="profile-section orders-section">
             <h2>История заказов</h2>
-            <?php $orders = getUserOrders($user_id); ?>
-            <?php if (!empty($orders)): ?>
-            <div class="orders-list">
-                <?php foreach ($orders as $order): ?>
-                <div class="order-card">
-                    <div class="order-header">
-                        <div>
-                            <span class="order-number">Заказ #<?php echo e($order['id']); ?></span>
-                            <span class="order-date"><?php echo date('d.m.Y H:i', strtotime($order['created_at'])); ?></span>
-                        </div>
-                        <span class="status-badge status-<?php echo $order['status']; ?>"><?php echo getOrderStatusName($order['status']); ?></span>
-                    </div>
-                    <div class="order-items">
-                        <?php $items = getOrderItems($order['id']); foreach ($items as $item): ?>
-                        <div class="order-item">
-                            <?php if (!empty($item['product_image'])): ?>
-                            <img src="<?php echo e($item['product_image']); ?>" alt="<?php echo e($item['product_name']); ?>" class="order-item-image">
-                            <?php endif; ?>
-                            <div class="order-item-details">
-                                <span class="order-item-name"><?php echo e($item['product_name']); ?></span>
-                                <span class="order-item-quantity"><?php echo $item['quantity']; ?> шт.</span>
-                            </div>
-                            <span class="order-item-price"><?php echo formatPrice($item['price'] * $item['quantity']); ?></span>
-                        </div>
-                        <?php endforeach; ?>
-                    </div>
-                    <div class="order-footer">
-                        <span class="order-total">Итого: <?php echo formatPrice($order['total']); ?></span>
-                        <a href="/users/order_detail.php?order_id=<?php echo $order['id']; ?>" class="btn btn-sm btn-view">Подробнее</a>
-                    </div>
-                </div>
-                <?php endforeach; ?>
-            </div>
-            <?php else: ?>
-            <div class="empty-state">
-                <div class="empty-cart-icon">📦</div>
-                <h2>У вас пока нет заказов</h2>
-                <a href="/shop.php" class="btn btn-outline">Перейти в каталог</a>
-            </div>
-            <?php endif; ?>
+            <?php include __DIR__ . '/orders.php'; ?>
         </div>
     </div>
 </section>
