@@ -51,4 +51,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php endif; ?>
     <a href="/users/profile.php" class="back-link">← Вернуться в профиль</a>
 </div></section>
+<<<<<<< HEAD
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>
+=======
+<?php require_once __DIR__ . '/../includes/footer.php'; ?>
+>>>>>>> 17aa9fe80430601b55ac05d1a95d326b8163eefa

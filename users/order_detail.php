@@ -1,6 +1,12 @@
 <?php
 $page_title = 'Детали заказа';
+<<<<<<< HEAD
 require_once __DIR__ . '/../includes/header.php';
+=======
+require_once __DIR__ . '/../includes/config.php';
+require_once __DIR__ . '/../includes/header.php';
+require_once __DIR__ . '/../includes/functions.php';
+>>>>>>> 17aa9fe80430601b55ac05d1a95d326b8163eefa
 
 if (!isLoggedIn()) { header('Location: /login.php'); exit; }
 

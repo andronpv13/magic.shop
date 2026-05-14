@@ -489,4 +489,8 @@ function resetUserPassword($id, $p) {
     $s->bind_param("si", $h, $id);
     return ['success' => $s->execute()];
 }
+<<<<<<< HEAD
 ?>
+=======
+?>
+>>>>>>> 17aa9fe80430601b55ac05d1a95d326b8163eefa

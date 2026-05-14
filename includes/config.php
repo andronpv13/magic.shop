@@ -360,4 +360,8 @@ function getSecureOrderId($order_id, $user_id = null) {
 
     return $order_id;
 }
+<<<<<<< HEAD
 ?>
+=======
+?>
+>>>>>>> 17aa9fe80430601b55ac05d1a95d326b8163eefa

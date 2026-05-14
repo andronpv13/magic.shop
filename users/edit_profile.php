@@ -1,5 +1,11 @@
 <?php
+<<<<<<< HEAD
 require_once __DIR__ . '/../includes/header.php';
+=======
+require_once __DIR__ . '/../includes/config.php';
+require_once __DIR__ . '/../includes/header.php';
+require_once __DIR__ . '/../includes/functions.php';
+>>>>>>> 17aa9fe80430601b55ac05d1a95d326b8163eefa
 
 if (!isLoggedIn()) {
     header('Location: /login.php');
@@ -132,8 +138,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="form-group"><label>Город</label><input type="text" name="city" value="<?php echo e($current_user['city'] ?? ''); ?>"></div>
                     <div class="form-group"><label>Улица</label><input type="text" name="street" value="<?php echo e($current_user['street'] ?? ''); ?>"></div>
                     <div class="form-row">
+<<<<<<< HEAD
                         <div class="form-group"><label>№ Дома</label><input type="text" name="house" value="<?php echo e($current_user['house'] ?? ''); ?>"></div>
                         <div class="form-group"><label>№ Кв.</label><input type="text" name="apartment" value="<?php echo e($current_user['apartment'] ?? ''); ?>"></div>
+=======
+                        <div class="form-group"><label>Дом</label><input type="text" name="house" value="<?php echo e($current_user['house'] ?? ''); ?>"></div>
+                        <div class="form-group"><label>кв.</label><input type="text" name="apartment" value="<?php echo e($current_user['apartment'] ?? ''); ?>"></div>
+>>>>>>> 17aa9fe80430601b55ac05d1a95d326b8163eefa
                     </div>
 
                     <h3>Смена пароля</h3>
@@ -146,4 +157,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 </section>
+<<<<<<< HEAD
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>
+=======
+<?php require_once __DIR__ . '/../includes/footer.php'; ?>
+>>>>>>> 17aa9fe80430601b55ac05d1a95d326b8163eefa

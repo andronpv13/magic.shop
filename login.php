@@ -4,7 +4,11 @@
 * Разработчик: АВВА © 2025
 */
 $page_title = 'Вход в аккаунт';
+<<<<<<< HEAD
 require_once 'includes/header.php';
+=======
+
+>>>>>>> 17aa9fe80430601b55ac05d1a95d326b8163eefa
 // Если уже авторизован - редирект на главную
 if (isLoggedIn()) {
     header('Location: /index.php');

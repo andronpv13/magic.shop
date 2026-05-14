@@ -95,4 +95,8 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+<<<<<<< HEAD
 });
+=======
+});
+>>>>>>> 17aa9fe80430601b55ac05d1a95d326b8163eefa

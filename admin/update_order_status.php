@@ -40,4 +40,8 @@ if ($result['success']) {
     header('Location: /admin/order_details.php?order_id=' . $order_id . '&error=1');
 }
 exit;
+<<<<<<< HEAD
 ?>
+=======
+?>
+>>>>>>> 17aa9fe80430601b55ac05d1a95d326b8163eefa
