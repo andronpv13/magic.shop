@@ -1,20 +1,11 @@
 <?php
-<<<<<<< HEAD
 require_once __DIR__ . '/includes/header.php';
-=======
-require_once 'includes/header.php';
->>>>>>> 17aa9fe80430601b55ac05d1a95d326b8163eefa
 
 // Получаем все категории
 $categories = getCategories();
 
-<<<<<<< HEAD
 // Получаем ИМЯ категории из URL (а не ID)
 $category = isset($_GET['category']) ? trim($_GET['category']) : '';
-=======
-// Получаем ID категории из URL
-$category = isset($_GET['category']) ? (int)$_GET['category'] : null;
->>>>>>> 17aa9fe80430601b55ac05d1a95d326b8163eefa
 
 // Получаем ID товара из URL
 $product_id = isset($_GET['id']) ? (int)$_GET['id'] : null;
@@ -85,8 +76,4 @@ if ($product_id) {
 }
 ?>
 
-<<<<<<< HEAD
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
-=======
-<?php require_once 'includes/footer.php'; ?>
->>>>>>> 17aa9fe80430601b55ac05d1a95d326b8163eefa

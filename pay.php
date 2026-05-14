@@ -1,6 +1,6 @@
 <?php
 $page_title = 'Оплата заказа';
-require_once 'includes/header.php';
+require_once __DIR__ . '/includes/header.php';
 if (!isLoggedIn()) { header('Location: /login.php'); exit; }
 $order_id = isset($_GET['order_id']) ? (int)$_GET['order_id'] : 0;
 if (!$order_id) { header('Location: /users/orders.php'); exit; }
@@ -43,4 +43,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <a href="/users/orders.php" class="back-link">← Вернуться к заказам</a>
     <?php endif; ?>
 </div></section>
-<?php require_once 'includes/footer.php'; ?>
+<?php require_once __DIR__ . '/includes/footer.php'; ?>

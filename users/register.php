@@ -1,6 +1,5 @@
 <?php
-require_once '../includes/config.php';
-require_once '../includes/functions.php';
+require_once __DIR__ . '/includes/header.php';
 
 // Если пользователь уже авторизован, перенаправляем
 if (isLoggedIn()) {
@@ -31,13 +30,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = "Некорректный формат email.";
     }
 
-<<<<<<< HEAD
     if (strlen($password) < 6 || preg_match('/[\s\t]/', $password)) {
         $errors[] = "Пароль должен быть не менее 6 символов и не содержать пробелы и табуляцию.";
-=======
-    if (strlen($password) < 6) {
-        $errors[] = "Пароль должен быть не менее 6 символов.";
->>>>>>> 17aa9fe80430601b55ac05d1a95d326b8163eefa
     }
 
     if ($password !== $confirm_password) {
@@ -70,11 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['username'] = $username;
             $_SESSION['role'] = $role;
 
-<<<<<<< HEAD
             redirect('edit_profile.php');
-=======
-            redirect('profile.php');
->>>>>>> 17aa9fe80430601b55ac05d1a95d326b8163eefa
         } catch (Exception $e) {
             $errors[] = "Ошибка регистрации: " . $e->getMessage();
         } finally {
@@ -200,34 +190,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border-radius: 4px;
         }
 
-<<<<<<< HEAD
         /* Иконка глаза через CSS (SVG background) - по умолчанию открытый глаз (пароль скрыт) */
-=======
-        /* Иконка глаза через CSS (SVG background) */
->>>>>>> 17aa9fe80430601b55ac05d1a95d326b8163eefa
         .password-toggle::before {
             content: '';
             display: block;
             width: 20px;
             height: 20px;
-<<<<<<< HEAD
             /* Открытый глаз - пароль скрыт (type="password") */
-=======
->>>>>>> 17aa9fe80430601b55ac05d1a95d326b8163eefa
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z'%3E%3C/path%3E%3Ccircle cx='12' cy='12' r='3'%3E%3C/circle%3E%3C/svg%3E");
             background-size: contain;
             background-repeat: no-repeat;
             transition: opacity 0.2s;
         }
 
-<<<<<<< HEAD
         /* Перечёркнутый глаз (активное состояние - пароль виден, type="text") */
         .password-toggle.active::before {
              /* Перечёркнутый глаз - пароль виден */
-=======
-        /* Перечеркнутый глаз (активное состояние - пароль виден) */
-        .password-toggle.active::before {
->>>>>>> 17aa9fe80430601b55ac05d1a95d326b8163eefa
              background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24'%3E%3C/path%3E%3Cline x1='1' y1='1' x2='23' y2='23'%3E%3C/line%3E%3C/svg%3E");
         }
 
@@ -256,8 +234,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </style>
 </head>
 <body>
-    <?php include '../includes/header.php'; ?>
-
     <div class="auth-container">
         <div class="auth-card-wide">
             <h2 style="text-align: center; margin-bottom: 1.5rem;">Регистрация</h2>
@@ -336,7 +312,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 
-    <?php include '../includes/footer.php'; ?>
+    <?php require_once __DIR__ . '/includes/footer.php'; ?>
 
     <!-- Подключение внешнего скрипта валидации -->
     <script>
@@ -345,8 +321,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </script>
     <script src="../js/validation.js" defer></script>
 </body>
-<<<<<<< HEAD
 </html>
-=======
-</html>
->>>>>>> 17aa9fe80430601b55ac05d1a95d326b8163eefa

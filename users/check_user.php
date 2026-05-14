@@ -30,8 +30,4 @@ $exists = $stmt->get_result()->num_rows > 0;
 echo json_encode([
     'exists' => $exists,
     'available' => !$exists
-<<<<<<< HEAD
 ]);
-=======
-]);
->>>>>>> 17aa9fe80430601b55ac05d1a95d326b8163eefa

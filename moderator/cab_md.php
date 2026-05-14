@@ -103,8 +103,4 @@ $current_user = getCurrentUser();
 }
 </style>
 
-<<<<<<< HEAD
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>
-=======
-<?php require_once __DIR__ . '/../includes/footer.php'; ?>
->>>>>>> 17aa9fe80430601b55ac05d1a95d326b8163eefa

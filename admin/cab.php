@@ -1,9 +1,5 @@
 <?php
 $page_title = 'Личный кабинет администратора';
-<<<<<<< HEAD
-=======
-require_once __DIR__ . '/../includes/config.php';
->>>>>>> 17aa9fe80430601b55ac05d1a95d326b8163eefa
 require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/functions_adm.php';
 requireRole('admin');
@@ -108,8 +104,4 @@ $user = getUserById($user_id);
 }
 </style>
 
-<<<<<<< HEAD
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>
-=======
-<?php require_once __DIR__ . '/../includes/footer.php'; ?>
->>>>>>> 17aa9fe80430601b55ac05d1a95d326b8163eefa

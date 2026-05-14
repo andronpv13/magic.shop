@@ -4,11 +4,7 @@
 * Разработчик: АВВА © 2025
 */
 $page_title = 'Вход в аккаунт';
-<<<<<<< HEAD
-require_once 'includes/header.php';
-=======
-
->>>>>>> 17aa9fe80430601b55ac05d1a95d326b8163eefa
+require_once __DIR__ . '/includes/header.php';
 // Если уже авторизован - редирект на главную
 if (isLoggedIn()) {
     header('Location: /index.php');
@@ -101,4 +97,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </section>
 
-<?php require_once 'includes/footer.php'; ?>
+<?php require_once __DIR__ . '/includes/footer.php'; ?>

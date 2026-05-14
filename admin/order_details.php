@@ -50,8 +50,4 @@ if (!$order) { echo '<div class="container section"><p class="empty-state">За�
     </div>
     <a href="/admin/manage_orders.php" class="back-link">← Назад к заказам</a>
 </div></section>
-<<<<<<< HEAD
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>
-=======
-<?php require_once __DIR__ . '/../includes/footer.php'; ?>
->>>>>>> 17aa9fe80430601b55ac05d1a95d326b8163eefa

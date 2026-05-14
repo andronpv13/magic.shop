@@ -4,10 +4,6 @@
  * Разработчик: АВВА © 2025
  */
 $page_title = 'Настройки оформления';
-<<<<<<< HEAD
-=======
-require_once __DIR__ . '/../includes/config.php';
->>>>>>> 17aa9fe80430601b55ac05d1a95d326b8163eefa
 require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/functions_adm.php';
 requireRole('admin');
@@ -609,8 +605,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reset_defaults'])) {
     });
 </script>
 
-<<<<<<< HEAD
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>
-=======
-<?php require_once __DIR__ . '/../includes/footer.php'; ?>
->>>>>>> 17aa9fe80430601b55ac05d1a95d326b8163eefa
