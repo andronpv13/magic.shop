@@ -76,7 +76,7 @@ CREATE DATABASE shop_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ### 2. Импорт схемы
 
 ```bash
-mysql -u root -p shop_db < database/schema.sql
+mysql -u login -p shop_db < database/schema.sql
 ```
 
 ### 3. Настройка подключения
@@ -86,8 +86,8 @@ mysql -u root -p shop_db < database/schema.sql
 ```bash
 DB_HOST=localhost
 DB_NAME=shop_db
-DB_USER=root
-DB_PASS=toor
+DB_USER=login
+DB_PASS=password
 APP_ENV=development
 SESSION_LIFETIME=600
 ```
@@ -183,6 +183,10 @@ MagicShop/
 │   └── magic.css             # Все стили: CSS Variables, Grid, Flexbox, адаптивность, print styles
 │
 ├── js/                       # JavaScript скрипты
+│   ├──admin/                 # Скрипты только для администратора
+│   │   ├── categories.js     # Управление категориями товаров
+│   │   ├── settings.js       # Обработка настроек сайта
+│   │   └── users.js          # Управление пользователями
 │   ├── basket.js             # Обработка операций корзины (AJAX)
 │   ├── detail.js             # Скрипт детальной страницы товара
 │   ├── main.js               # Общие AJAX функции для всех страниц
@@ -400,6 +404,9 @@ MagicShop/
 | [js/detail.js] | JavaScript: скрипт детальной страницы товара |
 | [js/main.js] | JavaScript: общие AJAX функции для всех страниц |
 | [js/validation.js] | JavaScript: AJAX валидация форм в реальном времени (логин, email, пароль) |
+| [js/admin/categories.js] | JavaScript: AJAX управление категориями товаров (добавление, удаление) |
+| [js/admin/settings.js] | JavaScript: AJAX-обработка настроек сайта |
+| [js/admin/users.js] | JavaScript: AJAX-управление пользователями |
 | [database/schema.sql] | Схема БД: 6 таблиц, индексы, внешние ключи, дефолтные пользователи и категории |
 | [database/setup.php] | Скрипт установки БД (опционально) |
 | [images/no_photo.png] | Изображение-заглушка для товаров без фото (используется функцией getProductImage) |

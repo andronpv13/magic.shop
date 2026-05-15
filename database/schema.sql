@@ -162,8 +162,4 @@ INSERT INTO categories (name, description) VALUES
 INSERT INTO products (name, description, price, image, category_id, created_by, stock) VALUES
 ('Волшебная палочка', 'Идеальная для начинающих волшебников', 5000.00, 'wand1.jpg', 1, 1, 10),
 ('Котелок зельеварения', 'Прочный медный котел', 3500.00, 'cauldron1.jpg', 2, 1, 5),
-<<<<<<< HEAD
 ('Книга заклинаний', 'Сборник основных заклинаний', 1200.00, 'book1.jpg', 3, 1, 20);
-=======
-('Книга заклинаний', 'Сборник основных заклинаний', 1200.00, 'book1.jpg', 3, 1, 20);
->>>>>>> 17aa9fe80430601b55ac05d1a95d326b8163eefa

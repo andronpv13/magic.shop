@@ -1,6 +1,6 @@
 <?php
 // hash.php (Временный файл)
-echo password_hash('toor', PASSWORD_DEFAULT);
+echo password_hash('password', PASSWORD_DEFAULT);
 ?>
 <html>
 <br>

@@ -24,14 +24,7 @@ if (!$user) {
 
 <section class="section">
     <div class="container">
-        <nav class="breadcrumbs">
-            <a href="../index.php">Главная</a>
-            <span class="separator">/</span>
-            <span class="current">Мой профиль</span>
-        </nav>
-
         <h1 class="page-title">Личный кабинет</h1>
-
         <div class="profile-section">
             <h2>Информация о пользователе</h2>
             <div class="profile-data-wrapper">
