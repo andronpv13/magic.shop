@@ -184,27 +184,7 @@ $use_categories = isset($_SESSION['use_categories']) ? $_SESSION['use_categories
     </div>
 </section>
 
-<script>
-    // Функция для переключения поля категории в форме
-    function toggleCategoryField(checkbox) {
-        const categoryGroup = document.getElementById('category-group');
-        const categorySelect = document.getElementById('category');
-        const categoryInput = document.getElementById('category_name');
-
-        if (checkbox.checked) {
-            categoryGroup.style.display = 'block';
-            categoryGroup.style.opacity = '1';
-            categorySelect.disabled = false;
-            categoryInput.disabled = false;
-        } else {
-            categoryGroup.style.display = 'none';
-            categoryGroup.style.opacity = '0.5';
-            categorySelect.value = '';
-            categoryInput.value = '';
-            categorySelect.disabled = true;
-            categoryInput.disabled = true;
-        }
-    }
-</script>
+<!-- Подключение внешних скриптов -->
+<script src="../js/admin/settings.js" defer></script>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>

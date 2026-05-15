@@ -357,32 +357,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reset_defaults'])) {
     <a href="/admin/index.php" class="back-link">← Назад в админ-панель</a>
 </section>
 
-<script>
-    // Синхронизация color picker и text input
-    document.getElementById('primary_color_picker').addEventListener('input', function(e) {
-        document.getElementById('primary_color').value = e.target.value;
-    });
-
-    document.getElementById('secondary_color_picker').addEventListener('input', function(e) {
-        document.getElementById('secondary_color').value = e.target.value;
-    });
-
-    document.getElementById('accent_color_picker').addEventListener('input', function(e) {
-        document.getElementById('accent_color').value = e.target.value;
-    });
-
-    // Обратная синхронизация
-    document.getElementById('primary_color').addEventListener('input', function(e) {
-        document.getElementById('primary_color_picker').value = e.target.value;
-    });
-
-    document.getElementById('secondary_color').addEventListener('input', function(e) {
-        document.getElementById('secondary_color_picker').value = e.target.value;
-    });
-
-    document.getElementById('accent_color').addEventListener('input', function(e) {
-        document.getElementById('accent_color_picker').value = e.target.value;
-    });
-</script>
+<!-- Подключение внешних скриптов -->
+<script src="../js/admin/settings.js" defer></script>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>

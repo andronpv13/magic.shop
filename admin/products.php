@@ -136,38 +136,7 @@ $use_categories = isset($_SESSION['use_categories']) ? $_SESSION['use_categories
     </div>
 </section>
 
-<script>
-    // При загрузке страницы
-    document.addEventListener('DOMContentLoaded', function() {
-        const checkbox = document.getElementById('use_categories');
-        if (checkbox) {
-            const localState = localStorage.getItem('use_categories');
-            if (localState !== null) {
-                checkbox.checked = localState === 'true';
-            }
-        }
-    });
-
-    // Функция для переключения использования категорий
-    function toggleCategories(checkbox) {
-        const formData = new FormData();
-        formData.append('use_categories', checkbox.checked ? '1' : '0');
-        formData.append('csrf_token', '<?php echo csrf_token(); ?>');
-
-        fetch('/admin/update_settings.php?ajax=1', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                localStorage.setItem('use_categories', checkbox.checked ? 'true' : 'false');
-            } else {
-                alert('Ошибка при обновлении настроек: ' + (data.message || 'Неизвестная ошибка'));
-            }
-        })
-        .catch(() => alert('Ошибка при отправке запроса'));
-    }
-</script>
+<!-- Подключение внешних скриптов -->
+<script src="../js/admin/settings.js" defer></script>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>
