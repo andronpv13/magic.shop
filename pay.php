@@ -13,9 +13,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $payment_method = $_POST['payment_method'] ?? '';
     if (empty($payment_method)) $error = 'Выберите способ оплаты';
     else {
-        $res = updateOrderStatus($order_id, 'completed');
-        if ($res['success']) { $success = 'Оплата прошла успешно! Заказ оплачен.'; $order['status'] = 'completed'; }
-        else $error = 'Ошибка при обработке оплаты';
+        $res = payForOrder($order_id, $_SESSION['user_id']);
+        if ($res['success']) { $success = $res['message']; $order['status'] = 'completed'; }
+        else $error = $res['message'];
     }
 }
 ?>

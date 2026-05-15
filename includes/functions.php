@@ -275,6 +275,65 @@ function updateOrderStatus($order_id, $status) {
     return ['success' => false, 'message' => 'Ошибка при обновлении статуса заказа'];
 }
 
+/**
+ * Оплата заказа пользователем
+ * Позволяет пользователю изменить статус своего заказа на 'completed' после оплаты
+ *
+ * @param int $order_id ID заказа
+ * @param int $user_id ID пользователя
+ * @return array Результат операции
+ */
+function payForOrder($order_id, $user_id) {
+    global $conn;
+
+    if (!isLoggedIn()) {
+        log_error('payForOrder: Unauthorized access attempt - user not logged in', 'SECURITY');
+        return ['success' => false, 'message' => 'Требуется авторизация'];
+    }
+
+    // Проверка что пользователь пытается оплатить свой собственный заказ
+    $stmt = $conn->prepare("SELECT id, status, total FROM orders WHERE id = ? AND user_id = ?");
+    $stmt->bind_param("ii", $order_id, $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows === 0) {
+        log_error('payForOrder: Order not found or access denied - order_id=' . $order_id . ', user_id=' . $user_id, 'WARNING');
+        $stmt->close();
+        return ['success' => false, 'message' => 'Заказ не найден или доступ запрещён'];
+    }
+
+    $order = $result->fetch_assoc();
+    $stmt->close();
+
+    // Проверка статуса заказа - можно оплатить только pending или payment
+    if ($order['status'] === 'completed') {
+        return ['success' => false, 'message' => 'Заказ уже оплачен'];
+    }
+
+    if ($order['status'] === 'cancelled') {
+        return ['success' => false, 'message' => 'Нельзя оплатить отменённый заказ'];
+    }
+
+    // Обновление статуса заказа на completed
+    $stmt = $conn->prepare("UPDATE orders SET status = 'completed', updated_at = NOW() WHERE id = ?");
+    $stmt->bind_param("i", $order_id);
+    $success = $stmt->execute();
+    $affected_rows = $stmt->affected_rows;
+    $stmt->close();
+
+    if ($success && $affected_rows > 0) {
+        log_action('Order paid by user', [
+            'order_id' => $order_id,
+            'user_id' => $user_id,
+            'amount' => $order['total']
+        ]);
+        return ['success' => true, 'message' => 'Оплата прошла успешно! Заказ оплачен.'];
+    }
+
+    return ['success' => false, 'message' => 'Ошибка при обработке оплаты'];
+}
+
 // === Отзывы ===
 function getReviewsByProduct($product_id) {
     global $conn;
@@ -368,7 +427,7 @@ function getBasketTotal() {
 
 // === Утилиты ===
 function getOrderStatusName($s) {
-    return ['pending'=>'Ожидает','payment'=>'Ожидает оплаты','completed'=>'Завершён','cancelled'=>'Отменён'][$s] ?? $s;
+    return ['pending'=>'Ожидает','payment'=>'Ожидает оплаты','completed'=>'Оплачен','cancelled'=>'Отменён'][$s] ?? $s;
 }
 function formatPrice($p) { return number_format((float)$p, 0, ',', ' ') . ' ₽'; }
 

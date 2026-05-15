@@ -586,6 +586,112 @@ main {
     text-align: center;
 }
 
+/* Сетка заказов - аналогично товарам */
+.orders-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-xl);
+    padding: var(--spacing-xl) 0;
+    justify-content: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.order-card {
+    background: var(--gradient-card);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    transition: all var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-medium);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.order-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(157, 78, 221, 0.1) 0%, rgba(67, 97, 238, 0.1) 100%);
+    opacity: 0;
+    transition: opacity var(--transition-normal);
+    z-index: -1;
+}
+
+.order-card:hover {
+    box-shadow: var(--shadow-strong), var(--glow-multi);
+    border-color: var(--color-purple-bright);
+}
+
+.order-card:hover::before {
+    opacity: 1;
+}
+
+.order-header {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.order-number {
+    font-weight: bold;
+    color: var(--color-gold);
+    font-size: 1.1rem;
+}
+
+.order-date {
+    color: var(--color-lavender);
+    font-size: 0.9rem;
+}
+
+.order-items-preview {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    margin-bottom: var(--spacing-md);
+    padding: var(--spacing-md);
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-md);
+}
+
+.order-item-preview {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: var(--color-off-white);
+}
+
+.order-footer {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-top: auto;
+    padding-top: var(--spacing-md);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.order-total {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--color-emerald-light);
+}
+
 /* --------------------------------------------------------------------------
    7. КНОПКИ
    -------------------------------------------------------------------------- */
@@ -1775,6 +1881,7 @@ main {
     margin-top: var(--spacing-sm);
 }
 
+/* Блок информации о пользователе - два столбца */
 .profile-section {
     background: var(--gradient-card);
     backdrop-filter: blur(10px);
@@ -1783,6 +1890,112 @@ main {
     padding: var(--spacing-xl);
     margin-bottom: var(--spacing-xl);
     box-shadow: var(--shadow-medium);
+    width: 100%;
+    max-width: 100%;
+    position: relative;
+}
+
+.profile-section h2 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    color: var(--color-gold);
+    font-size: 1.5rem;
+}
+
+/* Переопределение для блока истории заказов - убираем ограничение ширины */
+.profile-section.orders-section {
+    max-width: 100%;
+    width: 100%;
+}
+
+.profile-section.orders-section .orders-grid {
+    max-width: 100%;
+    width: 100%;
+}
+
+.profile-data-wrapper {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+}
+
+.profile-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    font-weight: 500;
+    color: var(--color-lavender);
+}
+
+.info-value {
+    color: var(--color-white);
+    font-weight: 400;
+    text-align: right;
+}
+
+/* Кнопка редактирования в правом нижнем углу блока */
+.profile-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: var(--spacing-md);
+}
+
+.btn-edit-profile {
+    background: var(--gradient-magic-primary);
+    color: var(--color-white);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    transition: all var(--transition-normal);
+    border: none;
+    cursor: pointer;
+    box-shadow: var(--shadow-medium);
+}
+
+.btn-edit-profile:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--glow-purple);
+}
+
+/* Адаптивность для маленьких экранов */
+@media (max-width: 768px) {
+    .profile-data-wrapper {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+    }
+
+    .info-row {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .info-value {
+        text-align: left;
+    }
+
+    .profile-actions {
+        justify-content: center;
+    }
+
+    .btn-edit-profile {
+        width: 100%;
+        text-align: center;
+    }
 }
 
 .profile-section-title {
@@ -2653,7 +2866,8 @@ footer {
 
     .products-grid,
     .products-slider,
-    .reviews-grid {
+    .reviews-grid,
+    .orders-list {
         grid-template-columns: repeat(2, 1fr);
     }
 
@@ -2768,7 +2982,8 @@ footer {
 
     .products-grid,
     .products-slider,
-    .reviews-grid {
+    .reviews-grid,
+    .orders-list {
         grid-template-columns: 1fr;
     }
 
@@ -2885,7 +3100,8 @@ footer {
 
     .products-grid,
     .products-slider,
-    .reviews-grid {
+    .reviews-grid,
+    .orders-list {
         grid-template-columns: 1fr;
     }
 }
@@ -2971,3 +3187,57 @@ footer {
 /* ==========================================================================
    КОНЕЦ ФАЙЛА MAGIC.CSS
    ========================================================================== */
+
+/* Стили для карточек заказов в сетке товаров */
+.orders-grid .order-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.orders-grid .order-date {
+    margin-bottom: var(--spacing-sm);
+}
+
+.order-more-items {
+    color: var(--color-lavender);
+    font-size: 0.85rem;
+    font-style: italic;
+    padding-top: var(--spacing-xs);
+}
+
+.orders-grid .order-item-preview {
+    justify-content: center;
+    text-align: center;
+    font-size: 0.85rem;
+}
+
+.orders-grid .price {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: var(--color-gold);
+    margin: var(--spacing-md) 0;
+}
+
+/* Адаптивность для заказов на маленьких экранах */
+@media (max-width: 1024px) {
+    .products-slider,
+    .orders-list,
+    .orders-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .products-slider,
+    .orders-list,
+    .orders-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .orders-grid .order-header {
+        flex-direction: column;
+        align-items: center;
+    }
+}

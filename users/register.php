@@ -84,14 +84,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="../css/magic.css">
     <style>
         /* Дополнительные стили специально для формы регистрации */
-        .auth-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: calc(100vh - 200px);
-            padding: 2rem 1rem;
-        }
-
         .auth-card-wide {
             background: var(--card-bg);
             padding: 2.5rem;
