@@ -103,11 +103,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <!-- Подключение скрипта валидации для функции показа/скрытия пароля -->
 <script src="js/validation.js" defer></script>
-<script>
-    // Инициализация кнопки глаза для страницы входа после загрузки validation.js
-    document.addEventListener('DOMContentLoaded', () => {
-        if (typeof window.initPasswordToggle === 'function') {
-            window.initPasswordToggle('password');
-        }
-    });
-</script>

@@ -5,9 +5,14 @@ if (typeof window.apiBaseUrl === 'undefined') {
 
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('registerForm');
-    if (!form) return;
 
-    // Элементы формы
+    // Проверка наличия поля пароля для страницы входа (если форма регистрации отсутствует)
+    const loginPasswordInput = document.getElementById('password');
+    const isLoginPage = loginPasswordInput && !form;
+
+    if (!form && !isLoginPage) return;
+
+    // Элементы формы (для страницы регистрации)
     const usernameInput = document.getElementById('username');
     const emailInput = document.getElementById('email');
     const passwordInput = document.getElementById('password');
@@ -94,6 +99,11 @@ document.addEventListener('DOMContentLoaded', () => {
             // Возвращаем фокус на input для удобства
             input.focus();
         });
+    }
+
+    // Инициализация кнопки глаза для страницы входа (если это страница входа)
+    if (isLoginPage && loginPasswordInput) {
+        initPasswordToggle('password');
     }
 
     // Получаем CSRF токен из meta тега
