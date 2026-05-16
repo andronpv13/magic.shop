@@ -66,6 +66,11 @@ if ($product_id) {
                     <h3><?php echo e($product['name']); ?></h3>
                     <p class="price"><?php echo number_format($product['price'], 0, '', ' '); ?> ₽</p>
                     <div class="btn-container">
+                        <div class="quantity-selector-inline">
+                            <button class="quantity-btn decrease-compact" data-product-id="<?php echo $product['id']; ?>">-</button>
+                            <input type="number" class="quantity-input-compact" data-product-id="<?php echo $product['id']; ?>" value="1" min="1" max="99">
+                            <button class="quantity-btn increase-compact" data-product-id="<?php echo $product['id']; ?>">+</button>
+                        </div>
                         <button class="add-to-basket btn" data-product-id="<?php echo $product['id']; ?>" data-quantity="1">В корзину</button>
                     </div>
                 </div>
