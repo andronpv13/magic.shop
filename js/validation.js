@@ -1,3 +1,8 @@
+// Конфигурация API
+if (typeof window.apiBaseUrl === 'undefined') {
+    window.apiBaseUrl = '../';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('registerForm');
     if (!form) return;
@@ -52,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Переключение видимости пароля
+    // Переключение видимости пароля - универсальная функция
     function initPasswordToggle(inputId) {
         const input = document.getElementById(inputId);
         if (!input) return;
@@ -214,4 +219,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Блокируем кнопку изначально
     updateSubmitButton();
+
+    // Экспортируем функцию глобально для использования на других страницах (например, login.php)
+    // Вызываем после завершения инициализации, чтобы функция была доступна
+    if (typeof window.initPasswordToggleExport !== 'function') {
+        window.initPasswordToggleExport = true;
+        window.initPasswordToggle = initPasswordToggle;
+    }
 });

@@ -152,8 +152,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>
 
 <!-- Подключение внешнего скрипта валидации -->
-<script>
-    // Передаем базовый URL для API в внешний скрипт
-    window.apiBaseUrl = '../';
-</script>
 <script src="../js/validation.js" defer></script>

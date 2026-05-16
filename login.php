@@ -101,37 +101,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
 
-<!-- Скрипт для кнопки глаза на странице входа -->
+<!-- Подключение скрипта валидации для функции показа/скрытия пароля -->
+<script src="js/validation.js" defer></script>
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const passwordInput = document.getElementById('password');
-    if (!passwordInput) return;
-
-    const wrapper = passwordInput.parentElement;
-
-    // Создаем кнопку глаза, если её нет
-    let toggleBtn = wrapper.querySelector('.password-toggle');
-    if (!toggleBtn) {
-        toggleBtn = document.createElement('button');
-        toggleBtn.type = 'button';
-        toggleBtn.className = 'password-toggle';
-        toggleBtn.setAttribute('aria-label', 'Показать/скрыть пароль');
-        wrapper.appendChild(toggleBtn);
-    }
-
-    // Удаляем предыдущие обработчики (клонированием)
-    const newBtn = toggleBtn.cloneNode(true);
-    toggleBtn.parentNode.replaceChild(newBtn, toggleBtn);
-    toggleBtn = newBtn;
-
-    toggleBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        const isPassword = passwordInput.type === 'password';
-        passwordInput.type = isPassword ? 'text' : 'password';
-        toggleBtn.classList.toggle('active', isPassword);
-        passwordInput.focus();
+    // Инициализация кнопки глаза для страницы входа после загрузки validation.js
+    document.addEventListener('DOMContentLoaded', () => {
+        if (typeof window.initPasswordToggle === 'function') {
+            window.initPasswordToggle('password');
+        }
     });
-});
 </script>
