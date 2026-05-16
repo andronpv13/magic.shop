@@ -873,6 +873,23 @@ main {
     text-align: center;
 }
 
+.order-card .card-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.order-card .btn-container {
+    margin-top: auto;
+    margin-bottom: 5px;
+    display: flex;
+    gap: var(--spacing-sm);
+    justify-content: center;
+    width: 100%;
+}
+
 .order-card::before {
     content: '';
     position: absolute;
@@ -2225,17 +2242,6 @@ main {
     font-size: 1.5rem;
 }
 
-/* Переопределение для блока истории заказов - убираем ограничение ширины */
-.profile-section.orders-section {
-    max-width: 100%;
-    width: 100%;
-}
-
-.profile-section.orders-section .orders-grid {
-    max-width: 100%;
-    width: 100%;
-}
-
 .profile-data-wrapper {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -2271,13 +2277,15 @@ main {
     text-align: right;
 }
 
-/* Кнопка редактирования в правом нижнем углу блока */
+/* Кнопки действий профиля - на одной линии */
 .profile-actions {
     display: flex;
     justify-content: flex-end;
+    gap: var(--spacing-md);
     margin-top: var(--spacing-md);
 }
 
+.btn-orders,
 .btn-edit-profile {
     background: var(--gradient-magic-primary);
     color: var(--color-white);
@@ -2288,8 +2296,11 @@ main {
     border: none;
     cursor: pointer;
     box-shadow: var(--shadow-medium);
+    text-decoration: none;
+    display: inline-block;
 }
 
+.btn-orders:hover,
 .btn-edit-profile:hover {
     transform: translateY(-2px);
     box-shadow: var(--glow-purple);
@@ -2312,9 +2323,12 @@ main {
     }
 
     .profile-actions {
-        justify-content: center;
+        flex-direction: column-reverse;
+        align-items: center;
+        gap: var(--spacing-sm);
     }
 
+    .btn-orders,
     .btn-edit-profile {
         width: 100%;
         text-align: center;
@@ -2328,6 +2342,173 @@ main {
     color: var(--color-gold);
     border-bottom: 2px solid var(--color-purple-bright);
     padding-bottom: var(--spacing-sm);
+}
+
+/* --------------------------------------------------------------------------
+   11.5. СТРАНИЦА РЕДАКТИРОВАНИЯ ПРОФИЛЯ - ТРИ СТОЛБЦА
+   -------------------------------------------------------------------------- */
+.edit-profile-layout {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-xl);
+    margin-bottom: var(--spacing-xl);
+}
+
+.edit-profile-column {
+    background: var(--gradient-card);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    box-shadow: var(--shadow-medium);
+}
+
+.edit-profile-column h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--color-gold);
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 1px solid rgba(157, 78, 221, 0.3);
+}
+
+.edit-profile-column h4 {
+    font-size: 0.9rem;
+    color: var(--color-lavender);
+    margin-bottom: var(--spacing-md);
+    font-weight: 400;
+}
+
+.edit-profile-column .form-group {
+    margin-bottom: var(--spacing-md);
+}
+
+.edit-profile-column .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--color-lavender);
+    font-size: 0.9rem;
+}
+
+/* Form row для полей в одной строке */
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-md);
+}
+
+.edit-profile-column .form-control {
+    width: 100%;
+    padding: 0.7rem 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(157, 78, 221, 0.3);
+    border-radius: var(--radius-md);
+    color: var(--color-white);
+    transition: all var(--transition-normal);
+    font-size: 0.95rem;
+}
+
+.edit-profile-column .form-control:focus {
+    outline: none;
+    border-color: var(--color-purple-bright);
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 0 3px rgba(157, 78, 221, 0.2);
+}
+
+/* Валидация для полей редактирования профиля */
+.edit-profile-column .form-control.success {
+    border-color: var(--color-emerald);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232ecc71' width='18px' height='18px'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 35px center;
+    background-size: 18px;
+    padding-right: 35px;
+}
+
+.edit-profile-column .form-control.error {
+    border-color: var(--color-ruby);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23e74c3c' width='18px' height='18px'%3E%3Cpath d='M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 35px center;
+    background-size: 18px;
+    padding-right: 35px;
+}
+
+/* Password wrapper для колонок профиля */
+.edit-profile-column .password-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.edit-profile-column .password-wrapper .form-control {
+    padding-right: 40px;
+}
+
+.edit-profile-column .password-wrapper .form-control.success,
+.edit-profile-column .password-wrapper .form-control.error {
+    padding-right: 50px;
+}
+
+/* Кнопка сохранения внизу справа */
+.edit-profile-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: var(--spacing-lg);
+}
+
+.edit-profile-actions .btn-save {
+    background: var(--gradient-magic-primary);
+    color: var(--color-white);
+    padding: var(--spacing-md) var(--spacing-xl);
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 1.1rem;
+    border: none;
+    cursor: pointer;
+    box-shadow: var(--shadow-medium);
+    transition: all var(--transition-normal);
+}
+
+.edit-profile-actions .btn-save:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--glow-purple);
+}
+
+.edit-profile-actions .btn-save:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Адаптивность для трехколоночной раскладки */
+@media (max-width: 1200px) {
+    .edit-profile-layout {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .edit-profile-column:last-child {
+        grid-column: span 2;
+    }
+}
+
+@media (max-width: 768px) {
+    .edit-profile-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .edit-profile-column:last-child {
+        grid-column: span 1;
+    }
+
+    .edit-profile-actions {
+        justify-content: center;
+    }
+
+    .edit-profile-actions .btn-save {
+        width: 100%;
+        max-width: 300px;
+    }
 }
 
 /* --------------------------------------------------------------------------
@@ -3540,7 +3721,7 @@ footer {
     font-size: 1.3rem;
     font-weight: bold;
     color: var(--color-gold);
-    margin: var(--spacing-md) 0;
+    margin: 0 0 5px 0;
 }
 
 /* Адаптивность для заказов на маленьких экранах */
@@ -3801,4 +3982,90 @@ footer {
     .checkout-form-sticky {
         padding: 1.5rem;
     }
+}
+
+/* ==========================================================================
+   СТИЛИ ДЛЯ СТРАНИЦЫ ОПЛАТЫ (pay.php)
+   ========================================================================== */
+
+/* Блок успешной оплаты - кнопка внизу */
+.payment-success {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.payment-success h2 {
+    margin-bottom: var(--spacing-sm);
+}
+
+.payment-success p {
+    margin-bottom: 0;
+}
+
+.payment-success-actions {
+    margin-top: var(--spacing-lg);
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.payment-success-actions .btn {
+    width: 100%;
+    max-width: 280px;
+}
+
+/* Методы оплаты - стилизация */
+.payment-method {
+    display: block;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+}
+
+.payment-method:hover {
+    background: rgba(157, 78, 221, 0.2) !important;
+    border-color: var(--color-purple-bright);
+}
+
+/* Информация о заказе в оплате */
+.payment-order-info {
+    text-align: left;
+    width: 100%;
+    margin-bottom: 1.5rem;
+}
+
+.payment-order-info h3 {
+    color: var(--color-lavender);
+    margin-bottom: 1rem;
+}
+
+.payment-order-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-total {
+    padding: 1rem 0;
+    font-weight: bold;
+}
+
+.detail-total-amount {
+    color: var(--color-emerald-light);
 }

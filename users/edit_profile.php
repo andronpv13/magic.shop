@@ -43,6 +43,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (empty($email)) $errors[] = 'Введите email';
         elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = 'Некорректный Email';
 
+        // Валидация телефона
+        if (!empty($phone)) {
+            $phoneDigits = preg_replace('/\D/', '', $phone);
+            if (strlen($phoneDigits) < 10 || strlen($phoneDigits) > 15) {
+                $errors[] = 'Телефон должен содержать от 10 до 15 цифр';
+            }
+        }
+
+        // Валидация индекса
+        if (!empty($zip_code)) {
+            if (!preg_match('/^\d{6}$/', $zip_code)) {
+                $errors[] = 'Индекс должен содержать ровно 6 цифр';
+            }
+        }
+
         if (!empty($password)) {
             // ✅ ИСПРАВЛЕНО: Добавлена проверка текущего пароля перед сменой
             $current_password_input = $_POST['current_password'] ?? '';
@@ -90,24 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <section class="section">
     <div class="container">
         <div class="profile-layout">
-            <!-- Меню -->
-            <div class="profile-section">
-                <div class="user-profile-header">
-                    <h2><?php echo e($current_user['first_name'] ?? $current_user['username']); ?></h2>
-                    <p><?php echo e($current_user['username']); ?></p>
-                </div>
-                <nav class="profile-nav">
-                    <a href="/users/profile.php" class="profile-nav-link">👤 Личные данные</a>
-                    <a href="/users/orders.php" class="profile-nav-link">📦 История заказов</a>
-                    <a href="/users/edit_profile.php" class="profile-nav-link active">✏️ Настройки профиля</a>
-                    <?php if (isset($_SESSION['role']) && in_array($_SESSION['role'], ['admin', 'moderator'])): ?>
-                        <a href="/admin/index.php" class="profile-nav-link">⚙️ Панель управления</a>
-                    <?php endif; ?>
-                    <a href="/logout.php" class="profile-nav-link logout">🚪 Выход</a>
-                </nav>
-            </div>
-
-            <!-- Форма -->
+            <!-- Форма редактирования -->
             <div class="profile-section">
                 <h2 class="section-title">Настройки профиля</h2>
                 <?php if (!empty($errors)): ?>
@@ -119,48 +117,280 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="alert alert-success">Данные успешно обновлены!</div>
                 <?php endif; ?>
 
-                <form method="POST" class="auth-form">
+                <form method="POST" class="edit-profile-form" id="editProfileForm">
                     <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
 
-                    <h3>Основные данные</h3>
-                    <div class="form-group"><label>Логин</label><input type="text" name="username" value="<?php echo e($current_user['username']); ?>" required></div>
-                    <div class="form-group"><label>Email</label><input type="email" name="email" value="<?php echo e($current_user['email']); ?>" required></div>
+                    <div class="edit-profile-layout">
+                        <!-- Первый столбец: Основные данные -->
+                        <div class="edit-profile-column">
+                            <h3>Основные данные</h3>
 
-                    <div class="form-row">
-                        <div class="form-group"><label>Имя</label><input type="text" name="first_name" value="<?php echo e($current_user['first_name'] ?? ''); ?>"></div>
-                        <div class="form-group"><label>Фамилия</label><input type="text" name="last_name" value="<?php echo e($current_user['last_name'] ?? ''); ?>"></div>
-                    </div>
-                    <div class="form-group"><label>Отчество</label><input type="text" name="middle_name" value="<?php echo e($current_user['middle_name'] ?? ''); ?>"></div>
-                    <div class="form-group"><label>Телефон</label><input type="tel" name="phone" value="<?php echo e($current_user['phone'] ?? ''); ?>"></div>
+                            <div class="form-group">
+                                <label for="username">Логин</label>
+                                <input type="text" id="username" name="username" class="form-control"
+                                       value="<?php echo e($current_user['username']); ?>" required
+                                       data-validate="username">
+                            </div>
 
-                    <h3>Адрес доставки</h3>
-                    <h4>Пожалуйста заполните ваш адрес для возможности оформления доставки</h4>
-                    <div class="form-row">
-                        <div class="form-group"><label>Индекс</label><input type="text" name="zip_code" value="<?php echo e($current_user['zip_code'] ?? ''); ?>"></div>
-                        <div class="form-group"><label>Область</label><input type="text" name="region" value="<?php echo e($current_user['region'] ?? ''); ?>"></div>
-                    </div>
-                    <div class="form-group"><label>Город</label><input type="text" name="city" value="<?php echo e($current_user['city'] ?? ''); ?>"></div>
-                    <div class="form-group"><label>Улица</label><input type="text" name="street" value="<?php echo e($current_user['street'] ?? ''); ?>"></div>
-                    <div class="form-row">
-                        <div class="form-group"><label>№ Дома</label><input type="text" name="house" value="<?php echo e($current_user['house'] ?? ''); ?>"></div>
-                        <div class="form-group"><label>№ Кв.</label><input type="text" name="apartment" value="<?php echo e($current_user['apartment'] ?? ''); ?>"></div>
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" id="email" name="email" class="form-control"
+                                       value="<?php echo e($current_user['email']); ?>" required
+                                       data-validate="email">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="first_name">Имя</label>
+                                <input type="text" id="first_name" name="first_name" class="form-control"
+                                       value="<?php echo e($current_user['first_name'] ?? ''); ?>">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="last_name">Фамилия</label>
+                                <input type="text" id="last_name" name="last_name" class="form-control"
+                                       value="<?php echo e($current_user['last_name'] ?? ''); ?>">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="middle_name">Отчество</label>
+                                <input type="text" id="middle_name" name="middle_name" class="form-control"
+                                       value="<?php echo e($current_user['middle_name'] ?? ''); ?>">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="phone">Телефон</label>
+                                <input type="tel" id="phone" name="phone" class="form-control"
+                                       value="<?php echo e($current_user['phone'] ?? ''); ?>"
+                                       placeholder="+7 (999) 999-99-99"
+                                       data-validate="phone">
+                            </div>
+                        </div>
+
+                        <!-- Второй столбец: Адрес доставки -->
+                        <div class="edit-profile-column">
+                            <h3>Адрес доставки</h3>
+                            <h4>Заполните адрес для оформления доставки</h4>
+
+                            <div class="form-group">
+                                <label for="zip_code">Индекс</label>
+                                <input type="text" id="zip_code" name="zip_code" class="form-control"
+                                       value="<?php echo e($current_user['zip_code'] ?? ''); ?>"
+                                       placeholder="123456"
+                                       maxlength="6"
+                                       data-validate="zip">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="region">Область</label>
+                                <input type="text" id="region" name="region" class="form-control"
+                                       value="<?php echo e($current_user['region'] ?? ''); ?>">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="city">Город</label>
+                                <input type="text" id="city" name="city" class="form-control"
+                                       value="<?php echo e($current_user['city'] ?? ''); ?>">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="street">Улица</label>
+                                <input type="text" id="street" name="street" class="form-control"
+                                       value="<?php echo e($current_user['street'] ?? ''); ?>">
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="house">№ Дома</label>
+                                    <input type="text" id="house" name="house" class="form-control"
+                                           value="<?php echo e($current_user['house'] ?? ''); ?>">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="apartment">№ Кв.</label>
+                                    <input type="text" id="apartment" name="apartment" class="form-control"
+                                           value="<?php echo e($current_user['apartment'] ?? ''); ?>">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Третий столбец: Смена пароля -->
+                        <div class="edit-profile-column">
+                            <h3>Смена пароля</h3>
+                            <h4>Оставьте поля пустыми, чтобы не менять пароль</h4>
+
+                            <div class="form-group">
+                                <label for="current_password">Текущий пароль</label>
+                                <div class="password-wrapper">
+                                    <input type="password" id="current_password" name="current_password"
+                                           class="form-control" placeholder="Введите текущий пароль">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="password">Новый пароль</label>
+                                <div class="password-wrapper">
+                                    <input type="password" id="password" name="password"
+                                           class="form-control" placeholder="Минимум 6 символов"
+                                           data-validate="password">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="password_confirm">Подтверждение пароля</label>
+                                <div class="password-wrapper">
+                                    <input type="password" id="password_confirm" name="password_confirm"
+                                           class="form-control" placeholder="Повторите пароль"
+                                           data-validate="confirm">
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <h3>Смена пароля</h3>
-                    <h4>Оставьте поля пустыми, чтобы не менять пароль</h4>
-                    <div class="form-group">
-                        <label>Текущий пароль</label>
-                        <input type="password" name="current_password" placeholder="Введите текущий пароль для подтверждения">
-                        <label>Новый пароль</label>
-                        <input type="password" name="password">
-                        <label>Подтверждение</label>
-                        <input type="password" name="password_confirm">
+                    <!-- Кнопка сохранения внизу справа -->
+                    <div class="edit-profile-actions">
+                        <button type="submit" id="saveBtn" class="btn-save">💾 Сохранить изменения</button>
                     </div>
-
-                    <button type="submit" class="btn btn-primary btn-block">Сохранить</button>
                 </form>
             </div>
         </div>
     </div>
 </section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('editProfileForm');
+    const saveBtn = document.getElementById('saveBtn');
+
+    // Валидация телефона
+    const phoneInput = document.getElementById('phone');
+    if (phoneInput) {
+        phoneInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 0) {
+                if (value.length >= 11) {
+                    value = '+7 (' + value.slice(1, 4) + ') ' + value.slice(4, 7) + '-' + value.slice(7, 9) + '-' + value.slice(9, 11);
+                } else if (value.length >= 8) {
+                    value = '+7 (' + value.slice(1, 4) + ') ' + value.slice(4, 7) + '-' + value.slice(7, 9);
+                } else if (value.length >= 5) {
+                    value = '+7 (' + value.slice(1, 4) + ') ' + value.slice(4, 7);
+                } else if (value.length >= 2) {
+                    value = '+7 (' + value.slice(1, 4);
+                } else {
+                    value = '+7';
+                }
+            }
+            e.target.value = value;
+
+            // Валидация количества цифр
+            const digits = value.replace(/\D/g, '');
+            if (digits.length > 0 && (digits.length < 10 || digits.length > 15)) {
+                e.target.classList.add('error');
+                e.target.classList.remove('success');
+            } else if (digits.length >= 10 && digits.length <= 15) {
+                e.target.classList.add('success');
+                e.target.classList.remove('error');
+            } else {
+                e.target.classList.remove('success', 'error');
+            }
+        });
+    }
+
+    // Валидация индекса
+    const zipInput = document.getElementById('zip_code');
+    if (zipInput) {
+        zipInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 6) {
+                value = value.slice(0, 6);
+            }
+            e.target.value = value;
+
+            if (value.length > 0 && value.length !== 6) {
+                e.target.classList.add('error');
+                e.target.classList.remove('success');
+            } else if (value.length === 6) {
+                e.target.classList.add('success');
+                e.target.classList.remove('error');
+            } else {
+                e.target.classList.remove('success', 'error');
+            }
+        });
+    }
+
+    // Валидация паролей в реальном времени
+    const passwordInput = document.getElementById('password');
+    const confirmInput = document.getElementById('password_confirm');
+
+    if (passwordInput) {
+        passwordInput.addEventListener('input', function() {
+            const value = this.value;
+            if (value.length > 0 && value.length < 6) {
+                this.classList.add('error');
+                this.classList.remove('success');
+            } else if (value.length >= 6) {
+                this.classList.add('success');
+                this.classList.remove('error');
+            } else {
+                this.classList.remove('success', 'error');
+            }
+
+            // Перепроверяем подтверждение
+            if (confirmInput && confirmInput.value) {
+                if (confirmInput.value === this.value && this.value.length >= 6) {
+                    confirmInput.classList.add('success');
+                    confirmInput.classList.remove('error');
+                } else {
+                    confirmInput.classList.add('error');
+                    confirmInput.classList.remove('success');
+                }
+            }
+        });
+    }
+
+    if (confirmInput) {
+        confirmInput.addEventListener('input', function() {
+            if (passwordInput && this.value) {
+                if (this.value === passwordInput.value && passwordInput.value.length >= 6) {
+                    this.classList.add('success');
+                    this.classList.remove('error');
+                } else {
+                    this.classList.add('error');
+                    this.classList.remove('success');
+                }
+            } else {
+                this.classList.remove('success', 'error');
+            }
+        });
+    }
+
+    // Инициализация кнопок глаза для всех полей пароля
+    function initPasswordToggles() {
+        const passwordWrappers = document.querySelectorAll('.password-wrapper');
+        passwordWrappers.forEach(wrapper => {
+            const input = wrapper.querySelector('input[type="password"], input[type="text"]');
+            if (input && !wrapper.querySelector('.password-toggle')) {
+                const toggleBtn = document.createElement('button');
+                toggleBtn.type = 'button';
+                toggleBtn.className = 'password-toggle';
+                toggleBtn.setAttribute('aria-label', 'Показать/скрыть пароль');
+                toggleBtn.setAttribute('data-tooltip', 'Показать пароль');
+                toggleBtn.innerHTML = '';
+
+                toggleBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const isPassword = input.type === 'password';
+                    input.type = isPassword ? 'text' : 'password';
+                    toggleBtn.classList.toggle('active', isPassword);
+                    toggleBtn.setAttribute('data-tooltip', isPassword ? 'Скрыть пароль' : 'Показать пароль');
+                    input.focus();
+                });
+
+                wrapper.appendChild(toggleBtn);
+            }
+        });
+    }
+
+    initPasswordToggles();
+});
+</script>
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>

@@ -57,23 +57,33 @@ if (!$user) {
                     </div>
                     <div class="info-row">
                         <span class="info-label">Адрес:</span>
-                        <span class="info-value"><?php
-                            $address_parts = array_filter([
-                                $user['region'] ?? '',
-                                $user['city'] ?? '',
-                                $user['street'] ?? '',
-                                $user['house'] ?? '',
-                                $user['apartment'] ?? ''
-                            ]);
+                        <span class="info-value"><h4><?php
+                            $address_parts = [];
+                            if (!empty($user['zip_code'])) {
+                                $address_parts[] = $user['zip_code'] . ',';
+                            }
+                            if (!empty($user['region'])) {
+                                $address_parts[] = $user['region'] . ' ' .'обл.,';
+                            }
+                            if (!empty($user['city'])) {
+                                $address_parts[] = $user['city'] . ',';
+                            }
+                            if (!empty($user['street'])) {
+                                $address_parts[] = 'ул. ' . $user['street'] . ',';
+                            }
+                            if (!empty($user['house'])) {
+                                $address_parts[] = 'дом № ' . $user['house'] . ',';
+                            }
+                            if (!empty($user['apartment'])) {
+                                $address_parts[] = 'кв. ' . $user['apartment'];
+                            }
                             echo e(implode(' ', $address_parts));
-                        ?></span>
+                        ?></h4></span>
                     </div>
                 </div>
             </div>
-            <div class="orders-section">
-                <a href="orders.php" class="btn-orders">История заказов</a>
-            </div>
             <div class="profile-actions">
+                <a href="orders.php" class="btn-orders">История заказов</a>
                 <a href="edit_profile.php" class="btn-edit-profile">Редактировать данные</a>
             </div>
         </div>
