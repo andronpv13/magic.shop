@@ -21,8 +21,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $username = trim($_POST['username'] ?? '');
         $password = $_POST['password'] ?? '';
 
-        if (empty($username) || empty($password)) {
-            $error = 'Заполните все поля';
+        if (empty($username)) {
+            $error = 'Введите логин или email';
+        } elseif (empty($password)) {
+            $error = 'Введите пароль';
         } else {
             global $conn;
             $stmt = $conn->prepare("SELECT id, username, password, role, first_name, last_name FROM users WHERE username = ? OR email = ?");
@@ -84,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="form-group">
                         <label for="password">Пароль:</label>
                         <div class="password-wrapper">
-                            <input type="password" id="password" name="password" class="form-control" required>
+                            <input type="password" id="password" name="password" class="form-control">
                         </div>
                     </div>
 

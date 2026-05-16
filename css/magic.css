@@ -201,12 +201,7 @@ button {
 }
 
 /* Исключение для кнопок внутри input - они управляются своими стилями */
-.password-toggle {
-    border: none;
-    outline: none;
-    background: none;
-    cursor: pointer;
-}
+/* Стили .password-toggle переопределены ниже в секции 2.1 с полным набором свойств */
 
 /* --------------------------------------------------------------------------
    2.1. РАСШИРЕННЫЕ СТИЛИ ФОРМ (для регистрации и сложных форм)
@@ -283,13 +278,13 @@ button {
 }
 
 .password-wrapper .form-control {
-    padding-right: 50px;
+    padding-right: 45px;
 }
 
 /* Кнопка глаза для показа пароля */
 .password-toggle {
     position: absolute;
-    right: 30px;
+    right: 15px;
     top: 50%;
     transform: translateY(-50%);
     background: none;
@@ -305,6 +300,41 @@ button {
     z-index: 100;
     padding: 0;
     outline: none !important;
+}
+
+/* Tooltip для кнопки глаза */
+.password-toggle::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(26, 26, 46, 0.95);
+    color: var(--color-white);
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-md);
+    font-size: 0.75rem;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all var(--transition-normal);
+    pointer-events: none;
+    margin-bottom: 8px;
+    box-shadow: var(--shadow-medium);
+    border: 1px solid rgba(157, 78, 221, 0.3);
+    z-index: 101;
+}
+
+/* Стрелочка для tooltip */
+.password-toggle::before + .tooltip-arrow,
+.password-toggle .tooltip-arrow {
+    display: none;
+}
+
+/* Показываем tooltip при наведении курсора */
+.password-toggle:hover::after {
+    opacity: 1;
+    visibility: visible;
 }
 
 .password-toggle:hover {

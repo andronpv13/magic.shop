@@ -10,7 +10,70 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginPasswordInput = document.getElementById('password');
     const isLoginPage = loginPasswordInput && !form;
 
+    // Если это не страница регистрации и не страница входа - выходим
     if (!form && !isLoginPage) return;
+
+    // Переключение видимости пароля - универсальная функция
+    function initPasswordToggle(inputId) {
+        const input = document.getElementById(inputId);
+        if (!input) return;
+
+        const wrapper = input.parentElement;
+        // Ищем или создаем кнопку глаза
+        let toggleBtn = wrapper.querySelector('.password-toggle');
+
+        if (!toggleBtn) {
+            toggleBtn = document.createElement('button');
+            toggleBtn.type = 'button';
+            toggleBtn.className = 'password-toggle';
+            toggleBtn.setAttribute('aria-label', 'Показать/скрыть пароль');
+            // Инициализируем tooltip: по умолчанию пароль скрыт (type='password'), поэтому подсказка "Показать пароль"
+            toggleBtn.setAttribute('data-tooltip', 'Показать пароль');
+            toggleBtn.innerHTML = ''; // Очищаем содержимое, иконка через CSS ::before
+            wrapper.appendChild(toggleBtn);
+        }
+
+        // Удаляем предыдущие обработчики (клонированием)
+        const newBtn = toggleBtn.cloneNode(true);
+        toggleBtn.parentNode.replaceChild(newBtn, toggleBtn);
+        toggleBtn = newBtn;
+
+        // Функция обновления tooltip
+        function updateTooltip() {
+            const isPasswordVisible = input.type === 'text';
+            // При открытом глазе (пароль виден) - подсказка "Скрыть пароль"
+            // При закрытом глазе (пароль скрыт) - подсказка "Показать пароль"
+            toggleBtn.setAttribute('data-tooltip', isPasswordVisible ? 'Скрыть пароль' : 'Показать пароль');
+        }
+
+        // Инициализируем tooltip при создании кнопки
+        updateTooltip();
+
+        toggleBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const isPassword = input.type === 'password';
+            // Переключаем тип input
+            input.type = isPassword ? 'text' : 'password';
+
+            // Меняем иконку: если показываем пароль (type='text'), добавляем класс active для перечёркнутого глаза
+            toggleBtn.classList.toggle('active', isPassword);
+
+            // Обновляем tooltip
+            updateTooltip();
+
+            // Возвращаем фокус на input для удобства
+            input.focus();
+        });
+    }
+
+    // Инициализация кнопки глаза для страницы входа (если это страница входа)
+    if (isLoginPage && loginPasswordInput) {
+        initPasswordToggle('password');
+        // Для страницы входа не нужна валидация, только кнопка глаза
+        return;
+    }
 
     // Элементы формы (для страницы регистрации)
     const usernameInput = document.getElementById('username');
@@ -60,50 +123,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             inputElement.classList.add(errorClass);
         }
-    }
-
-    // Переключение видимости пароля - универсальная функция
-    function initPasswordToggle(inputId) {
-        const input = document.getElementById(inputId);
-        if (!input) return;
-
-        const wrapper = input.parentElement;
-        // Ищем или создаем кнопку глаза
-        let toggleBtn = wrapper.querySelector('.password-toggle');
-
-        if (!toggleBtn) {
-            toggleBtn = document.createElement('button');
-            toggleBtn.type = 'button';
-            toggleBtn.className = 'password-toggle';
-            toggleBtn.setAttribute('aria-label', 'Показать/скрыть пароль');
-            toggleBtn.innerHTML = ''; // Очищаем содержимое, иконка через CSS ::before
-            wrapper.appendChild(toggleBtn);
-        }
-
-        // Удаляем предыдущие обработчики (клонированием)
-        const newBtn = toggleBtn.cloneNode(true);
-        toggleBtn.parentNode.replaceChild(newBtn, toggleBtn);
-        toggleBtn = newBtn;
-
-        toggleBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-
-            const isPassword = input.type === 'password';
-            // Переключаем тип input
-            input.type = isPassword ? 'text' : 'password';
-
-            // Меняем иконку: если показываем пароль (type='text'), добавляем класс active для перечёркнутого глаза
-            toggleBtn.classList.toggle('active', isPassword);
-
-            // Возвращаем фокус на input для удобства
-            input.focus();
-        });
-    }
-
-    // Инициализация кнопки глаза для страницы входа (если это страница входа)
-    if (isLoginPage && loginPasswordInput) {
-        initPasswordToggle('password');
     }
 
     // Получаем CSRF токен из meta тега
