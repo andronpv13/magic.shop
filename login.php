@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="container">
         <div class="auth-container">
             <div class="auth-card">
-                <h1 class="auth-title">✨ Вход в аккаунт</h1>
+                <h1 class="auth-title">✨ Вход</h1>
                 <p class="auth-subtitle">Добро пожаловать в мир магии</p>
 
                 <?php if ($error): ?>
