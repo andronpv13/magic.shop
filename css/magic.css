@@ -257,18 +257,18 @@ button {
     border-color: var(--color-emerald);
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232ecc71' width='20px' height='20px'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right 10px center;
+    background-position: right 80px center;
     background-size: 20px;
-    padding-right: 40px;
+    padding-right: 90px;
 }
 
 .form-control.error {
     border-color: var(--color-ruby);
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23e74c3c' width='20px' height='20px'%3E%3Cpath d='M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right 10px center;
+    background-position: right 80px center;
     background-size: 20px;
-    padding-right: 40px;
+    padding-right: 90px;
 }
 
 /* Обертка для полей пароля */
@@ -278,13 +278,13 @@ button {
 }
 
 .password-wrapper .form-control {
-    padding-right: 45px;
+    padding-right: 40px;
 }
 
 /* Кнопка глаза для показа пароля */
 .password-toggle {
     position: absolute;
-    right: 15px;
+    right: 10px;
     top: 50%;
     transform: translateY(-50%);
     background: none;
@@ -1635,24 +1635,24 @@ main {
     border-color: var(--color-emerald);
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232ecc71' width='20px' height='20px'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right 10px center;
+    background-position: right 30px center;
     background-size: 20px;
-    padding-right: 40px;
+    padding-right: 30px;
 }
 
 .auth-form .form-control.error {
     border-color: var(--color-ruby);
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23e74c3c' width='20px' height='20px'%3E%3Cpath d='M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right 10px center;
+    background-position: right 30px center;
     background-size: 20px;
-    padding-right: 40px;
+    padding-right: 30px;
 }
 
 /* Корректировка padding-right для password-wrapper внутри auth-form */
 .auth-form .password-wrapper .form-control.success,
 .auth-form .password-wrapper .form-control.error {
-    padding-right: 50px;
+    padding-right: 125px;
 }
 
 .auth-form .btn-block {
