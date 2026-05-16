@@ -150,8 +150,11 @@ function createOrder($user_id, $items, $address = '', $comment = '') {
         foreach ($items as $item) $total += $item['price'] * $item['quantity'];
 
         // ✅ ИСПРАВЛЕНО: Добавлены адрес и комментарий в запрос
-        $stmt = $conn->prepare("INSERT INTO orders (user_id, total, delivery_address, comment, status) VALUES (?, ?, ?, ?, 'pending')");
-        $stmt->bind_param("idss", $user_id, $total, $address, $comment);
+        // ✅ ИСПРАВЛЕНО: Добавлена генерация order_token для безопасного доступа к заказу
+        $order_token = bin2hex(random_bytes(32)); // Генерируем уникальный токен из 64 символов
+
+        $stmt = $conn->prepare("INSERT INTO orders (user_id, total, delivery_address, comment, status, order_token) VALUES (?, ?, ?, ?, 'pending', ?)");
+        $stmt->bind_param("idsss", $user_id, $total, $address, $comment, $order_token);
         $stmt->execute();
         $order_id = $conn->insert_id;
 
@@ -161,7 +164,7 @@ function createOrder($user_id, $items, $address = '', $comment = '') {
             $stmt->execute();
         }
         $conn->commit();
-        return ['success' => true, 'order_id' => $order_id];
+        return ['success' => true, 'order_id' => $order_id, 'order_token' => $order_token];
     } catch (Exception $e) {
         $conn->rollback();
         return ['success' => false, 'message' => 'Ошибка создания заказа'];
@@ -337,7 +340,8 @@ function payForOrder($order_id, $user_id) {
 // === Отзывы ===
 function getReviewsByProduct($product_id) {
     global $conn;
-    $stmt = $conn->prepare("SELECT r.*, u.username FROM reviews r JOIN users u ON r.user_id = u.id WHERE r.product_id = ? ORDER BY r.created_at DESC");
+    // ✅ ИСПРАВЛЕНО: Добавлена проверка is_approved для модерации отзывов
+    $stmt = $conn->prepare("SELECT r.*, u.username FROM reviews r JOIN users u ON r.user_id = u.id WHERE r.product_id = ? AND r.is_approved = 1 ORDER BY r.created_at DESC");
     $stmt->bind_param("i", $product_id);
     $stmt->execute();
     return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);

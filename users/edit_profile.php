@@ -44,6 +44,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = 'Некорректный Email';
 
         if (!empty($password)) {
+            // ✅ ИСПРАВЛЕНО: Добавлена проверка текущего пароля перед сменой
+            $current_password_input = $_POST['current_password'] ?? '';
+            if (empty($current_password_input)) {
+                $errors[] = 'Введите текущий пароль для подтверждения';
+            } else {
+                // Проверяем текущий пароль
+                if (!password_verify($current_password_input, $current_user['password'])) {
+                    $errors[] = 'Неверный текущий пароль';
+                }
+            }
             if ($password !== $password_confirm) $errors[] = 'Пароли не совпадают';
             if (strlen($password) < 6) $errors[] = 'Пароль минимум 6 символов';
         }
@@ -138,7 +148,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <h3>Смена пароля</h3>
                     <h4>Оставьте поля пустыми, чтобы не менять пароль</h4>
-                    <div class="form-group"><label>Новый пароль</label><input type="password" name="password"><label>Подтверждение</label><input type="password" name="password_confirm"></div>
+                    <div class="form-group">
+                        <label>Текущий пароль</label>
+                        <input type="password" name="current_password" placeholder="Введите текущий пароль для подтверждения">
+                        <label>Новый пароль</label>
+                        <input type="password" name="password">
+                        <label>Подтверждение</label>
+                        <input type="password" name="password_confirm">
+                    </div>
 
                     <button type="submit" class="btn btn-primary btn-block">Сохранить</button>
                 </form>

@@ -37,7 +37,8 @@ foreach ($products as $product):
 <h2>Последние отзывы</h2>
 <div class="reviews-grid">
 <?php
-$stmt = $conn->prepare("SELECT r.*, u.username, p.name as product_name FROM reviews r JOIN users u ON r.user_id = u.id JOIN products p ON r.product_id = p.id ORDER BY r.created_at DESC LIMIT 5");
+// ✅ ИСПРАВЛЕНО: Добавлена проверка is_approved для модерации отзывов
+$stmt = $conn->prepare("SELECT r.*, u.username, p.name as product_name FROM reviews r JOIN users u ON r.user_id = u.id JOIN products p ON r.product_id = p.id WHERE r.is_approved = 1 ORDER BY r.created_at DESC LIMIT 5");
 $stmt->execute();
 $reviews = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 foreach ($reviews as $review):
