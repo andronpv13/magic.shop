@@ -70,14 +70,12 @@ if (!$user) {
                     </div>
                 </div>
             </div>
+            <div class="orders-section">
+                <a href="orders.php" class="btn-orders">История заказов</a>
+            </div>
             <div class="profile-actions">
                 <a href="edit_profile.php" class="btn-edit-profile">Редактировать данные</a>
             </div>
-        </div>
-
-        <div class="profile-section orders-section">
-            <h2>История заказов</h2>
-            <?php include __DIR__ . '/orders.php'; ?>
         </div>
     </div>
 </section>

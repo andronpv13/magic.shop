@@ -44,16 +44,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <h1 class="page-title">Оформление заказа</h1>
     <?php if ($error): ?><div class="alert alert-error"><?php echo e($error); ?></div><?php endif; ?>
     <div class="checkout-layout">
-        <div class="checkout-form-section">
-            <h2>Данные доставки</h2>
-            <form method="POST" class="checkout-form">
-                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
-                <div class="form-group"><label for="delivery_address">Адрес доставки: *</label><textarea id="delivery_address" name="delivery_address" rows="4" required placeholder="Город, улица, дом, квартира"><?php echo e($address_value); ?></textarea></div>
-                <div class="form-group"><label for="comment">Комментарий к заказу:</label><textarea id="comment" name="comment" rows="3" placeholder="Дополнительные пожелания"><?php echo e($_POST['comment'] ?? ''); ?></textarea></div>
-                <button type="submit" class="btn btn-primary btn-lg">Оформить заказ</button>
-            </form>
-        </div>
-        <div class="checkout-summary-section">
+        <!-- Левая колонка: Список товаров -->
+        <div class="checkout-items-column">
             <h2>Ваш заказ</h2>
             <div class="checkout-items">
                 <?php foreach ($cart as $item): ?>
@@ -65,8 +57,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php endforeach; ?>
             </div>
             <div class="checkout-total"><span>Итого:</span><span class="checkout-total-amount"><?php echo formatPrice($cart_total); ?></span></div>
+            <a href="/basket/basket.php" class="back-link">← Вернуться в корзину</a>
+        </div>
+
+        <!-- Правая колонка: Форма оформления (зафиксированная) -->
+        <div class="checkout-form-column">
+            <div class="checkout-form-sticky">
+                <h2>Данные доставки</h2>
+                <form method="POST" class="checkout-form">
+                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                    <div class="form-group"><label for="delivery_address">Адрес доставки: *</label><textarea id="delivery_address" name="delivery_address" rows="4" required placeholder="Город, улица, дом, квартира"><?php echo e($address_value); ?></textarea></div>
+                    <div class="form-group"><label for="comment">Комментарий к заказу:</label><textarea id="comment" name="comment" rows="3" placeholder="Дополнительные пожелания"><?php echo e($_POST['comment'] ?? ''); ?></textarea></div>
+                    <button type="submit" class="btn btn-primary btn-lg btn-block">Оформить заказ</button>
+                </form>
+            </div>
         </div>
     </div>
-    <a href="/basket/basket.php" class="back-link">← Вернуться в корзину</a>
 </div></section>
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
