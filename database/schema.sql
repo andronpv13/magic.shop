@@ -147,17 +147,16 @@ CREATE TABLE reviews (
 -- ЗАПОЛНЕНИЕ ДАННЫМИ
 -- ==========================================
 
--- Insert default users (Пароль 'toor')
+-- Insert default users (Пароль 'password')
 INSERT INTO users (username, password, email, first_name, last_name, role) VALUES
-('root', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin@magicshop.ru', 'Администратор', 'Системы', 'admin'),
-('moderator', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'moderator@magicshop.ru', 'Модератор', 'Системы', 'moderator');
+('root', '$2y$12$8wfm4D1QEwOFKM0aRsn3Cu.grm7062ROgRbB/6iRG4KSpnxKk7Ba2', 'admin@magicshop.ru', 'Администратор', 'Системы', 'admin'),
+('moderator', '$2y$12$8wfm4D1QEwOFKM0aRsn3Cu.grm7062ROgRbB/6iRG4KSpnxKk7Ba2', 'moderator@magicshop.ru', 'Модератор', 'Системы', 'moderator');
 
 INSERT INTO categories (name, description) VALUES
 ('Магические предметы', 'Палочки, артефакты и магические кристаллы'),
 ('Инструменты', 'Котелки, весы и ингредиенты'),
 ('Книги', 'Гримуары, учебники и карты');
 
--- Sample products (Теперь используем category_id вместо названия категории)
 -- ID категорий: 1=Магические предметы, 2=Инструменты, 3=Книги
 INSERT INTO products (name, description, price, image, category_id, created_by, stock) VALUES
 ('Волшебная палочка', 'Идеальная для начинающих волшебников', 5000.00, 'wand1.jpg', 1, 1, 10),
