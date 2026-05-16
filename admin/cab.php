@@ -50,7 +50,7 @@ $user = getUserById($user_id);
                 ?></span>
             </div>
         </div>
-        <a href="/admin/edit_cab.php" class="btn btn-primary">Редактировать данные</a>
+        <a href="/admin/edit_cab.php" class="btn btn-outline">Редактировать данные</a>
     </div>
     <a href="/admin/index.php" class="back-link">← Назад</a>
 </div></section>

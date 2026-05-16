@@ -80,7 +80,7 @@ $orders = getAllOrders($filter);
                                     </span>
                                 </td>
                                 <td data-label="Действия">
-                                    <a href="order_details.php?id=<?php echo $order['id']; ?>" class="btn btn-sm btn-view">
+                                    <a href="order_details.php?id=<?php echo $order['id']; ?>" class="btn btn-outline">
                                         👁️ Просмотр
                                     </a>
                                 </td>

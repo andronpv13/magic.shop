@@ -211,7 +211,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reset_defaults'])) {
                 </div>
 
                 <div class="btn-group">
-                    <button type="submit" name="save_colors" class="btn btn-primary">Сохранить цвета</button>
+                    <button type="submit" name="save_colors" class="btn btn-outline">Сохранить цвета</button>
                 </div>
             </form>
         </div>
@@ -255,7 +255,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reset_defaults'])) {
                 </div>
 
                 <div class="btn-group">
-                    <button type="submit" class="btn btn-primary">Загрузить файлы</button>
+                    <button type="submit" class="btn btn-outline">Загрузить файлы</button>
                 </div>
             </form>
         </div>

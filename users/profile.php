@@ -83,8 +83,9 @@ if (!$user) {
                 </div>
             </div>
             <div class="profile-actions">
-                <a href="orders.php" class="btn-orders">История заказов</a>
-                <a href="edit_profile.php" class="btn-edit-profile">Редактировать данные</a>
+                <a href="orders.php" class="btn btn-outline">История заказов</a>
+                <a href="review.php" class="btn btn-outline">Мои отзывы</a>
+                <a href="edit_profile.php" class="btn btn-outline">Редактировать данные</a>
             </div>
         </div>
     </div>

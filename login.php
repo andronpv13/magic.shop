@@ -90,7 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary btn-block btn-lg">Войти</button>
+                    <button type="submit" class="btn btn-outline">Войти</button>
                 </form>
 
                 <div class="auth-footer">

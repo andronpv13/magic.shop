@@ -37,7 +37,7 @@ if (!$order) { echo '<div class="container section"><p class="empty-state">За�
                         <option value="cancelled" <?php if ($order['status'] === 'cancelled') echo 'selected'; ?>>Отменён</option>
                     </select>
                 </label>
-                <button type="submit" class="btn btn-primary">Сохранить</button>
+                <button type="submit" class="btn btn-outline">Сохранить</button>
             </form>
         </div>
         <div class="order-items-section">

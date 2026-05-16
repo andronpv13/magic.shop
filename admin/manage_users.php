@@ -93,7 +93,7 @@ $users = getAllUsers();
     <div class="container">
         <div class="page-header">
             <h1 class="page-title">Управление пользователями</h1>
-            <button class="btn btn-primary" onclick="document.getElementById('addModeratorModal').style.display='block'">
+            <button class="btn btn-outline" onclick="document.getElementById('addModeratorModal').style.display='block'">
                 + Добавить модератора
             </button>
         </div>
@@ -139,7 +139,7 @@ $users = getAllUsers();
                                 <td data-label="Действия">
                                     <div class="table-actions">
                                         <?php if ($user['id'] != $_SESSION['user_id']): ?>
-                                            <button class="btn btn-sm btn-reset-password"
+                                            <button class="btn btn-outline"
                                                     onclick="document.getElementById('resetPasswordModal').style.display='block'; document.getElementById('reset_user_id').value=<?php echo $user['id']; ?>">
                                                 🔑
                                             </button>
@@ -147,7 +147,7 @@ $users = getAllUsers();
                                                   onsubmit="return confirm('Удалить пользователя <?php echo e($user['username']); ?>?');">
                                                 <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
                                                 <input type="hidden" name="delete_user" value="<?php echo $user['id']; ?>">
-                                                <button type="submit" class="btn btn-sm btn-delete">🗑️</button>
+                                                <button type="submit" class="btn btn-outline">🗑️</button>
                                             </form>
                                         <?php else: ?>
                                             <span class="form-hint">Это вы</span>
@@ -195,7 +195,7 @@ $users = getAllUsers();
                 <input type="text" id="last_name" name="last_name">
             </div>
             <div class="modal-actions">
-                <button type="submit" name="add_moderator" class="btn btn-primary">Добавить</button>
+                <button type="submit" name="add_moderator" class="btn btn-outline">Добавить</button>
                 <button type="button" class="btn btn-outline" onclick="this.closest('.modal').style.display='none'">Отмена</button>
             </div>
         </form>
@@ -215,7 +215,7 @@ $users = getAllUsers();
                 <input type="password" id="new_password" name="new_password" required minlength="6">
             </div>
             <div class="modal-actions">
-                <button type="submit" name="reset_password" class="btn btn-primary">Сбросить</button>
+                <button type="submit" name="reset_password" class="btn btn-outline">Сбросить</button>
                 <button type="button" class="btn btn-outline" onclick="this.closest('.modal').style.display='none'">Отмена</button>
             </div>
         </form>

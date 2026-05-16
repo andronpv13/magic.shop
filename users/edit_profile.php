@@ -222,7 +222,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <label for="current_password">Текущий пароль</label>
                                 <div class="password-wrapper">
                                     <input type="password" id="current_password" name="current_password"
-                                           class="form-control" placeholder="Введите текущий пароль">
+                                           class="form-control" placeholder="Введите текущий пароль"
+                                           data-validate="current_password">
                                 </div>
                             </div>
 
@@ -248,7 +249,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <!-- Кнопка сохранения внизу справа -->
                     <div class="edit-profile-actions">
-                        <button type="submit" id="saveBtn" class="btn-save">💾 Сохранить изменения</button>
+                        <button type="submit" id="saveBtn" class="btn btn-outline">💾 Сохранить изменения</button>
                     </div>
                 </form>
             </div>
@@ -256,141 +257,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </section>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('editProfileForm');
-    const saveBtn = document.getElementById('saveBtn');
-
-    // Валидация телефона
-    const phoneInput = document.getElementById('phone');
-    if (phoneInput) {
-        phoneInput.addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            if (value.length > 0) {
-                if (value.length >= 11) {
-                    value = '+7 (' + value.slice(1, 4) + ') ' + value.slice(4, 7) + '-' + value.slice(7, 9) + '-' + value.slice(9, 11);
-                } else if (value.length >= 8) {
-                    value = '+7 (' + value.slice(1, 4) + ') ' + value.slice(4, 7) + '-' + value.slice(7, 9);
-                } else if (value.length >= 5) {
-                    value = '+7 (' + value.slice(1, 4) + ') ' + value.slice(4, 7);
-                } else if (value.length >= 2) {
-                    value = '+7 (' + value.slice(1, 4);
-                } else {
-                    value = '+7';
-                }
-            }
-            e.target.value = value;
-
-            // Валидация количества цифр
-            const digits = value.replace(/\D/g, '');
-            if (digits.length > 0 && (digits.length < 10 || digits.length > 15)) {
-                e.target.classList.add('error');
-                e.target.classList.remove('success');
-            } else if (digits.length >= 10 && digits.length <= 15) {
-                e.target.classList.add('success');
-                e.target.classList.remove('error');
-            } else {
-                e.target.classList.remove('success', 'error');
-            }
-        });
-    }
-
-    // Валидация индекса
-    const zipInput = document.getElementById('zip_code');
-    if (zipInput) {
-        zipInput.addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            if (value.length > 6) {
-                value = value.slice(0, 6);
-            }
-            e.target.value = value;
-
-            if (value.length > 0 && value.length !== 6) {
-                e.target.classList.add('error');
-                e.target.classList.remove('success');
-            } else if (value.length === 6) {
-                e.target.classList.add('success');
-                e.target.classList.remove('error');
-            } else {
-                e.target.classList.remove('success', 'error');
-            }
-        });
-    }
-
-    // Валидация паролей в реальном времени
-    const passwordInput = document.getElementById('password');
-    const confirmInput = document.getElementById('password_confirm');
-
-    if (passwordInput) {
-        passwordInput.addEventListener('input', function() {
-            const value = this.value;
-            if (value.length > 0 && value.length < 6) {
-                this.classList.add('error');
-                this.classList.remove('success');
-            } else if (value.length >= 6) {
-                this.classList.add('success');
-                this.classList.remove('error');
-            } else {
-                this.classList.remove('success', 'error');
-            }
-
-            // Перепроверяем подтверждение
-            if (confirmInput && confirmInput.value) {
-                if (confirmInput.value === this.value && this.value.length >= 6) {
-                    confirmInput.classList.add('success');
-                    confirmInput.classList.remove('error');
-                } else {
-                    confirmInput.classList.add('error');
-                    confirmInput.classList.remove('success');
-                }
-            }
-        });
-    }
-
-    if (confirmInput) {
-        confirmInput.addEventListener('input', function() {
-            if (passwordInput && this.value) {
-                if (this.value === passwordInput.value && passwordInput.value.length >= 6) {
-                    this.classList.add('success');
-                    this.classList.remove('error');
-                } else {
-                    this.classList.add('error');
-                    this.classList.remove('success');
-                }
-            } else {
-                this.classList.remove('success', 'error');
-            }
-        });
-    }
-
-    // Инициализация кнопок глаза для всех полей пароля
-    function initPasswordToggles() {
-        const passwordWrappers = document.querySelectorAll('.password-wrapper');
-        passwordWrappers.forEach(wrapper => {
-            const input = wrapper.querySelector('input[type="password"], input[type="text"]');
-            if (input && !wrapper.querySelector('.password-toggle')) {
-                const toggleBtn = document.createElement('button');
-                toggleBtn.type = 'button';
-                toggleBtn.className = 'password-toggle';
-                toggleBtn.setAttribute('aria-label', 'Показать/скрыть пароль');
-                toggleBtn.setAttribute('data-tooltip', 'Показать пароль');
-                toggleBtn.innerHTML = '';
-
-                toggleBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const isPassword = input.type === 'password';
-                    input.type = isPassword ? 'text' : 'password';
-                    toggleBtn.classList.toggle('active', isPassword);
-                    toggleBtn.setAttribute('data-tooltip', isPassword ? 'Скрыть пароль' : 'Показать пароль');
-                    input.focus();
-                });
-
-                wrapper.appendChild(toggleBtn);
-            }
-        });
-    }
-
-    initPasswordToggles();
-});
-</script>
+<script src="/js/validation.js"></script>
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>

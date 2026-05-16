@@ -92,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <label>Новый пароль (оставьте пустым, чтобы не менять)</label>
                 <input type="password" name="password">
             </div>
-            <button type="submit" class="btn btn-primary btn-block">Сохранить</button>
+            <button type="submit" class="btn btn-outline">Сохранить</button>
         </form>
         <a href="cab.php" class="back-link">← Назад</a>
     </div>

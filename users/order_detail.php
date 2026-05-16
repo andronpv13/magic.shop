@@ -21,7 +21,7 @@ if (!$order) { echo '<div class="container section"><p class="empty-state">За�
                 <?php if (!empty($order['delivery_address'])): ?><div class="detail-row"><span>Адрес: </span><span><?php echo nl2br(e($order['delivery_address'])); ?></span></div><?php endif; ?>
                 <?php if (!empty($order['comment'])): ?><div class="detail-row"><span>Комментарий: </span><span><?php echo nl2br(e($order['comment'])); ?></span></div><?php endif; ?>
             </div>
-            <?php if ($order['status'] === 'pending'): ?><a href="/pay.php?order_id=<?php echo $order_id; ?>" class="btn btn-primary btn-lg">💳 Оплатить заказ</a><?php endif; ?>
+            <?php if ($order['status'] === 'pending'): ?><a href="/pay.php?order_id=<?php echo $order_id; ?>" class="btn btn-outline">💳 Оплатить заказ</a><?php endif; ?>
         </div>
         <div class="order-items-section">
             <h2>Состав заказа</h2>
@@ -31,6 +31,6 @@ if (!$order) { echo '<div class="container section"><p class="empty-state">За�
             </tbody></table></div><?php else: ?><p class="empty-state">Заказы не найдены</p><?php endif; ?>
         </div>
     </div>
-    <a href="/users/orders.php" class="back-link">← Назад к заказам</a>
+    <a href="/users/orders.php" class="btn btn-outline">← Назад к заказам</a>
 </div></section>
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>

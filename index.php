@@ -5,7 +5,7 @@ require_once __DIR__ . '/includes/header.php';
 <div class="hero-content">
     <h1>Добро пожаловать в Волшебную ЛАВКУ</h1>
     <p>Откройте для себя удивительный мир магических товаров</p>
-    <a href="/shop.php" class="btn btn-primary">Перейти в каталог</a>
+    <a href="/shop.php" class="btn btn-outline">Перейти в каталог</a>
 </div>
 </section>
 
@@ -25,7 +25,7 @@ foreach ($products as $product):
         <h3><?php echo e($product['name']); ?></h3>
         <p class="price"><?php echo number_format($product['price'], 0, '', ' '); ?> ₽</p>
         <div class="btn-container">
-            <a href="/shop.php?id=<?php echo $product['id']; ?>" class="btn">Подробнее</a>
+            <a href="/shop.php?id=<?php echo $product['id']; ?>" class="btn btn-outline">Подробнее</a>
         </div>
     </div>
 </div>

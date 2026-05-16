@@ -12,7 +12,8 @@ $orders = getUserOrders($_SESSION['user_id']);
 ?>
 <?php if ($is_standalone): ?>
 <section class="section"><div class="container">
-    <div class="page-header"><h1 class="page-title">Мои заказы</h1><a href="/users/profile.php" class="btn btn-outline">← Мой профиль</a></div>
+    <div class="page-header"><h1 class="page-title">Мои заказы</h1>
+    </div>
 <?php endif; ?>
 
 <?php if (!empty($orders)): ?>
@@ -39,7 +40,7 @@ $orders = getUserOrders($_SESSION['user_id']);
         </div>
         <p class="price"><?php echo formatPrice($order['total']); ?></p>
         <div class="btn-container">
-            <a href="/users/order_detail.php?order_id=<?php echo $order['id']; ?>" class="btn btn-sm btn-view">Подробнее</a>
+            <a href="/users/order_detail.php?order_id=<?php echo $order['id']; ?>" class="btn btn-outline">Подробнее</a>
         </div>
     </div>
 </div>

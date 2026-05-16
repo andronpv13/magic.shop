@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($rating < 1 || $rating > 5 || empty($comment)) { $error = 'Укажите оценку и комментарий'; }
         else {
             if (addReview($_SESSION['user_id'], $pid, $rating, $comment)) {
-                $success = 'Спасибо за отзыв! Он будет опубликован после проверки.';
+                $success = 'Спасибо за отзыв! Система скоро проверит его на спам, оскорбления и т.д.. Он будет опубликован после проверки.';
                 $purchased = getPurchasedProducts($_SESSION['user_id']);
             } else $error = 'Ошибка сохранения отзыва';
         }
@@ -41,12 +41,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <input type="hidden" name="product_id" value="<?php echo $prod['id']; ?>">
                 <select name="rating" required><option value="">Оценка</option><option value="5">⭐⭐⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option><option value="3">⭐⭐⭐</option><option value="2">⭐⭐</option><option value="1">⭐</option></select>
                 <textarea name="comment" placeholder="Ваш отзыв..." required></textarea>
-                <button type="submit" class="btn btn-primary btn-sm">Отправить</button>
+                <button type="submit" class="btn btn-outline">Отправить</button>
             </form>
         </div>
         <?php endforeach; ?>
         </div>
     <?php endif; ?>
-    <a href="/users/profile.php" class="back-link">← Вернуться в профиль</a>
 </div></section>
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>

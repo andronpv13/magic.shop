@@ -3,6 +3,61 @@ if (typeof window.apiBaseUrl === 'undefined') {
     window.apiBaseUrl = '../';
 }
 
+// Универсальная функция переключения видимости пароля (глобальная)
+function initPasswordToggle(inputId) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+
+    const wrapper = input.parentElement;
+    // Ищем или создаем кнопку глаза
+    let toggleBtn = wrapper.querySelector('.password-toggle');
+
+    if (!toggleBtn) {
+        toggleBtn = document.createElement('button');
+        toggleBtn.type = 'button';
+        toggleBtn.className = 'password-toggle';
+        toggleBtn.setAttribute('aria-label', 'Показать/скрыть пароль');
+        // Инициализируем tooltip: по умолчанию пароль скрыт (type='password'), поэтому подсказка "Показать пароль"
+        toggleBtn.setAttribute('data-tooltip', 'Показать пароль');
+        toggleBtn.innerHTML = ''; // Очищаем содержимое, иконка через CSS ::before
+        wrapper.appendChild(toggleBtn);
+    }
+
+    // Удаляем предыдущие обработчики (клонированием)
+    const newBtn = toggleBtn.cloneNode(true);
+    toggleBtn.parentNode.replaceChild(newBtn, toggleBtn);
+    toggleBtn = newBtn;
+
+    // Функция обновления tooltip
+    function updateTooltip() {
+        const isPasswordVisible = input.type === 'text';
+        // При открытом глазе (пароль виден) - подсказка "Скрыть пароль"
+        // При закрытом глазе (пароль скрыт) - подсказка "Показать пароль"
+        toggleBtn.setAttribute('data-tooltip', isPasswordVisible ? 'Скрыть пароль' : 'Показать пароль');
+    }
+
+    // Инициализируем tooltip при создании кнопки
+    updateTooltip();
+
+    toggleBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const isPassword = input.type === 'password';
+        // Переключаем тип input
+        input.type = isPassword ? 'text' : 'password';
+
+        // Меняем иконку: если показываем пароль (type='text'), добавляем класс active для перечёркнутого глаза
+        toggleBtn.classList.toggle('active', isPassword);
+
+        // Обновляем tooltip
+        updateTooltip();
+
+        // Возвращаем фокус на input для удобства
+        input.focus();
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('registerForm');
 
@@ -12,61 +67,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Если это не страница регистрации и не страница входа - выходим
     if (!form && !isLoginPage) return;
-
-    // Переключение видимости пароля - универсальная функция
-    function initPasswordToggle(inputId) {
-        const input = document.getElementById(inputId);
-        if (!input) return;
-
-        const wrapper = input.parentElement;
-        // Ищем или создаем кнопку глаза
-        let toggleBtn = wrapper.querySelector('.password-toggle');
-
-        if (!toggleBtn) {
-            toggleBtn = document.createElement('button');
-            toggleBtn.type = 'button';
-            toggleBtn.className = 'password-toggle';
-            toggleBtn.setAttribute('aria-label', 'Показать/скрыть пароль');
-            // Инициализируем tooltip: по умолчанию пароль скрыт (type='password'), поэтому подсказка "Показать пароль"
-            toggleBtn.setAttribute('data-tooltip', 'Показать пароль');
-            toggleBtn.innerHTML = ''; // Очищаем содержимое, иконка через CSS ::before
-            wrapper.appendChild(toggleBtn);
-        }
-
-        // Удаляем предыдущие обработчики (клонированием)
-        const newBtn = toggleBtn.cloneNode(true);
-        toggleBtn.parentNode.replaceChild(newBtn, toggleBtn);
-        toggleBtn = newBtn;
-
-        // Функция обновления tooltip
-        function updateTooltip() {
-            const isPasswordVisible = input.type === 'text';
-            // При открытом глазе (пароль виден) - подсказка "Скрыть пароль"
-            // При закрытом глазе (пароль скрыт) - подсказка "Показать пароль"
-            toggleBtn.setAttribute('data-tooltip', isPasswordVisible ? 'Скрыть пароль' : 'Показать пароль');
-        }
-
-        // Инициализируем tooltip при создании кнопки
-        updateTooltip();
-
-        toggleBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-
-            const isPassword = input.type === 'password';
-            // Переключаем тип input
-            input.type = isPassword ? 'text' : 'password';
-
-            // Меняем иконку: если показываем пароль (type='text'), добавляем класс active для перечёркнутого глаза
-            toggleBtn.classList.toggle('active', isPassword);
-
-            // Обновляем tooltip
-            updateTooltip();
-
-            // Возвращаем фокус на input для удобства
-            input.focus();
-        });
-    }
 
     // Инициализация кнопки глаза для страницы входа (если это страница входа)
     if (isLoginPage && loginPasswordInput) {
@@ -255,4 +255,132 @@ document.addEventListener('DOMContentLoaded', () => {
         window.initPasswordToggleExport = true;
         window.initPasswordToggle = initPasswordToggle;
     }
+});
+
+// Валидация для страницы редактирования профиля (edit_profile.php)
+function initEditProfileValidation() {
+    const form = document.getElementById('editProfileForm');
+    const saveBtn = document.getElementById('saveBtn');
+
+    if (!form) return;
+
+    // Валидация телефона
+    const phoneInput = document.getElementById('phone');
+    if (phoneInput) {
+        phoneInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 0) {
+                if (value.length >= 11) {
+                    value = '+7 (' + value.slice(1, 4) + ') ' + value.slice(4, 7) + '-' + value.slice(7, 9) + '-' + value.slice(9, 11);
+                } else if (value.length >= 8) {
+                    value = '+7 (' + value.slice(1, 4) + ') ' + value.slice(4, 7) + '-' + value.slice(7, 9);
+                } else if (value.length >= 5) {
+                    value = '+7 (' + value.slice(1, 4) + ') ' + value.slice(4, 7);
+                } else if (value.length >= 2) {
+                    value = '+7 (' + value.slice(1, 4);
+                } else {
+                    value = '+7';
+                }
+            }
+            e.target.value = value;
+
+            // Валидация количества цифр
+            const digits = value.replace(/\D/g, '');
+            if (digits.length > 0 && (digits.length < 10 || digits.length > 15)) {
+                e.target.classList.add('error');
+                e.target.classList.remove('success');
+            } else if (digits.length >= 10 && digits.length <= 15) {
+                e.target.classList.add('success');
+                e.target.classList.remove('error');
+            } else {
+                e.target.classList.remove('success', 'error');
+            }
+        });
+    }
+
+    // Валидация индекса
+    const zipInput = document.getElementById('zip_code');
+    if (zipInput) {
+        zipInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 6) {
+                value = value.slice(0, 6);
+            }
+            e.target.value = value;
+
+            if (value.length > 0 && value.length !== 6) {
+                e.target.classList.add('error');
+                e.target.classList.remove('success');
+            } else if (value.length === 6) {
+                e.target.classList.add('success');
+                e.target.classList.remove('error');
+            } else {
+                e.target.classList.remove('success', 'error');
+            }
+        });
+    }
+
+    // Валидация паролей в реальном времени
+    const passwordInput = document.getElementById('password');
+    const confirmInput = document.getElementById('password_confirm');
+
+    if (passwordInput) {
+        passwordInput.addEventListener('input', function() {
+            const value = this.value;
+            if (value.length > 0 && value.length < 6) {
+                this.classList.add('error');
+                this.classList.remove('success');
+            } else if (value.length >= 6) {
+                this.classList.add('success');
+                this.classList.remove('error');
+            } else {
+                this.classList.remove('success', 'error');
+            }
+
+            // Перепроверяем подтверждение
+            if (confirmInput && confirmInput.value) {
+                if (confirmInput.value === this.value && this.value.length >= 6) {
+                    confirmInput.classList.add('success');
+                    confirmInput.classList.remove('error');
+                } else {
+                    confirmInput.classList.add('error');
+                    confirmInput.classList.remove('success');
+                }
+            }
+        });
+    }
+
+    if (confirmInput) {
+        confirmInput.addEventListener('input', function() {
+            if (passwordInput && this.value) {
+                if (this.value === passwordInput.value && passwordInput.value.length >= 6) {
+                    this.classList.add('success');
+                    this.classList.remove('error');
+                } else {
+                    this.classList.add('error');
+                    this.classList.remove('success');
+                }
+            } else {
+                this.classList.remove('success', 'error');
+            }
+        });
+    }
+
+    initEditProfilePasswordToggles();
+}
+
+// Инициализация кнопок глаза для формы редактирования профиля (использует глобальную функцию)
+function initEditProfilePasswordToggles() {
+    const passwordWrappers = document.querySelectorAll('.password-wrapper');
+    passwordWrappers.forEach(wrapper => {
+        const input = wrapper.querySelector('input[type="password"], input[type="text"]');
+        if (input) {
+            initPasswordToggle(input.id);
+        }
+    });
+}
+
+// Инициализация валидации для edit_profile.php при загрузке DOM
+document.addEventListener('DOMContentLoaded', function() {
+    initEditProfileValidation();
 });

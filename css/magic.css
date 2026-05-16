@@ -1644,7 +1644,36 @@ main {
 }
 
 .auth-form .form-control::placeholder {
-    color: var(--color-gray);
+    color: #666;
+    opacity: 1;
+    font-weight: 500;
+}
+
+/* Стили placeholder для формы редактирования профиля - улучшенная читаемость */
+.edit-profile-form .form-control::placeholder {
+    color: #666 !important;
+    opacity: 1 !important;
+    font-weight: 500;
+}
+.edit-profile-form .form-control::-webkit-input-placeholder {
+    color: #666 !important;
+    opacity: 1 !important;
+    font-weight: 500;
+}
+.edit-profile-form .form-control::-moz-placeholder {
+    color: #666 !important;
+    opacity: 1 !important;
+    font-weight: 500;
+}
+.edit-profile-form .form-control:-ms-input-placeholder {
+    color: #666 !important;
+    opacity: 1 !important;
+    font-weight: 500;
+}
+.edit-profile-form .form-control::-ms-input-placeholder {
+    color: #666 !important;
+    opacity: 1 !important;
+    font-weight: 500;
 }
 
 /* Стили валидации для форм авторизации */
