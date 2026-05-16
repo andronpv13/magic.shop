@@ -83,7 +83,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <div class="form-group">
                         <label for="password">Пароль:</label>
-                        <input type="password" id="password" name="password" class="form-control" required>
+                        <div class="password-wrapper">
+                            <input type="password" id="password" name="password" class="form-control" required>
+                        </div>
                     </div>
 
                     <button type="submit" class="btn btn-primary btn-block btn-lg">Войти</button>
@@ -98,3 +100,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </section>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
+
+<!-- Скрипт для кнопки глаза на странице входа -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const passwordInput = document.getElementById('password');
+    if (!passwordInput) return;
+
+    const wrapper = passwordInput.parentElement;
+
+    // Создаем кнопку глаза, если её нет
+    let toggleBtn = wrapper.querySelector('.password-toggle');
+    if (!toggleBtn) {
+        toggleBtn = document.createElement('button');
+        toggleBtn.type = 'button';
+        toggleBtn.className = 'password-toggle';
+        toggleBtn.setAttribute('aria-label', 'Показать/скрыть пароль');
+        wrapper.appendChild(toggleBtn);
+    }
+
+    // Удаляем предыдущие обработчики (клонированием)
+    const newBtn = toggleBtn.cloneNode(true);
+    toggleBtn.parentNode.replaceChild(newBtn, toggleBtn);
+    toggleBtn = newBtn;
+
+    toggleBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const isPassword = passwordInput.type === 'password';
+        passwordInput.type = isPassword ? 'text' : 'password';
+        toggleBtn.classList.toggle('active', isPassword);
+        passwordInput.focus();
+    });
+});
+</script>

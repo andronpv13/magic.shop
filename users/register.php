@@ -103,7 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                 <?php endif; ?>
 
-                <form method="POST" class="auth-form">
+                <form method="POST" class="auth-form" id="registerForm">
                     <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
 
                     <div class="form-group">
@@ -122,19 +122,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <div class="form-group">
                         <label for="password">Пароль (мин. 6 символов):</label>
-                        <input type="password" id="password" name="password" class="form-control"
-                               placeholder="Введите пароль"
-                               required>
+                        <div class="password-wrapper">
+                            <input type="password" id="password" name="password" class="form-control"
+                                   placeholder="Введите пароль"
+                                   required>
+                        </div>
                     </div>
 
                     <div class="form-group">
                         <label for="confirm_password">Подтвердите пароль:</label>
-                        <input type="password" id="confirm_password" name="confirm_password" class="form-control"
-                               placeholder="Повторите пароль"
-                               required>
+                        <div class="password-wrapper">
+                            <input type="password" id="confirm_password" name="confirm_password" class="form-control"
+                                   placeholder="Повторите пароль"
+                                   required>
+                        </div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary btn-block btn-lg">Зарегистрироваться</button>
+                    <button type="submit" id="submitBtn" class="btn btn-primary btn-block btn-lg">Зарегистрироваться</button>
                 </form>
 
                 <div class="auth-footer">
