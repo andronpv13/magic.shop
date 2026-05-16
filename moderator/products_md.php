@@ -92,7 +92,7 @@ $message = $_GET['message'] ?? '';
                                             <a href="edit_product_md.php?id=<?php echo $product['id']; ?>" class="btn btn-sm btn-edit">
                                                 ✏️
                                             </a>
-                                            <form method="POST" style="display: inline;"
+                                            <form method="POST" class="form-inline"
                                                   onsubmit="return confirm('Удалить товар <?php echo e($product['name']); ?>?');">
                                                 <input type="hidden" name="delete_product" value="<?php echo $product['id']; ?>">
                                                 <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">

@@ -160,7 +160,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reset_defaults'])) {
 <section class="settings-container">
     <div class="settings-header">
         <h1>✨ Настройки оформления сайта ✨</h1>
-        <p style="color: var(--color-lavender, #B8B8FF);">Управляйте стилем и внешним видом вашего магазина</p>
+        <p class="text-lavender">Управляйте стилем и внешним видом вашего магазина</p>
     </div>
 
     <?php if (isset($_SESSION['success'])): ?>
@@ -235,12 +235,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reset_defaults'])) {
                     <label>Фоновое изображение</label>
                     <input type="file" name="site_background" accept="image/*">
                     <?php if (!empty($current_settings['background_image'])): ?>
-                        <p style="margin-top: 0.5rem; color: var(--color-lavender);">
+                        <p class="text-lavender text-sm mt-2">
                             Текущий фон: <strong><?php echo e($current_settings['background_image']); ?></strong>
                         </p>
                         <img src="/images/background/<?php echo e($current_settings['background_image']); ?>"
                              alt="Текущий фон"
-                             style="max-width: 200px; margin-top: 0.5rem; border-radius: 8px;">
+                             class="img-preview">
                     <?php endif; ?>
                 </div>
 
@@ -248,7 +248,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reset_defaults'])) {
                     <label>Фавиконка (иконка сайта)</label>
                     <input type="file" name="site_favicon" accept="image/*,.ico">
                     <?php if (!empty($current_settings['favicon'])): ?>
-                        <p style="margin-top: 0.5rem; color: var(--color-lavender);">
+                        <p class="text-lavender text-sm mt-2">
                             Текущая фавиконка: <strong><?php echo e($current_settings['favicon']); ?></strong>
                         </p>
                     <?php endif; ?>
@@ -332,7 +332,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reset_defaults'])) {
                     </div>
                 </div>
 
-                <div style="margin-top: 1.5rem;">
+                <div class="mt-6">
                     <p><strong>Шрифт:</strong> <?php echo e($current_settings['font_family']); ?></p>
                     <p><strong>Радиус:</strong> <?php echo e($current_settings['border_radius']); ?>px</p>
                     <p><strong>Тень:</strong> <?php echo e($current_settings['card_shadow']); ?></p>
@@ -343,9 +343,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reset_defaults'])) {
     </div>
 
     <!-- Сброс настроек -->
-    <div class="settings-card" style="margin-top: 2rem;">
+    <div class="settings-card mt-8">
         <h2>⚠️ Зона опасности</h2>
-        <p style="color: var(--color-lavender); margin-bottom: 1rem;">
+        <p class="text-lavender mb-4">
             Сбросьте все настройки к значениям по умолчанию. Это действие нельзя отменить.
         </p>
         <form method="POST" onsubmit="return confirm('Вы уверены, что хотите сбросить все настройки?');">

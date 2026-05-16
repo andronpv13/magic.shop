@@ -34,7 +34,7 @@ $success = [];
 
 foreach ($queries as $query) {
     if (empty($query)) continue;
-    
+
     if ($conn->query($query)) {
         $success[] = "Выполнен: " . substr($query, 0, 50) . '...';
     } else {
@@ -52,28 +52,12 @@ $conn->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Установка БД - Волшебная ЛАВКА</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; padding: 40px 20px; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 40px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        h1 { color: #4a148c; margin-bottom: 20px; text-align: center; }
-        .status { padding: 20px; border-radius: 8px; margin-bottom: 20px; }
-        .status.success { background: #e8f5e9; color: #2e7d32; border: 1px solid #4caf50; }
-        .status.error { background: #ffebee; color: #c62828; border: 1px solid #f44336; }
-        .status.warning { background: #fff3e0; color: #e65100; border: 1px solid #ff9800; }
-        ul { margin: 10px 0; padding-left: 20px; }
-        li { margin: 5px 0; }
-        .next-steps { background: #e3f2fd; padding: 20px; border-radius: 8px; margin-top: 20px; }
-        .next-steps h3 { color: #1565c0; margin-bottom: 10px; }
-        code { background: #f5f5f5; padding: 2px 6px; border-radius: 4px; font-size: 14px; }
-        a { color: #1565c0; text-decoration: none; }
-        a:hover { text-decoration: underline; }
-    </style>
+    <link rel="stylesheet" href="../css/magic.css">
 </head>
 <body>
     <div class="container">
         <h1>✨ Установка базы данных "Волшебная ЛАВКА"</h1>
-        
+
         <?php if (empty($errors)): ?>
             <div class="status success">
                 <h2>✅ Установка завершена успешно!</h2>
@@ -116,7 +100,7 @@ $conn->close();
             </ol>
         </div>
 
-        <p style="text-align: center; margin-top: 20px; color: #666;">
+        <p class="text-center mt-5 text-muted">
             Разработчик: АВВА © 2025
         </p>
     </div>

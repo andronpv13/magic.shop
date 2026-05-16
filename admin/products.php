@@ -117,7 +117,7 @@ $use_categories = isset($_SESSION['use_categories']) ? $_SESSION['use_categories
                                             <a href="/admin/edit_product.php?id=<?php echo $product['id']; ?>" class="btn btn-sm btn-edit" title="Редактировать">
                                                 ✏️
                                             </a>
-                                            <form method="POST" style="display: inline;" onsubmit="return confirm('Вы уверены, что хотите удалить этот товар?');">
+                                            <form method="POST" class="form-inline" onsubmit="return confirm('Вы уверены, что хотите удалить этот товар?');">
                                                 <input type="hidden" name="delete" value="<?php echo $product['id']; ?>">
                                                 <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
                                                 <button type="submit" class="btn btn-sm btn-delete" title="Удалить">🗑️</button>

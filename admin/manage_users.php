@@ -143,7 +143,7 @@ $users = getAllUsers();
                                                     onclick="document.getElementById('resetPasswordModal').style.display='block'; document.getElementById('reset_user_id').value=<?php echo $user['id']; ?>">
                                                 🔑
                                             </button>
-                                            <form method="POST" style="display: inline;"
+                                            <form method="POST" class="form-inline"
                                                   onsubmit="return confirm('Удалить пользователя <?php echo e($user['username']); ?>?');">
                                                 <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
                                                 <input type="hidden" name="delete_user" value="<?php echo $user['id']; ?>">

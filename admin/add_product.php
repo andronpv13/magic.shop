@@ -137,7 +137,7 @@ $use_categories = isset($_SESSION['use_categories']) ? $_SESSION['use_categories
                             </label>
                         </div>
 
-                        <div class="form-group" id="category-group" style="<?php echo $use_categories ? '' : 'display: none; opacity: 0.5;'; ?>">
+                        <div class="form-group" id="category-group" class="<?php echo $use_categories ? '' : 'hidden'; ?>">
 <label for="category">Выберите категорию:</label>
                         <select id="category" name="category"
                                <?php echo $use_categories ? '' : 'disabled'; ?>>
@@ -149,7 +149,7 @@ $use_categories = isset($_SESSION['use_categories']) ? $_SESSION['use_categories
                                 <?php endforeach; ?>
                             </select>
 
-                            <label for="category_name" style="margin-top: 10px; display: block;">Или введите новую:</label>
+                            <label for="category_name" class="form-label">Или введите новую:</label>
                             <input type="text" id="category_name" name="category_name"
                                    placeholder="Например: Зелья"
                                    <?php echo $use_categories ? '' : 'disabled'; ?>>

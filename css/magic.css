@@ -209,6 +209,236 @@ button {
 }
 
 /* --------------------------------------------------------------------------
+   2.1. РАСШИРЕННЫЕ СТИЛИ ФОРМ (для регистрации и сложных форм)
+   -------------------------------------------------------------------------- */
+
+/* Расширенная карточка авторизации */
+.auth-card-wide {
+    background: var(--gradient-card);
+    backdrop-filter: blur(10px);
+    padding: 2.5rem;
+    border-radius: var(--radius-lg);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: var(--shadow-medium);
+    width: 100%;
+    max-width: 700px;
+}
+
+/* Группы полей формы с label */
+.form-group {
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--color-lavender);
+}
+
+/* Расширенные стили form-control для валидации */
+.form-control {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid rgba(157, 78, 221, 0.3);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    transition: all var(--transition-normal);
+    box-sizing: border-box;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--color-white);
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--color-purple-bright);
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 0 3px rgba(157, 78, 221, 0.2);
+}
+
+/* Стили валидации form-control */
+.form-control.success {
+    border-color: var(--color-emerald);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232ecc71' width='20px' height='20px'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 20px;
+    padding-right: 40px;
+}
+
+.form-control.error {
+    border-color: var(--color-ruby);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23e74c3c' width='20px' height='20px'%3E%3Cpath d='M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 20px;
+    padding-right: 40px;
+}
+
+/* Обертка для полей пароля */
+.password-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.password-wrapper .form-control {
+    padding-right: 50px;
+}
+
+/* Кнопка глаза для показа пароля */
+.password-toggle {
+    position: absolute;
+    right: 30px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none !important;
+    cursor: pointer;
+    color: var(--color-gray);
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    z-index: 100;
+    padding: 0;
+    outline: none !important;
+}
+
+.password-toggle:hover {
+    color: var(--color-purple-bright);
+}
+
+.password-toggle:focus {
+    outline: 2px solid var(--color-purple-bright) !important;
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+}
+
+/* Иконка глаза через CSS (SVG background) */
+.password-toggle::before {
+    content: '';
+    display: block;
+    width: 20px;
+    height: 20px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z'%3E%3C/path%3E%3Ccircle cx='12' cy='12' r='3'%3E%3C/circle%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+    transition: opacity 0.2s;
+}
+
+/* Перечёркнутый глаз (активное состояние - пароль виден) */
+.password-toggle.active::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24'%3E%3C/path%3E%3Cline x1='1' y1='1' x2='23' y2='23'%3E%3C/line%3E%3C/svg%3E");
+}
+
+/* Кнопка на всю ширину */
+.btn-block {
+    width: 100%;
+    padding: 0.8rem;
+    font-size: 1.1rem;
+    margin-top: 1rem;
+}
+
+/* Улучшенные стили alert для форм */
+.alert {
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 1.5rem;
+}
+
+.alert-error {
+    background-color: rgba(224, 30, 90, 0.15);
+    color: var(--color-ruby-light);
+    border: 1px solid var(--color-ruby);
+}
+
+.alert-success {
+    background-color: rgba(46, 196, 182, 0.15);
+    color: var(--color-emerald-light);
+    border: 1px solid var(--color-emerald);
+}
+
+/* --------------------------------------------------------------------------
+   2.2. УТИЛИТАРНЫЕ КЛАССЫ
+   -------------------------------------------------------------------------- */
+
+/* Inline формы */
+.form-inline {
+    display: inline;
+}
+
+/* Скрытые группы форм */
+.form-group.hidden {
+    display: none;
+    opacity: 0.5;
+}
+
+/* Превью цветов */
+.preview-color {
+    width: 50px;
+    height: 50px;
+    border-radius: var(--radius-md);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    box-shadow: var(--shadow-soft);
+}
+
+/* --------------------------------------------------------------------------
+   2.3. ВСПОМОГАТЕЛЬНЫЕ КЛАССЫ (Utility Classes)
+   -------------------------------------------------------------------------- */
+
+/* Выравнивание текста */
+.text-center {
+    text-align: center;
+}
+
+.text-lavender {
+    color: var(--color-lavender);
+}
+
+.text-muted {
+    color: var(--color-gray);
+}
+
+/* Отступы (margins) */
+.mt-2 {
+    margin-top: 0.5rem;
+}
+
+.mt-5 {
+    margin-top: 1.25rem;
+}
+
+.mt-6 {
+    margin-top: 1.5rem;
+}
+
+.mb-4 {
+    margin-bottom: 1rem;
+}
+
+.mb-6 {
+    margin-bottom: 1.5rem;
+}
+
+.mt-8 {
+    margin-top: 2rem;
+}
+
+.m-0 {
+    margin: 0;
+}
+
+/* Размеры изображений */
+.img-preview {
+    max-width: 200px;
+    margin-top: 0.5rem;
+    border-radius: var(--radius-md);
+}
+
+/* --------------------------------------------------------------------------
    3. АНИМАЦИИ
    -------------------------------------------------------------------------- */
 @keyframes bgPulse {

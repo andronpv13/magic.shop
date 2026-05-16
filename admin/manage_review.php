@@ -78,7 +78,7 @@ $message = $_GET['message'] ?? $message ?? '';
                                 </td>
                                 <td data-label="Дата"><?php echo date('d.m.Y', strtotime($review['created_at'])); ?></td>
                                 <td data-label="Действия">
-                                    <form method="POST" style="display: inline;"
+                                    <form method="POST" class="form-inline"
                                           onsubmit="return confirm('Удалить этот отзыв?');">
                                         <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
                                         <input type="hidden" name="delete_review" value="<?php echo $review['id']; ?>">
