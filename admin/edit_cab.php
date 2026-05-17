@@ -85,11 +85,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 <section class="section">
     <div class="container">
-        <nav class="breadcrumbs">
-            <a href="index.php">Админ-панель</a>
-            <span class="separator">/</span>
-            <span class="current">Редактирование профиля</span>
-        </nav>
         <h1 class="page-title">Редактирование профиля</h1>
 
         <?php if (!empty($errors)): ?>
