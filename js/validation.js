@@ -518,3 +518,9 @@ function initEditProfileValidation() {
     // Инициализация состояния кнопки
     updateSubmitButton();
 }
+
+// Экспортируем функцию глобально для использования на страницах редактирования профиля
+if (typeof window.initEditProfileValidationExport !== 'function') {
+    window.initEditProfileValidationExport = true;
+    window.initEditProfileValidation = initEditProfileValidation;
+}

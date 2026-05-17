@@ -109,3 +109,21 @@ function closeAllModals() {
         modal.style.display = 'none';
     });
 }
+
+/**
+ * Инициализация валидации для страницы редактирования профиля администратора (edit_cab.php)
+ * Вызывает глобальную функцию initEditProfileValidation из validation.js
+ */
+function initAdminEditProfileValidation() {
+    if (typeof window.initEditProfileValidation === 'function') {
+        window.initEditProfileValidation();
+    }
+}
+
+// Автоматическая инициализация при загрузке DOM, если на странице есть форма редактирования профиля
+document.addEventListener('DOMContentLoaded', function() {
+    const editProfileForm = document.getElementById('editProfileForm');
+    if (editProfileForm) {
+        initAdminEditProfileValidation();
+    }
+});

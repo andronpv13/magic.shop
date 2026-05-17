@@ -2486,6 +2486,7 @@ main {
     margin-top: var(--spacing-lg);
 }
 
+.edit-profile-actions #saveBtn,
 .edit-profile-actions .btn-save {
     background: var(--gradient-magic-primary);
     color: var(--color-white);
@@ -2499,11 +2500,13 @@ main {
     transition: all var(--transition-normal);
 }
 
+.edit-profile-actions #saveBtn:hover,
 .edit-profile-actions .btn-save:hover {
     transform: translateY(-2px);
     box-shadow: var(--glow-purple);
 }
 
+.edit-profile-actions #saveBtn:disabled,
 .edit-profile-actions .btn-save:disabled {
     opacity: 0.6;
     cursor: not-allowed;
@@ -2534,7 +2537,8 @@ main {
         justify-content: center;
     }
 
-    .edit-profile-actions .btn-save {
+    .edit-profile-actions .btn-save,
+    .edit-profile-actions #saveBtn {
         width: 100%;
         max-width: 300px;
     }
@@ -2548,23 +2552,52 @@ main {
     grid-template-columns: repeat(2, 1fr);
     gap: var(--spacing-xl);
     margin-bottom: var(--spacing-xl);
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.edit-profile-column {
+    background: var(--gradient-card);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    box-shadow: var(--shadow-medium);
+}
+
+.edit-cab-layout .edit-profile-column {
+    width: 100%;
+}
+
+.edit-profile-form {
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 /* Адаптивность для двухколоночной раскладки edit_cab.php */
-/* Планшеты и десктопы (шире 768px) - 2 колонки */
-/* Мобильные устройства (768px и меньше) - 1 колонка */
-@media (max-width: 768px) {
+/* Планшеты и десктопы (шире 480px) - 2 колонки */
+/* Мобильные устройства (480px и меньше) - 1 колонка */
+@media (max-width: 480px) {
     .edit-cab-layout {
         grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+    }
+
+    .edit-cab-layout .edit-profile-column {
+        max-width: none !important;
+    }
+}
+
+/* Ограничение ширины колонок на экранах больше 480px */
+@media (min-width: 481px) {
+    .edit-cab-layout .edit-profile-column {
+        max-width: 450px;
     }
 }
 
 /* Дополнительная адаптивность для малых экранов (480px и меньше) */
 @media (max-width: 480px) {
-    .edit-cab-layout {
-        gap: var(--spacing-md);
-    }
-
     .edit-profile-column h3 {
         font-size: 1.2rem;
     }
@@ -2577,7 +2610,8 @@ main {
         justify-content: center;
     }
 
-    .edit-profile-actions .btn-save {
+    .edit-profile-actions .btn-save,
+    .edit-profile-actions #saveBtn {
         width: 100%;
         max-width: 100%;
     }

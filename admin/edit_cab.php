@@ -188,4 +188,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </section>
 
 <script src="/js/validation.js"></script>
+<script src="/js/admin/users.js"></script>
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>
