@@ -447,6 +447,20 @@ function getAllReviews() {
     return $s->get_result()->fetch_all(MYSQLI_ASSOC);
 }
 
+function approveReview($id) {
+    global $conn;
+    $s = $conn->prepare("UPDATE reviews SET is_approved = 1 WHERE id = ?");
+    $s->bind_param("i", $id);
+    return ['success' => $s->execute()];
+}
+
+function updateReview($id, $rating, $comment) {
+    global $conn;
+    $s = $conn->prepare("UPDATE reviews SET rating = ?, comment = ?, updated_at = NOW() WHERE id = ?");
+    $s->bind_param("isi", $rating, $comment, $id);
+    return ['success' => $s->execute()];
+}
+
 function deleteReview($id) {
     global $conn;
     $s = $conn->prepare("DELETE FROM reviews WHERE id = ?");

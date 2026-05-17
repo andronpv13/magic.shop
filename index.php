@@ -37,7 +37,6 @@ foreach ($products as $product):
 <h2>Последние отзывы</h2>
 <div class="reviews-grid">
 <?php
-// ✅ ИСПРАВЛЕНО: Добавлена проверка is_approved для модерации отзывов
 $stmt = $conn->prepare("SELECT r.*, u.username, p.name as product_name FROM reviews r JOIN users u ON r.user_id = u.id JOIN products p ON r.product_id = p.id WHERE r.is_approved = 1 ORDER BY r.created_at DESC LIMIT 5");
 $stmt->execute();
 $reviews = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
@@ -45,7 +44,7 @@ foreach ($reviews as $review):
 ?>
 <div class="review-card">
     <div class="review-header">
-        <h4><?php echo e($review['product_name']); ?></h4>
+        <h4>Товар:  <?php echo e($review['product_name']); ?></h4>
         <div class="rating">
         <?php for ($i = 1; $i <= 5; $i++): ?>
             <span class="star <?php if ($i <= $review['rating']) echo 'filled'; ?>">★</span>
@@ -53,7 +52,7 @@ foreach ($reviews as $review):
         </div>
     </div>
     <p class="review-text"><?php echo e($review['comment']); ?></p>
-    <p class="review-author">- <?php echo e($review['username']); ?></p>
+    <p class="review-author">Покупатель:  <?php echo e($review['username']); ?></p>
 </div>
 <?php endforeach; ?>
 </div>

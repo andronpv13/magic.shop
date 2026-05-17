@@ -257,15 +257,137 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Валидация для страницы редактирования профиля (edit_profile.php)
+// Инициализация валидации для страницы редактирования профиля (edit_profile.php и edit_cab.php)
 function initEditProfileValidation() {
-    const form = document.getElementById('editProfileForm');
+    // Поддержка обеих форм: editProfileForm (пользователь) и editCabForm (администратор)
+    const form = document.getElementById('editProfileForm') || document.getElementById('editCabForm');
     const saveBtn = document.getElementById('saveBtn');
 
     if (!form) return;
 
-    // Валидация телефона
+    // Элементы формы
+    const usernameInput = document.getElementById('username');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const confirmInput = document.getElementById('password_confirm') || document.getElementById('confirm_password');
+    const currentPasswordInput = document.getElementById('current_password');
     const phoneInput = document.getElementById('phone');
+    const zipInput = document.getElementById('zip_code');
+
+    let validationState = {
+        username: true,
+        email: true,
+        password: true,
+        confirm: true,
+        phone: true,
+        zip: true
+    };
+
+    // --- Утилиты ---
+
+    // Debounce для AJAX запросов
+    function debounce(func, delay) {
+        let timeout;
+        return function (...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), delay);
+        };
+    }
+
+    // Обновление состояния кнопки сохранения
+    function updateSubmitButton() {
+        const isValid = Object.values(validationState).every(Boolean);
+        if (saveBtn) {
+            saveBtn.disabled = !isValid;
+        }
+    }
+
+    // Установка статуса валидации для поля (используем глобальную функцию если есть)
+    function setFieldStatus(inputElement, isValid, errorClass = 'error', successClass = 'success') {
+        if (!inputElement) return;
+
+        // Удаляем предыдущие классы
+        inputElement.classList.remove(errorClass, successClass);
+
+        // Добавляем новый статус
+        if (isValid && inputElement.value.trim() !== '') {
+            inputElement.classList.add(successClass);
+        } else if (!isValid && inputElement.value.trim() !== '') {
+            inputElement.classList.add(errorClass);
+        } else {
+            inputElement.classList.remove(successClass, errorClass);
+        }
+    }
+
+    // --- Валидация логина (с AJAX проверкой уникальности) ---
+    const validateUsername = debounce(async () => {
+        if (!usernameInput) return;
+
+        const value = usernameInput.value.trim();
+        const regex = /^[a-zA-Zа-яА-ЯёЁ]{4,10}$/;
+
+        if (!regex.test(value)) {
+            validationState.username = false;
+            setFieldStatus(usernameInput, false);
+            updateSubmitButton();
+            return;
+        }
+
+        // AJAX проверка уникальности
+        try {
+            const response = await fetch((window.apiBaseUrl || '../') + 'users/check_user.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: new URLSearchParams({ type: 'username', value: value })
+            });
+            const data = await response.json();
+
+            validationState.username = data.available === true;
+            setFieldStatus(usernameInput, validationState.username);
+        } catch (e) {
+            validationState.username = false;
+            setFieldStatus(usernameInput, false);
+        }
+        updateSubmitButton();
+    }, 500);
+
+    // --- Валидация Email (с AJAX проверкой уникальности) ---
+    const validateEmail = debounce(async () => {
+        if (!emailInput) return;
+
+        const value = emailInput.value.trim();
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (!regex.test(value)) {
+            validationState.email = false;
+            setFieldStatus(emailInput, false);
+            updateSubmitButton();
+            return;
+        }
+
+        // AJAX проверка уникальности
+        try {
+            const response = await fetch((window.apiBaseUrl || '../') + 'users/check_user.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: new URLSearchParams({ type: 'email', value: value })
+            });
+            const data = await response.json();
+
+            validationState.email = data.available === true;
+            setFieldStatus(emailInput, validationState.email);
+        } catch (e) {
+            validationState.email = false;
+            setFieldStatus(emailInput, false);
+        }
+        updateSubmitButton();
+    }, 500);
+
+    // --- Валидация телефона (форматирование и проверка длины) ---
     if (phoneInput) {
         phoneInput.addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, '');
@@ -287,19 +409,20 @@ function initEditProfileValidation() {
             // Валидация количества цифр
             const digits = value.replace(/\D/g, '');
             if (digits.length > 0 && (digits.length < 10 || digits.length > 15)) {
-                e.target.classList.add('error');
-                e.target.classList.remove('success');
+                validationState.phone = false;
+                setFieldStatus(phoneInput, false);
             } else if (digits.length >= 10 && digits.length <= 15) {
-                e.target.classList.add('success');
-                e.target.classList.remove('error');
+                validationState.phone = true;
+                setFieldStatus(phoneInput, true);
             } else {
-                e.target.classList.remove('success', 'error');
+                validationState.phone = true;
+                phoneInput.classList.remove('success', 'error');
             }
+            updateSubmitButton();
         });
     }
 
-    // Валидация индекса
-    const zipInput = document.getElementById('zip_code');
+    // --- Валидация индекса (6 цифр) ---
     if (zipInput) {
         zipInput.addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, '');
@@ -309,78 +432,89 @@ function initEditProfileValidation() {
             e.target.value = value;
 
             if (value.length > 0 && value.length !== 6) {
-                e.target.classList.add('error');
-                e.target.classList.remove('success');
+                validationState.zip = false;
+                setFieldStatus(zipInput, false);
             } else if (value.length === 6) {
-                e.target.classList.add('success');
-                e.target.classList.remove('error');
+                validationState.zip = true;
+                setFieldStatus(zipInput, true);
             } else {
-                e.target.classList.remove('success', 'error');
+                validationState.zip = true;
+                zipInput.classList.remove('success', 'error');
             }
+            updateSubmitButton();
         });
     }
 
-    // Валидация паролей в реальном времени
-    const passwordInput = document.getElementById('password');
-    const confirmInput = document.getElementById('password_confirm');
+    // --- Валидация пароля ---
+    const validatePassword = () => {
+        if (!passwordInput) return;
+
+        const value = passwordInput.value;
+
+        if (value.length > 0 && value.length < 6) {
+            validationState.password = false;
+            setFieldStatus(passwordInput, false);
+        } else if (value.length >= 6) {
+            validationState.password = true;
+            setFieldStatus(passwordInput, true);
+        } else {
+            validationState.password = true;
+            passwordInput.classList.remove('success', 'error');
+        }
+
+        // Перепроверяем подтверждение
+        if (confirmInput && confirmInput.value) {
+            validateConfirmPassword();
+        }
+
+        updateSubmitButton();
+    };
+
+    // --- Валидация подтверждения пароля ---
+    const validateConfirmPassword = () => {
+        if (!confirmInput || !passwordInput) return;
+
+        const pass = passwordInput.value;
+        const confirm = confirmInput.value;
+
+        if (confirm.length > 0 && pass !== confirm) {
+            validationState.confirm = false;
+            setFieldStatus(confirmInput, false);
+        } else if (confirm.length > 0 && pass === confirm && pass.length >= 6) {
+            validationState.confirm = true;
+            setFieldStatus(confirmInput, true);
+        } else {
+            validationState.confirm = true;
+            confirmInput.classList.remove('success', 'error');
+        }
+
+        updateSubmitButton();
+    };
+
+    // --- Инициализация слушателей ---
+
+    if (usernameInput) {
+        usernameInput.addEventListener('input', validateUsername);
+    }
+
+    if (emailInput) {
+        emailInput.addEventListener('input', validateEmail);
+    }
 
     if (passwordInput) {
-        passwordInput.addEventListener('input', function() {
-            const value = this.value;
-            if (value.length > 0 && value.length < 6) {
-                this.classList.add('error');
-                this.classList.remove('success');
-            } else if (value.length >= 6) {
-                this.classList.add('success');
-                this.classList.remove('error');
-            } else {
-                this.classList.remove('success', 'error');
-            }
-
-            // Перепроверяем подтверждение
-            if (confirmInput && confirmInput.value) {
-                if (confirmInput.value === this.value && this.value.length >= 6) {
-                    confirmInput.classList.add('success');
-                    confirmInput.classList.remove('error');
-                } else {
-                    confirmInput.classList.add('error');
-                    confirmInput.classList.remove('success');
-                }
-            }
-        });
+        passwordInput.addEventListener('input', validatePassword);
+        initPasswordToggle('password');
     }
 
     if (confirmInput) {
-        confirmInput.addEventListener('input', function() {
-            if (passwordInput && this.value) {
-                if (this.value === passwordInput.value && passwordInput.value.length >= 6) {
-                    this.classList.add('success');
-                    this.classList.remove('error');
-                } else {
-                    this.classList.add('error');
-                    this.classList.remove('success');
-                }
-            } else {
-                this.classList.remove('success', 'error');
-            }
-        });
+        confirmInput.addEventListener('input', validateConfirmPassword);
+        initPasswordToggle(confirmInput.id);
     }
 
-    initEditProfilePasswordToggles();
-}
+    if (currentPasswordInput) {
+        initPasswordToggle('current_password');
+    }
 
-// Инициализация кнопок глаза для формы редактирования профиля (использует глобальную функцию)
-function initEditProfilePasswordToggles() {
-    const passwordWrappers = document.querySelectorAll('.password-wrapper');
-    passwordWrappers.forEach(wrapper => {
-        const input = wrapper.querySelector('input[type="password"], input[type="text"]');
-        if (input) {
-            initPasswordToggle(input.id);
-        }
-    });
+    // Инициализация состояния кнопки
+    updateSubmitButton();
 }
-
-// Инициализация валидации для edit_profile.php при загрузке DOM
-document.addEventListener('DOMContentLoaded', function() {
-    initEditProfileValidation();
-});

@@ -2541,6 +2541,49 @@ main {
 }
 
 /* --------------------------------------------------------------------------
+   11.6. СТРАНИЦА РЕДАКТИРОВАНИЯ ПРОФИЛЯ АДМИНИСТРАТОРА - ДВА СТОЛБЦА
+   -------------------------------------------------------------------------- */
+.edit-cab-layout {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-xl);
+    margin-bottom: var(--spacing-xl);
+}
+
+/* Адаптивность для двухколоночной раскладки edit_cab.php */
+/* Планшеты и десктопы (шире 768px) - 2 колонки */
+/* Мобильные устройства (768px и меньше) - 1 колонка */
+@media (max-width: 768px) {
+    .edit-cab-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Дополнительная адаптивность для малых экранов (480px и меньше) */
+@media (max-width: 480px) {
+    .edit-cab-layout {
+        gap: var(--spacing-md);
+    }
+
+    .edit-profile-column h3 {
+        font-size: 1.2rem;
+    }
+
+    .edit-profile-column h4 {
+        font-size: 0.9rem;
+    }
+
+    .edit-profile-actions {
+        justify-content: center;
+    }
+
+    .edit-profile-actions .btn-save {
+        width: 100%;
+        max-width: 100%;
+    }
+}
+
+/* --------------------------------------------------------------------------
    12. АДМИН-ПАНЕЛЬ И МОДЕРАЦИЯ
    -------------------------------------------------------------------------- */
 .admin-panel,

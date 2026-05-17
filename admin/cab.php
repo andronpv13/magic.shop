@@ -52,7 +52,6 @@ $user = getUserById($user_id);
         </div>
         <a href="/admin/edit_cab.php" class="btn btn-outline">Редактировать данные</a>
     </div>
-    <a href="/admin/index.php" class="back-link">← Назад</a>
 </div></section>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>

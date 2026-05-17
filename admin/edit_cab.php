@@ -8,44 +8,76 @@ require_once __DIR__ . '/../includes/header.php';
 requireAdmin();
 
 $current_user = getCurrentUser();
-$success = '';
-$error = '';
+$errors = [];
+$success = false;
 global $conn;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = trim($_POST['username'] ?? '');
-    $email = trim($_POST['email'] ?? '');
-    $password = $_POST['password'] ?? '';
-    $first_name = trim($_POST['first_name'] ?? '');
-    $last_name = trim($_POST['last_name'] ?? '');
-
-    if (empty($username) || empty($email)) {
-        $error = 'Логин и Email обязательны';
-    } elseif (!empty($password) && strlen($password) < 6) {
-        $error = 'Пароль должен быть не менее 6 символов';
+    // Проверка CSRF токена
+    if (!csrf_verify()) {
+        $errors[] = 'Ошибка безопасности (CSRF)';
     } else {
-        // Проверка уникальности логина и email (кроме текущего пользователя)
-        $stmt = $conn->prepare("SELECT id FROM users WHERE (username = ? OR email = ?) AND id != ?");
-        $stmt->bind_param("ssi", $username, $email, $_SESSION['user_id']);
-        $stmt->execute();
-        if ($stmt->get_result()->num_rows > 0) {
-            $error = 'Логин или Email уже заняты';
-        } else {
-            $hash = !empty($password) ? password_hash($password, PASSWORD_DEFAULT) : null;
-            if ($hash) {
-                $stmt = $conn->prepare("UPDATE users SET username=?, email=?, first_name=?, last_name=?, password=? WHERE id=?");
-                $stmt->bind_param("sssssi", $username, $email, $first_name, $last_name, $hash, $_SESSION['user_id']);
-            } else {
-                $stmt = $conn->prepare("UPDATE users SET username=?, email=?, first_name=?, last_name=? WHERE id=?");
-                $stmt->bind_param("ssssi", $username, $email, $first_name, $last_name, $_SESSION['user_id']);
-            }
+        $username = trim($_POST['username'] ?? '');
+        $email = trim($_POST['email'] ?? '');
+        $first_name = trim($_POST['first_name'] ?? '');
+        $last_name = trim($_POST['last_name'] ?? '');
+        $middle_name = trim($_POST['middle_name'] ?? '');
+        $phone = trim($_POST['phone'] ?? '');
+        $current_password_input = $_POST['current_password'] ?? '';
+        $password = $_POST['password'] ?? '';
+        $password_confirm = $_POST['password_confirm'] ?? '';
 
-            if ($stmt->execute()) {
-                $_SESSION['username'] = $username;
-                $success = 'Профиль успешно обновлен';
-                $current_user = getCurrentUser();
+        if (empty($username)) $errors[] = 'Введите логин';
+        if (empty($email)) $errors[] = 'Введите email';
+        elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = 'Некорректный Email';
+
+        // Валидация телефона
+        if (!empty($phone)) {
+            $phoneDigits = preg_replace('/\D/', '', $phone);
+            if (strlen($phoneDigits) < 10 || strlen($phoneDigits) > 15) {
+                $errors[] = 'Телефон должен содержать от 10 до 15 цифр';
+            }
+        }
+
+        // Валидация смены пароля
+        if (!empty($password)) {
+            // Проверка текущего пароля перед сменой
+            if (empty($current_password_input)) {
+                $errors[] = 'Введите текущий пароль для подтверждения';
             } else {
-                $error = 'Ошибка при обновлении профиля';
+                // Проверяем текущий пароль
+                if (!password_verify($current_password_input, $current_user['password'])) {
+                    $errors[] = 'Неверный текущий пароль';
+                }
+            }
+            if ($password !== $password_confirm) $errors[] = 'Пароли не совпадают';
+            if (strlen($password) < 6) $errors[] = 'Пароль минимум 6 символов';
+        }
+
+        if (empty($errors)) {
+            // Проверка уникальности логина и email (кроме текущего пользователя)
+            $stmt = $conn->prepare("SELECT id FROM users WHERE (username = ? OR email = ?) AND id != ?");
+            $stmt->bind_param("ssi", $username, $email, $_SESSION['user_id']);
+            $stmt->execute();
+            if ($stmt->get_result()->num_rows > 0) {
+                $errors[] = 'Логин или Email уже заняты';
+            } else {
+                if (!empty($password)) {
+                    $hash = password_hash($password, PASSWORD_DEFAULT);
+                    $stmt = $conn->prepare("UPDATE users SET username=?, email=?, first_name=?, last_name=?, middle_name=?, phone=?, password=? WHERE id=?");
+                    $stmt->bind_param("sssssssi", $username, $email, $first_name, $last_name, $middle_name, $phone, $hash, $_SESSION['user_id']);
+                } else {
+                    $stmt = $conn->prepare("UPDATE users SET username=?, email=?, first_name=?, last_name=?, middle_name=?, phone=? WHERE id=?");
+                    $stmt->bind_param("ssssssi", $username, $email, $first_name, $last_name, $middle_name, $phone, $_SESSION['user_id']);
+                }
+
+                if ($stmt->execute()) {
+                    $_SESSION['username'] = $username;
+                    $success = true;
+                    $current_user = getCurrentUser();
+                } else {
+                    $errors[] = 'Ошибка обновления: ' . $conn->error;
+                }
             }
         }
     }
@@ -60,41 +92,105 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </nav>
         <h1 class="page-title">Редактирование профиля</h1>
 
-        <?php if ($success): ?>
-            <div class="alert alert-success"><?php echo e($success); ?></div>
+        <?php if (!empty($errors)): ?>
+            <div class="alert alert-error">
+                <ul><?php foreach ($errors as $err) echo "<li>$err</li>"; ?></ul>
+            </div>
         <?php endif; ?>
-        <?php if ($error): ?>
-            <div class="alert alert-error"><?php echo e($error); ?></div>
+        <?php if ($success): ?>
+            <div class="alert alert-success">Данные успешно обновлены!</div>
         <?php endif; ?>
 
-        <form method="POST" class="auth-form">
+        <form method="POST" class="edit-profile-form" id="editProfileForm">
             <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
 
-            <div class="form-group">
-                <label>Логин</label>
-                <input type="text" name="username" value="<?php echo e($current_user['username']); ?>" required>
-            </div>
-            <div class="form-group">
-                <label>Email</label>
-                <input type="email" name="email" value="<?php echo e($current_user['email']); ?>" required>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Имя</label>
-                    <input type="text" name="first_name" value="<?php echo e($current_user['first_name'] ?? ''); ?>">
+            <div class="edit-cab-layout">
+                <!-- Первый столбец: Основные данные -->
+                <div class="edit-profile-column">
+                    <h3>Основные данные</h3>
+
+                    <div class="form-group">
+                        <label for="username">Логин</label>
+                        <input type="text" id="username" name="username" class="form-control"
+                               value="<?php echo e($current_user['username']); ?>" required
+                               data-validate="username">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" class="form-control"
+                               value="<?php echo e($current_user['email']); ?>" required
+                               data-validate="email">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="first_name">Имя</label>
+                        <input type="text" id="first_name" name="first_name" class="form-control"
+                               value="<?php echo e($current_user['first_name'] ?? ''); ?>">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="last_name">Фамилия</label>
+                        <input type="text" id="last_name" name="last_name" class="form-control"
+                               value="<?php echo e($current_user['last_name'] ?? ''); ?>">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="middle_name">Отчество</label>
+                        <input type="text" id="middle_name" name="middle_name" class="form-control"
+                               value="<?php echo e($current_user['middle_name'] ?? ''); ?>">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Телефон</label>
+                        <input type="tel" id="phone" name="phone" class="form-control"
+                               value="<?php echo e($current_user['phone'] ?? ''); ?>"
+                               placeholder="+7 (999) 999-99-99"
+                               data-validate="phone">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Фамилия</label>
-                    <input type="text" name="last_name" value="<?php echo e($current_user['last_name'] ?? ''); ?>">
+
+                <!-- Второй столбец: Смена пароля -->
+                <div class="edit-profile-column">
+                    <h3>Смена пароля</h3>
+                    <h4>Оставьте поля пустыми, чтобы не менять пароль</h4>
+
+                    <div class="form-group">
+                        <label for="current_password">Текущий пароль</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="current_password" name="current_password"
+                                   class="form-control" placeholder="Введите текущий пароль"
+                                   data-validate="current_password">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Новый пароль</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="password" name="password"
+                                   class="form-control" placeholder="Минимум 6 символов"
+                                   data-validate="password">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password_confirm">Подтверждение пароля</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="password_confirm" name="password_confirm"
+                                   class="form-control" placeholder="Повторите пароль"
+                                   data-validate="confirm">
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="form-group">
-                <label>Новый пароль (оставьте пустым, чтобы не менять)</label>
-                <input type="password" name="password">
+
+            <!-- Кнопка сохранения внизу справа -->
+            <div class="edit-profile-actions">
+                <button type="submit" id="saveBtn" class="btn btn-outline">💾 Сохранить изменения</button>
             </div>
-            <button type="submit" class="btn btn-outline">Сохранить</button>
         </form>
-        <a href="cab.php" class="back-link">← Назад</a>
     </div>
 </section>
+
+<script src="/js/validation.js"></script>
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>
