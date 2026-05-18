@@ -314,10 +314,6 @@ button {
     z-index: 101;
 }
 
-/* Стрелочка для tooltip */
-.password-toggle::before + .tooltip-arrow,
-.password-toggle
-
 /* Показываем tooltip при наведении курсора */
 .password-toggle:hover::after {
     opacity: 1;
@@ -3033,11 +3029,6 @@ footer {
         text-align: center;
     }
 
-    .shop-header {
-        flex-direction: column;
-        text-align: center;
-    }
-
     .shop-title {
         margin-bottom: var(--spacing-md);
     }
@@ -3129,7 +3120,6 @@ footer {
         font-size: 1.2rem;
     }
 
-    .basket-summary
 }
 
 @media (max-width: 480px) {
