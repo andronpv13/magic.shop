@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
                     <div class="form-group"><label for="delivery_address">Адрес доставки: *</label><textarea id="delivery_address" name="delivery_address" rows="4" required placeholder="Город, улица, дом, квартира"><?php echo e($address_value); ?></textarea></div>
                     <div class="form-group"><label for="comment">Комментарий к заказу:</label><textarea id="comment" name="comment" rows="3" placeholder="Дополнительные пожелания"><?php echo e($_POST['comment'] ?? ''); ?></textarea></div>
-                    <button type="submit" class="btn btn-primary btn-lg btn-block">Оформить заказ</button>
+                    <button type="submit" class="btn btn-outline">Оформить заказ</button>
                 </form>
             </div>
         </div>

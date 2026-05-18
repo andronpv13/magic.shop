@@ -9,7 +9,7 @@ require_once __DIR__ . '/../includes/header.php';
             <div class="empty-cart-icon">🛒</div>
             <h2>Ваша корзина пуста</h2>
             <p>Перейдите в каталог, чтобы выбрать что-нибудь интересное.</p>
-            <a href="/shop.php" class="btn btn-primary">Перейти в каталог</a>
+            <a href="/shop.php" class="btn btn-outline">Перейти в каталог</a>
         </div>
     <?php else: ?>
         <div class="basket-container">
@@ -49,7 +49,7 @@ require_once __DIR__ . '/../includes/header.php';
                         <p class="basket-count-text">Всего товаров: <span id="cart-page-count" class="highlight-text"><?php echo getBasketCount(); ?></span> шт.</p>
                         <p class="basket-total">К оплате: <?php echo formatPrice(getBasketTotal()); ?></p>
                     </div>
-                    <a href="/checkout.php" class="btn btn-primary btn-lg">Оформить заказ</a>
+                    <a href="/checkout.php" class="btn btn-outline">Оформить заказ</a>
                 </div>
             </div>
         </div>

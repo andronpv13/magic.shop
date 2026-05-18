@@ -74,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <input type="radio" name="payment_method" value="sbp" style="margin-right: 0.5rem;"> 📱 СБП
                         </label>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-block btn-lg">Оплатить заказ</button>
+                    <button type="submit" class="btn btn-outline">Оплатить заказ</button>
                 </form>
                 <?php endif; ?>
             <?php endif; ?>

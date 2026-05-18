@@ -22,8 +22,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($username) || empty($email)) {
         $error = 'Логин и Email обязательны';
-    } elseif (!empty($password) && strlen($password) < 6) {
-        $error = 'Пароль должен быть не менее 6 символов';
+    } elseif (!empty($password) && (strlen($password) < 6 || preg_match('/[\s\t]/', $password))) {
+        $error = 'Пароль должен быть не менее 6 символов и не содержать пробелы и табуляцию';
     } else {
         // Проверка уникальности логина и email (кроме текущего пользователя)
         $stmt = $conn->prepare("SELECT id FROM users WHERE (username = ? OR email = ?) AND id != ?");
@@ -93,9 +93,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <label>Новый пароль (оставьте пустым, чтобы не менять)</label>
                 <input type="password" name="password">
             </div>
-            <button type="submit" class="btn btn-primary btn-block">Сохранить</button>
+            <button type="submit" class="btn btn-outline">💾 Сохранить изменения</button>
         </form>
-        <a href="cab_md.php" class="back-link">← Назад</a>
     </div>
 </section>
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>

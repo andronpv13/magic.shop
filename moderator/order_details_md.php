@@ -127,7 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
                         </select>
                     </div>
 
-                    <button type="submit" name="update_status" class="btn btn-primary">Обновить статус</button>
+                    <button type="submit" name="update_status" class="btn btn-outline">Обновить статус</button>
                 </form>
             </div>
 

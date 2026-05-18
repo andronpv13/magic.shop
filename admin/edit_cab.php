@@ -52,6 +52,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             if ($password !== $password_confirm) $errors[] = 'Пароли не совпадают';
             if (strlen($password) < 6) $errors[] = 'Пароль минимум 6 символов';
+            // Проверка на наличие пробелов и tab в пароле
+            if (preg_match('/[\s\t]/', $password)) {
+                $errors[] = 'Пароль не должен содержать пробелы и символы табуляции';
+            }
         }
 
         if (empty($errors)) {

@@ -303,7 +303,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reset_defaults'])) {
                 </div>
 
                 <div class="btn-group">
-                    <button type="submit" name="save_general" class="btn btn-primary">Сохранить настройки</button>
+                    <button type="submit" name="save_general" class="btn btn-outline">Сохранить настройки</button>
                 </div>
             </form>
         </div>
@@ -350,7 +350,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reset_defaults'])) {
         </p>
         <form method="POST" onsubmit="return confirm('Вы уверены, что хотите сбросить все настройки?');">
             <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
-            <button type="submit" name="reset_defaults" class="btn btn-danger">Сбросить к настройкам по умолчанию</button>
+            <button type="submit" name="reset_defaults" class="btn btn-outline">Сбросить к настройкам по умолчанию</button>
         </form>
     </div>
 

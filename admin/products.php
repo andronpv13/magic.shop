@@ -54,11 +54,11 @@ $use_categories = isset($_SESSION['use_categories']) ? $_SESSION['use_categories
 
         <!-- Панель управления категориями -->
         <div class="category-control-panel">
-            <a href="/admin/manage_category.php" class="btn btn-primary">
+            <a href="/admin/manage_category.php" class="btn btn-outline">
                 Управление категориями
             </a>
 
-            <a href="/admin/add_product.php" class="btn btn-primary">
+            <a href="/admin/add_product.php" class="btn btn-outline">
                 Добавить товар
             </a>
         </div>

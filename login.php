@@ -25,6 +25,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = 'Введите логин или email';
         } elseif (empty($password)) {
             $error = 'Введите пароль';
+        } elseif (preg_match('/[\s\t]/', $password)) {
+            $error = 'Пароль не должен содержать пробелы и символы табуляции';
         } else {
             global $conn;
             $stmt = $conn->prepare("SELECT id, username, password, role, first_name, last_name FROM users WHERE username = ? OR email = ?");

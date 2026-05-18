@@ -27,8 +27,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_moderator'])) {
 
         if (empty($username) || empty($email) || empty($password)) {
             $error = 'Заполните обязательные поля';
-        } elseif (strlen($password) < 6) {
-            $error = 'Пароль должен быть не менее 6 символов';
+        } elseif (strlen($password) < 6 || preg_match('/[\s\t]/', $password)) {
+            $error = 'Пароль должен быть не менее 6 символов и не содержать пробелы и табуляцию';
         } else {
             $result = addUser($username, $email, $password, $first_name, $last_name, 'moderator');
             if ($result['success']) {

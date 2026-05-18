@@ -2486,31 +2486,11 @@ main {
     margin-top: var(--spacing-lg);
 }
 
-.edit-profile-actions #saveBtn,
+.edit-profile-actions #saveBtn.btn,
 .edit-profile-actions .btn-save {
-    background: var(--gradient-magic-primary);
-    color: var(--color-white);
+    /* Стили наследуются от базового класса .btn и .btn-primary */
     padding: var(--spacing-md) var(--spacing-xl);
-    border-radius: var(--radius-md);
-    font-weight: 600;
     font-size: 1.1rem;
-    border: none;
-    cursor: pointer;
-    box-shadow: var(--shadow-medium);
-    transition: all var(--transition-normal);
-}
-
-.edit-profile-actions #saveBtn:hover,
-.edit-profile-actions .btn-save:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--glow-purple);
-}
-
-.edit-profile-actions #saveBtn:disabled,
-.edit-profile-actions .btn-save:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
 }
 
 /* Адаптивность для трехколоночной раскладки */
@@ -2524,7 +2504,18 @@ main {
     }
 }
 
-@media (max-width: 768px) {
+/* Исправление адаптивности для экранов от 768px до 1115px - сохраняем 3 колонки */
+@media (min-width: 768px) and (max-width: 1115px) {
+    .edit-profile-layout {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .edit-profile-column:last-child {
+        grid-column: auto;
+    }
+}
+
+@media (max-width: 767px) {
     .edit-profile-layout {
         grid-template-columns: 1fr;
     }
@@ -2537,8 +2528,8 @@ main {
         justify-content: center;
     }
 
-    .edit-profile-actions .btn-save,
-    .edit-profile-actions #saveBtn {
+    .edit-profile-actions .btn.btn-primary,
+    .edit-profile-actions #saveBtn.btn {
         width: 100%;
         max-width: 300px;
     }
@@ -2557,16 +2548,13 @@ main {
     margin-right: auto;
 }
 
-.edit-profile-column {
+.edit-cab-layout .edit-profile-column {
     background: var(--gradient-card);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: var(--radius-lg);
     padding: var(--spacing-xl);
     box-shadow: var(--shadow-medium);
-}
-
-.edit-cab-layout .edit-profile-column {
     width: 100%;
 }
 
@@ -2610,8 +2598,8 @@ main {
         justify-content: center;
     }
 
-    .edit-profile-actions .btn-save,
-    .edit-profile-actions #saveBtn {
+    .edit-profile-actions .btn.btn-primary,
+    .edit-profile-actions #saveBtn.btn {
         width: 100%;
         max-width: 100%;
     }

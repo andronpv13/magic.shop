@@ -27,7 +27,7 @@ $message = $_GET['message'] ?? '';
     <div class="container">
         <div class="page-header">
             <h1 class="page-title">Мои товары</h1>
-            <a href="add_product_md.php" class="btn btn-primary">+ Добавить товар</a>
+            <a href="add_product_md.php" class="btn btn-outline">+ Добавить товар</a>
         </div>
 
         <?php if ($message): ?>

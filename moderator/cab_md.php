@@ -49,7 +49,7 @@ $current_user = getCurrentUser();
                 ?></span>
             </div>
         </div>
-        <a href="/moderator/edit_cab_md.php" class="btn btn-primary">Редактировать данные</a>
+        <a href="/moderator/edit_cab_md.php" class="btn btn-outline">Редактировать данные</a>
     </div>
     <a href="/moderator/index_md.php" class="back-link">← Назад</a>
 </div></section>

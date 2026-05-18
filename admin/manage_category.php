@@ -139,7 +139,7 @@ $page_title = 'Управление категориями';
                         <label for="new-category-name">Название:</label>
                         <input type="text" id="new-category-name" name="name" required>
                     </div>
-                    <button type="submit" class="btn btn-primary">Добавить категорию</button>
+                    <button type="submit" class="btn btn-outline">Добавить категорию</button>
                 </form>
             </div>
 

@@ -219,7 +219,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const validateConfirmPassword = () => {
         const pass = passwordInput.value;
         const confirm = confirmPasswordInput.value;
-        const isValid = confirm.length > 0 && pass === confirm;
+        // Проверка на наличие пробелов и tab в подтверждении пароля
+        const hasSpacesOrTab = /[\s\t]/.test(confirm);
+        const isValid = confirm.length > 0 && !hasSpacesOrTab && pass === confirm;
 
         validationState.confirm = isValid;
         setFieldStatus(confirmPasswordInput, isValid);
@@ -445,13 +447,50 @@ function initEditProfileValidation() {
         });
     }
 
+    // --- Валидация текущего пароля (AJAX проверка) ---
+    const validateCurrentPassword = debounce(async () => {
+        if (!currentPasswordInput) return;
+
+        const value = currentPasswordInput.value;
+
+        // Если поле пустое - не показываем ошибку (поле необязательное)
+        if (value.trim() === '') {
+            currentPasswordInput.classList.remove('success', 'error');
+            return;
+        }
+
+        // AJAX проверка текущего пароля
+        try {
+            const response = await fetch((window.apiBaseUrl || '../') + 'users/check_user.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: new URLSearchParams({ type: 'current_password', value: value })
+            });
+            const data = await response.json();
+
+            if (data.valid === true) {
+                setFieldStatus(currentPasswordInput, true);
+            } else {
+                setFieldStatus(currentPasswordInput, false);
+            }
+        } catch (e) {
+            setFieldStatus(currentPasswordInput, false);
+        }
+    }, 500);
+
     // --- Валидация пароля ---
     const validatePassword = () => {
         if (!passwordInput) return;
 
         const value = passwordInput.value;
 
-        if (value.length > 0 && value.length < 6) {
+        // Проверка на наличие пробелов и tab
+        if (/[\s\t]/.test(value)) {
+            validationState.password = false;
+            setFieldStatus(passwordInput, false);
+        } else if (value.length > 0 && value.length < 6) {
             validationState.password = false;
             setFieldStatus(passwordInput, false);
         } else if (value.length >= 6) {
@@ -477,7 +516,11 @@ function initEditProfileValidation() {
         const pass = passwordInput.value;
         const confirm = confirmInput.value;
 
-        if (confirm.length > 0 && pass !== confirm) {
+        // Проверка на наличие пробелов и tab в подтверждении пароля
+        if (/[\s\t]/.test(confirm)) {
+            validationState.confirm = false;
+            setFieldStatus(confirmInput, false);
+        } else if (confirm.length > 0 && pass !== confirm) {
             validationState.confirm = false;
             setFieldStatus(confirmInput, false);
         } else if (confirm.length > 0 && pass === confirm && pass.length >= 6) {
@@ -512,6 +555,7 @@ function initEditProfileValidation() {
     }
 
     if (currentPasswordInput) {
+        currentPasswordInput.addEventListener('input', validateCurrentPassword);
         initPasswordToggle('current_password');
     }
 

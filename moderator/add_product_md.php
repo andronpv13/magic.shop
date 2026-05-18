@@ -126,8 +126,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
 
                     <div class="form-actions">
-                        <button type="submit" class="btn btn-primary btn-block">Добавить товар</button>
-                        <a href="products_md.php" class="btn btn-outline btn-block">Отмена</a>
+                        <button type="submit" class="btn btn-outline">Добавить товар</button>
+                        <a href="products_md.php" class="btn btn-outline">Отмена</a>
                     </div>
                 </div>
             </div>
