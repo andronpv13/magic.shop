@@ -125,12 +125,8 @@ $page_title = 'Управление категориями';
 
 <section class="section">
     <div class="container">
-        <nav class="breadcrumbs">
-            <a href="/admin/products.php">Управление товарами</a>
-        </nav>
-
-        <h1 class="page-title">Управление категориями</h1>
-
+        <a href="/admin/products.php" class="btn btn-outline">Управление товарами</a>
+            <h1 class="page-title">Управление категориями</h1>
         <div class="category-management">
             <div class="add-category-form">
                 <form id="new-category-form">

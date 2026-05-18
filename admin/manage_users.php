@@ -163,7 +163,7 @@ $users = getAllUsers();
             <p class="empty-state">Пользователей не найдено</p>
         <?php endif; ?>
 
-        <a href="index.php" class="back-link">← Назад в панель</a>
+        <a href="index.php" class="btn btn-outline">← Назад в панель</a>
     </div>
 </section>
 

@@ -259,10 +259,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Инициализация валидации для страницы редактирования профиля (edit_profile.php и edit_cab.php)
+// Инициализация валидации для страницы редактирования профиля (edit_profile.php, edit_cab.php и edit_cab_md.php)
 function initEditProfileValidation() {
-    // Поддержка обеих форм: editProfileForm (пользователь) и editCabForm (администратор)
-    const form = document.getElementById('editProfileForm') || document.getElementById('editCabForm');
+    // Поддержка всех форм: editProfileForm (пользователь), editCabForm (администратор), editCabMdForm (модератор)
+    const form = document.getElementById('editProfileForm') || document.getElementById('editCabForm') || document.getElementById('editCabMdForm');
     const saveBtn = document.getElementById('saveBtn');
 
     if (!form) return;
@@ -447,7 +447,7 @@ function initEditProfileValidation() {
         });
     }
 
-    // --- Валидация текущего пароля (AJAX проверка) ---
+    // --- Валидация текущего пароля (AJAX проверка + проверка на пробелы/tab) ---
     const validateCurrentPassword = debounce(async () => {
         if (!currentPasswordInput) return;
 
@@ -456,6 +456,12 @@ function initEditProfileValidation() {
         // Если поле пустое - не показываем ошибку (поле необязательное)
         if (value.trim() === '') {
             currentPasswordInput.classList.remove('success', 'error');
+            return;
+        }
+
+        // Проверка на наличие пробелов и tab
+        if (/[\s\t]/.test(value)) {
+            setFieldStatus(currentPasswordInput, false);
             return;
         }
 
@@ -480,6 +486,56 @@ function initEditProfileValidation() {
         }
     }, 500);
 
+    // --- Функция проверки схожести паролей ---
+    function arePasswordsSimilar(newPass, currentPass) {
+        if (!newPass || !currentPass) return false;
+
+        // Нормализуем пароли (приводим к нижнему регистру)
+        const newLower = newPass.toLowerCase();
+        const currLower = currentPass.toLowerCase();
+
+        // Если пароли идентичны - это похоже
+        if (newLower === currLower) return true;
+
+        // Проверка: новый пароль содержит текущий как подстроку
+        if (currLower.length >= 4 && newLower.includes(currLower)) return true;
+
+        // Проверка: текущий пароль содержит новый как подстроку
+        if (newLower.length >= 4 && currLower.includes(newLower)) return true;
+
+        // Проверка по Levenshtein distance (расстояние редактирования)
+        // Если расстояние меньше 30% от длины более короткого пароля - считаем похожими
+        const len1 = newLower.length;
+        const len2 = currLower.length;
+        const minLen = Math.min(len1, len2);
+
+        if (minLen === 0) return false;
+
+        // Вычисляем расстояние Левенштейна
+        const matrix = [];
+        for (let i = 0; i <= len1; i++) {
+            matrix[i] = [i];
+        }
+        for (let j = 0; j <= len2; j++) {
+            matrix[0][j] = j;
+        }
+        for (let i = 1; i <= len1; i++) {
+            for (let j = 1; j <= len2; j++) {
+                const cost = newLower[i - 1] === currLower[j - 1] ? 0 : 1;
+                matrix[i][j] = Math.min(
+                    matrix[i - 1][j] + 1,      // удаление
+                    matrix[i][j - 1] + 1,      // вставка
+                    matrix[i - 1][j - 1] + cost // замена
+                );
+            }
+        }
+
+        const distance = matrix[len1][len2];
+        const threshold = Math.floor(minLen * 0.3); // 30% порог
+
+        return distance <= threshold && distance > 0;
+    }
+
     // --- Валидация пароля ---
     const validatePassword = () => {
         if (!passwordInput) return;
@@ -494,6 +550,14 @@ function initEditProfileValidation() {
             validationState.password = false;
             setFieldStatus(passwordInput, false);
         } else if (value.length >= 6) {
+            // Дополнительная проверка: если введен текущий пароль, проверяем схожесть
+            if (currentPasswordInput && currentPasswordInput.value.trim() !== '') {
+                if (arePasswordsSimilar(value, currentPasswordInput.value)) {
+                    validationState.password = false;
+                    setFieldStatus(passwordInput, false);
+                    return;
+                }
+            }
             validationState.password = true;
             setFieldStatus(passwordInput, true);
         } else {
@@ -568,3 +632,10 @@ if (typeof window.initEditProfileValidationExport !== 'function') {
     window.initEditProfileValidationExport = true;
     window.initEditProfileValidation = initEditProfileValidation;
 }
+
+// Автоматическая инициализация валидации для страниц редактирования профиля
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof window.initEditProfileValidation === 'function') {
+        window.initEditProfileValidation();
+    }
+});
