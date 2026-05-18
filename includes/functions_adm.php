@@ -481,19 +481,22 @@ function addUser($u, $e, $p, $fn, $ln, $r = 'moderator') {
     $s->bind_param("ss", $u, $e);
     $s->execute();
     if ($s->get_result()->num_rows > 0) {
-        return ['success' => false, 'message' => 'Занято'];
+        return ['success' => false, 'message' => 'Пользователь с таким логином или email уже существует'];
     }
     $h = password_hash($p, PASSWORD_DEFAULT);
     $s = $conn->prepare("INSERT INTO users (username, email, password, first_name, last_name, role) VALUES (?,?,?,?,?,?)");
     $s->bind_param("ssssss", $u, $e, $h, $fn, $ln, $r);
-    return ['success' => $s->execute()];
+    $success = $s->execute();
+    return ['success' => $success, 'message' => $success ? 'Модератор добавлен' : 'Ошибка при добавлении модератора'];
 }
 
 function deleteUser($id) {
     global $conn;
     $s = $conn->prepare("DELETE FROM users WHERE id = ? AND role != 'admin'");
     $s->bind_param("i", $id);
-    return ['success' => $s->execute() && $s->affected_rows > 0];
+    $success = $s->execute();
+    $affected = $s->affected_rows;
+    return ['success' => $success && $affected > 0, 'message' => ($success && $affected > 0) ? 'Пользователь удалён' : 'Ошибка при удалении пользователя'];
 }
 
 function resetUserPassword($id, $p) {
@@ -501,6 +504,7 @@ function resetUserPassword($id, $p) {
     $h = password_hash($p, PASSWORD_DEFAULT);
     $s = $conn->prepare("UPDATE users SET password = ? WHERE id = ?");
     $s->bind_param("si", $h, $id);
-    return ['success' => $s->execute()];
+    $success = $s->execute();
+    return ['success' => $success, 'message' => $success ? 'Пароль успешно изменён' : 'Ошибка при сбросе пароля'];
 }
 ?>

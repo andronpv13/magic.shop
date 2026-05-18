@@ -11,7 +11,26 @@ document.addEventListener('DOMContentLoaded', function() {
  * Инициализация обработчиков модальных окон
  */
 function initModalHandlers() {
-    // Кнопки открытия модальных окон
+    // Инициализация кнопок показа/скрытия пароля через глобальную функцию из validation.js
+    if (typeof window.initPasswordToggle === 'function') {
+        // Для модального окна добавления модератора
+        window.initPasswordToggle('password');
+        // Для модального окна сброса пароля
+        window.initPasswordToggle('new_password');
+    }
+
+    // Кнопка открытия модального окна добавления модератора
+    const addModeratorBtn = document.getElementById('addModeratorBtn');
+    if (addModeratorBtn) {
+        addModeratorBtn.addEventListener('click', function() {
+            const modal = document.getElementById('addModeratorModal');
+            if (modal) {
+                modal.style.display = 'block';
+            }
+        });
+    }
+
+    // Кнопки открытия модальных окон через data-атрибуты
     const openButtons = document.querySelectorAll('[data-modal-open]');
     openButtons.forEach(btn => {
         btn.addEventListener('click', function() {
@@ -64,28 +83,6 @@ function openAddModeratorModal() {
     const modal = document.getElementById('addModeratorModal');
     if (modal) {
         modal.style.display = 'block';
-    }
-}
-
-/**
- * Открытие модального окна сброса пароля
- * @param {string} userId - ID пользователя
- * @param {string} userName - Имя пользователя
- */
-function openResetPasswordModal(userId, userName) {
-    const modal = document.getElementById('resetPasswordModal');
-    if (modal) {
-        modal.style.display = 'block';
-
-        const userIdInput = document.getElementById('reset_user_id');
-        if (userIdInput) {
-            userIdInput.value = userId;
-        }
-
-        const userNameDisplay = document.getElementById('reset_username_display');
-        if (userNameDisplay && userName) {
-            userNameDisplay.textContent = userName;
-        }
     }
 }
 

@@ -13,6 +13,14 @@ requireAdmin();
 $success = '';
 $error = '';
 
+// Проверка параметров URL для отображения сообщений
+if (isset($_GET['success'])) {
+    $success = 'Операция успешно выполнена';
+}
+if (isset($_GET['error'])) {
+    $error = 'Произошла ошибка при выполнении операции';
+}
+
 // Добавление модератора
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_moderator'])) {
     // Проверка CSRF
@@ -33,6 +41,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_moderator'])) {
             $result = addUser($username, $email, $password, $first_name, $last_name, 'moderator');
             if ($result['success']) {
                 $success = $result['message'];
+                // Перенаправление для предотвращения повторной отправки формы
+                header('Location: manage_users.php?success=1');
+                exit;
             } else {
                 $error = $result['message'];
             }
@@ -54,7 +65,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_user'])) {
         } else {
             $result = deleteUser($user_id);
             if ($result['success']) {
-                $success = $result['message'];
+                // Перенаправление для предотвращения повторной отправки формы
+                header('Location: manage_users.php?success=1');
+                exit;
             } else {
                 $error = $result['message'];
             }
@@ -79,6 +92,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reset_password'])) {
             $result = resetUserPassword($user_id, $new_password);
             if ($result['success']) {
                 $success = $result['message'];
+                // Перенаправление для предотвращения повторной отправки формы
+                header('Location: manage_users.php?success=1');
+                exit;
             } else {
                 $error = $result['message'];
             }
@@ -93,7 +109,7 @@ $users = getAllUsers();
     <div class="container">
         <div class="page-header">
             <h1 class="page-title">Управление пользователями</h1>
-            <button class="btn btn-outline" onclick="document.getElementById('addModeratorModal').style.display='block'">
+            <button class="btn btn-outline" id="addModeratorBtn">
                 + Добавить модератора
             </button>
         </div>
@@ -139,8 +155,10 @@ $users = getAllUsers();
                                 <td data-label="Действия">
                                     <div class="table-actions">
                                         <?php if ($user['id'] != $_SESSION['user_id']): ?>
-                                            <button class="btn btn-outline"
-                                                    onclick="document.getElementById('resetPasswordModal').style.display='block'; document.getElementById('reset_user_id').value=<?php echo $user['id']; ?>">
+                                            <button class="btn btn-outline reset-password-btn"
+                                                    data-modal-open="resetPasswordModal"
+                                                    data-user-id="<?php echo $user['id']; ?>"
+                                                    data-user-name="<?php echo e($user['username']); ?>">
                                                 🔑
                                             </button>
                                             <form method="POST" class="form-inline"
@@ -168,7 +186,7 @@ $users = getAllUsers();
 </section>
 
 <!-- Модальное окно: Добавить модератора -->
-<div id="addModeratorModal" class="modal" onclick="if(event.target===this)this.style.display='none'">
+<div id="addModeratorModal" class="modal">
     <div class="modal-content">
         <h2>Добавить модератора</h2>
         <form method="POST">
@@ -184,7 +202,10 @@ $users = getAllUsers();
             </div>
             <div class="form-group">
                 <label for="password">Пароль: * (мин. 6 символов)</label>
-                <input type="password" id="password" name="password" required minlength="6">
+                <div class="password-wrapper">
+                    <input type="password" id="password" name="password" required minlength="6" class="form-control">
+                    <button type="button" class="password-toggle" data-tooltip="Показать пароль"></button>
+                </div>
             </div>
             <div class="form-group">
                 <label for="first_name">Имя:</label>
@@ -196,14 +217,14 @@ $users = getAllUsers();
             </div>
             <div class="modal-actions">
                 <button type="submit" name="add_moderator" class="btn btn-outline">Добавить</button>
-                <button type="button" class="btn btn-outline" onclick="this.closest('.modal').style.display='none'">Отмена</button>
+                <button type="button" class="btn btn-outline" data-modal-close>Отмена</button>
             </div>
         </form>
     </div>
 </div>
 
 <!-- Модальное окно: Сброс пароля -->
-<div id="resetPasswordModal" class="modal" onclick="if(event.target===this)this.style.display='none'">
+<div id="resetPasswordModal" class="modal">
     <div class="modal-content">
         <h2>Сброс пароля</h2>
         <form method="POST">
@@ -212,11 +233,14 @@ $users = getAllUsers();
             <input type="hidden" name="user_id" id="reset_user_id">
             <div class="form-group">
                 <label for="new_password">Новый пароль: * (мин. 6 символов)</label>
-                <input type="password" id="new_password" name="new_password" required minlength="6">
+                <div class="password-wrapper">
+                    <input type="password" id="new_password" name="new_password" required minlength="6" class="form-control">
+                    <button type="button" class="password-toggle" data-tooltip="Показать пароль"></button>
+                </div>
             </div>
             <div class="modal-actions">
                 <button type="submit" name="reset_password" class="btn btn-outline">Сбросить</button>
-                <button type="button" class="btn btn-outline" onclick="this.closest('.modal').style.display='none'">Отмена</button>
+                <button type="button" class="btn btn-outline" data-modal-close>Отмена</button>
             </div>
         </form>
     </div>

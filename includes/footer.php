@@ -33,5 +33,17 @@ $admin_info = getAdminContactInfo();
 <script src="/js/basket.js"></script>
 <script src="/js/detail.js"></script>
 <script src="/js/validation.js"></script>
+<?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+    <?php
+    $current_page = basename($_SERVER['PHP_SELF'], '.php');
+    if ($current_page === 'manage_users') {
+        echo '<script src="/js/admin/users.js"></script>';
+    } elseif ($current_page === 'settings') {
+        echo '<script src="/js/admin/settings.js"></script>';
+    } elseif ($current_page === 'manage_category') {
+        echo '<script src="/js/admin/categories.js"></script>';
+    }
+    ?>
+<?php endif; ?>
 </body>
 </html>
