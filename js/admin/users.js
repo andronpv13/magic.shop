@@ -5,6 +5,10 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     initModalHandlers();
+    // Используем глобальную функцию из validation.js
+    if (typeof window.initAddModeratorValidation === 'function') {
+        window.initAddModeratorValidation();
+    }
 });
 
 /**
@@ -14,7 +18,7 @@ function initModalHandlers() {
     // Инициализация кнопок показа/скрытия пароля через глобальную функцию из validation.js
     if (typeof window.initPasswordToggle === 'function') {
         // Для модального окна добавления модератора
-        window.initPasswordToggle('password');
+        window.initPasswordToggle('mod_password');
         // Для модального окна сброса пароля
         window.initPasswordToggle('new_password');
     }

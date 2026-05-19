@@ -29,7 +29,7 @@ if ($product_id) {
                     <input type="number" class="quantity-input" data-product-id="<?php echo $product['id']; ?>" value="1" min="1" max="99">
                     <button class="quantity-btn increase" data-product-id="<?php echo $product['id']; ?>">+</button>
                 </div>
-                <button class="btn btn-outline" data-product-id="<?php echo $product['id']; ?>" data-quantity="1">В корзину</button>
+                <button class="add-to-basket btn" data-product-id="<?php echo $product['id']; ?>" data-quantity="1">В корзину</button>
             </div>
         </div>
     </div>

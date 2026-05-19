@@ -260,9 +260,9 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Инициализация валидации для страницы редактирования профиля (edit_profile.php, edit_cab.php и edit_cab_md.php)
-function initEditProfileValidation() {
+function initEditProfileValidation(formId = 'editProfileForm') {
     // Поддержка всех форм: editProfileForm (пользователь), editCabForm (администратор), editCabMdForm (модератор)
-    const form = document.getElementById('editProfileForm') || document.getElementById('editCabForm') || document.getElementById('editCabMdForm');
+    const form = document.getElementById(formId) || document.getElementById('editProfileForm') || document.getElementById('editCabForm') || document.getElementById('editCabMdForm');
     const saveBtn = document.getElementById('saveBtn');
 
     if (!form) return;
@@ -631,6 +631,213 @@ function initEditProfileValidation() {
 if (typeof window.initEditProfileValidationExport !== 'function') {
     window.initEditProfileValidationExport = true;
     window.initEditProfileValidation = initEditProfileValidation;
+}
+
+/**
+ * Универсальная функция валидации для формы добавления модератора
+ * @param {string} formId - ID формы (по умолчанию 'addModeratorForm')
+ * @param {Object} options - Опции валидации
+ */
+function initAddModeratorValidation(formId = 'addModeratorForm', options = {}) {
+    const form = document.getElementById(formId);
+    if (!form) return;
+
+    const usernameInput = document.getElementById(options.usernameField || 'mod_username');
+    const emailInput = document.getElementById(options.emailField || 'mod_email');
+    const passwordInput = document.getElementById(options.passwordField || 'mod_password');
+    const submitBtn = document.getElementById(options.submitBtn || 'modSubmitBtn');
+
+    let validationState = {
+        username: false,
+        email: false,
+        password: false
+    };
+
+    // Debounce для AJAX запросов
+    function debounce(func, delay) {
+        let timeout;
+        return function (...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), delay);
+        };
+    }
+
+    // Обновление состояния кнопки отправки
+    function updateSubmitButton() {
+        const isValid = Object.values(validationState).every(Boolean);
+        if (submitBtn) {
+            submitBtn.disabled = !isValid;
+        }
+    }
+
+    // Установка статуса валидации для поля
+    function setFieldStatus(inputElement, isValid, message = '') {
+        if (!inputElement) return;
+
+        inputElement.classList.remove('error', 'success');
+
+        if (isValid && inputElement.value.trim() !== '') {
+            inputElement.classList.add('success');
+        } else if (!isValid && inputElement.value.trim() !== '') {
+            inputElement.classList.add('error');
+        }
+
+        // Отображение подсказки
+        const hintElement = inputElement.parentElement.querySelector('.form-hint');
+        if (hintElement) {
+            hintElement.textContent = message;
+            hintElement.className = 'form-hint ' + (isValid ? 'success' : 'error');
+        }
+    }
+
+    // Валидация логина
+    const validateUsername = debounce(async () => {
+        if (!usernameInput) return;
+
+        const value = usernameInput.value.trim();
+        const regex = /^[a-zA-Zа-яА-ЯёЁ]{4,10}$/;
+
+        if (value.length === 0) {
+            validationState.username = false;
+            setFieldStatus(usernameInput, false, '');
+            updateSubmitButton();
+            return;
+        }
+
+        if (!regex.test(value)) {
+            validationState.username = false;
+            setFieldStatus(usernameInput, false, 'Логин должен содержать 4-10 букв (кириллица или латиница)');
+            updateSubmitButton();
+            return;
+        }
+
+        // AJAX проверка уникальности
+        try {
+            const response = await fetch((window.apiBaseUrl || '../') + 'users/check_user.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: new URLSearchParams({ type: 'username', value: value })
+            });
+            const data = await response.json();
+
+            if (data.available === true) {
+                validationState.username = true;
+                setFieldStatus(usernameInput, true, 'Логин свободен');
+            } else {
+                validationState.username = false;
+                setFieldStatus(usernameInput, false, 'Этот логин уже занят');
+            }
+        } catch (e) {
+            validationState.username = false;
+            setFieldStatus(usernameInput, false, 'Ошибка проверки логина');
+        }
+        updateSubmitButton();
+    }, 500);
+
+    // Валидация Email
+    const validateEmail = debounce(async () => {
+        if (!emailInput) return;
+
+        const value = emailInput.value.trim();
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (value.length === 0) {
+            validationState.email = false;
+            setFieldStatus(emailInput, false, '');
+            updateSubmitButton();
+            return;
+        }
+
+        if (!regex.test(value)) {
+            validationState.email = false;
+            setFieldStatus(emailInput, false, 'Некорректный формат email');
+            updateSubmitButton();
+            return;
+        }
+
+        // AJAX проверка уникальности
+        try {
+            const response = await fetch((window.apiBaseUrl || '../') + 'users/check_user.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: new URLSearchParams({ type: 'email', value: value })
+            });
+            const data = await response.json();
+
+            if (data.available === true) {
+                validationState.email = true;
+                setFieldStatus(emailInput, true, 'Email свободен');
+            } else {
+                validationState.email = false;
+                setFieldStatus(emailInput, false, 'Этот email уже зарегистрирован');
+            }
+        } catch (e) {
+            validationState.email = false;
+            setFieldStatus(emailInput, false, 'Ошибка проверки email');
+        }
+        updateSubmitButton();
+    }, 500);
+
+    // Валидация пароля
+    const validatePassword = () => {
+        if (!passwordInput) return;
+
+        const value = passwordInput.value;
+        const hasSpacesOrTab = /[\s\t]/.test(value);
+
+        if (value.length === 0) {
+            validationState.password = false;
+            setFieldStatus(passwordInput, false, '');
+            updateSubmitButton();
+            return;
+        }
+
+        if (hasSpacesOrTab) {
+            validationState.password = false;
+            setFieldStatus(passwordInput, false, 'Пароль не должен содержать пробелы и табуляцию');
+            updateSubmitButton();
+            return;
+        }
+
+        if (value.length < 6) {
+            validationState.password = false;
+            setFieldStatus(passwordInput, false, 'Пароль должен быть не менее 6 символов');
+            updateSubmitButton();
+            return;
+        }
+
+        validationState.password = true;
+        setFieldStatus(passwordInput, true, 'Пароль соответствует требованиям');
+        updateSubmitButton();
+    };
+
+    // Инициализация слушателей
+    if (usernameInput) {
+        usernameInput.addEventListener('input', validateUsername);
+        usernameInput.addEventListener('blur', validateUsername);
+    }
+
+    if (emailInput) {
+        emailInput.addEventListener('input', validateEmail);
+        emailInput.addEventListener('blur', validateEmail);
+    }
+
+    if (passwordInput) {
+        passwordInput.addEventListener('input', validatePassword);
+    }
+
+    // Блокируем кнопку изначально
+    updateSubmitButton();
+}
+
+// Экспортируем функцию глобально
+if (typeof window.initAddModeratorValidationExport !== 'function') {
+    window.initAddModeratorValidationExport = true;
+    window.initAddModeratorValidation = initAddModeratorValidation;
 }
 
 // Автоматическая инициализация валидации для страниц редактирования профиля

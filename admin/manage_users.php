@@ -33,8 +33,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_moderator'])) {
         $first_name = trim($_POST['first_name'] ?? '');
         $last_name = trim($_POST['last_name'] ?? '');
 
+        // Валидация на стороне сервера
         if (empty($username) || empty($email) || empty($password)) {
             $error = 'Заполните обязательные поля';
+        } elseif (strlen($username) < 4 || strlen($username) > 10 || !preg_match('/^[a-zA-Zа-яА-ЯёЁ]+$/', $username)) {
+            $error = 'Логин должен содержать от 4 до 10 букв (кириллица или латиница)';
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $error = 'Некорректный формат email';
         } elseif (strlen($password) < 6 || preg_match('/[\s\t]/', $password)) {
             $error = 'Пароль должен быть не менее 6 символов и не содержать пробелы и табуляцию';
         } else {
@@ -189,34 +194,41 @@ $users = getAllUsers();
 <div id="addModeratorModal" class="modal">
     <div class="modal-content">
         <h2>Добавить модератора</h2>
-        <form method="POST">
+        <form method="POST" id="addModeratorForm">
             <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
 
             <div class="form-group">
-                <label for="username">Логин: *</label>
-                <input type="text" id="username" name="username" required>
-            </div>
-            <div class="form-group">
-                <label for="email">Email: *</label>
-                <input type="email" id="email" name="email" required>
-            </div>
-            <div class="form-group">
-                <label for="password">Пароль: * (мин. 6 символов)</label>
+                <label for="mod_username">Логин: *</label>
                 <div class="password-wrapper">
-                    <input type="password" id="password" name="password" required minlength="6" class="form-control">
+                    <input type="text" id="mod_username" name="username" required class="form-control" minlength="4">
+                </div>
+                <span class="form-hint" id="mod_username_hint"></span>
+            </div>
+            <div class="form-group">
+                <label for="mod_email">Email: *</label>
+                <div class="password-wrapper">
+                    <input type="email" id="mod_email" name="email" required class="form-control">
+                </div>
+                <span class="form-hint" id="mod_email_hint"></span>
+            </div>
+            <div class="form-group">
+                <label for="mod_password">Пароль: * (мин. 6 символов, без пробелов)</label>
+                <div class="password-wrapper">
+                    <input type="password" id="mod_password" name="password" required minlength="6" class="form-control">
                     <button type="button" class="password-toggle" data-tooltip="Показать пароль"></button>
                 </div>
+                <span class="form-hint" id="mod_password_hint"></span>
             </div>
             <div class="form-group">
-                <label for="first_name">Имя:</label>
-                <input type="text" id="first_name" name="first_name">
+                <label for="mod_first_name">Имя:</label>
+                <input type="text" id="mod_first_name" name="first_name" class="form-control">
             </div>
             <div class="form-group">
-                <label for="last_name">Фамилия:</label>
-                <input type="text" id="last_name" name="last_name">
+                <label for="mod_last_name">Фамилия:</label>
+                <input type="text" id="mod_last_name" name="last_name" class="form-control">
             </div>
             <div class="modal-actions">
-                <button type="submit" name="add_moderator" class="btn btn-outline">Добавить</button>
+                <button type="submit" name="add_moderator" class="btn btn-outline" id="modSubmitBtn" disabled>Добавить</button>
                 <button type="button" class="btn btn-outline" data-modal-close>Отмена</button>
             </div>
         </form>
