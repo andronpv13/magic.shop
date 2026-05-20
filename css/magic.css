@@ -1003,6 +1003,44 @@ main {
     margin-top: var(--spacing-sm);
 }
 
+/* Стили для кнопок редактирования отзыва */
+.btn-save-review {
+    background: var(--gradient-magic-secondary);
+    color: var(--color-white);
+    box-shadow: var(--shadow-medium), var(--glow-emerald);
+    border: none;
+}
+
+.btn-save-review:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 20px var(--color-emerald), 0 0 40px var(--color-emerald-light);
+}
+
+.btn-cancel-edit {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--color-lavender);
+    border: 1px solid rgba(157, 78, 221, 0.3);
+    box-shadow: var(--shadow-soft);
+}
+
+.btn-cancel-edit:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: var(--color-purple-bright);
+    transform: translateY(-2px);
+}
+
+.btn-edit-review {
+    background: var(--gradient-magic-secondary);
+    color: var(--color-white);
+    box-shadow: var(--shadow-medium), var(--glow-emerald);
+    border: none;
+}
+
+.btn-edit-review:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 20px var(--color-emerald), 0 0 40px var(--color-emerald-light);
+}
+
 .review-display-content {
     width: 100%;
 }

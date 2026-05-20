@@ -30,17 +30,6 @@ if (isset($_GET['action']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         exit;
     }
-
-    if ($action === 'delete_review') {
-        $review_id = (int)($_POST['review_id'] ?? 0);
-
-        if (deleteReview($review_id, $_SESSION['user_id'])) {
-            echo json_encode(['success' => true, 'message' => 'Отзыв удален']);
-        } else {
-            echo json_encode(['success' => false, 'message' => 'Ошибка удаления отзыва']);
-        }
-        exit;
-    }
 }
 
 $purchased = getPurchasedProducts($_SESSION['user_id']);
@@ -147,9 +136,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_GET['action'])) {
                             data-id="<?php echo $review['id']; ?>">
                         ✏️ Редактировать
                     </button>
-                    <button class="btn btn-sm btn-delete-review" data-id="<?php echo $review['id']; ?>">
-                        🗑️ Удалить
-                    </button>
                 </div>
             </div>
         </div>
@@ -157,18 +143,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_GET['action'])) {
     </div>
     <?php endif; ?>
 </div></section>
-
-<!-- Модальное окно подтверждения удаления -->
-<div id="deleteReviewModal" class="modal" style="display: none;">
-    <div class="modal-content">
-        <h3>Удаление отзыва</h3>
-        <p>Вы уверены, что хотите удалить этот отзыв?</p>
-        <div class="modal-actions">
-            <button class="btn btn-sm btn-confirm-delete">Да, удалить</button>
-            <button class="btn btn-sm btn-cancel-delete">Отмена</button>
-        </div>
-    </div>
-</div>
 
 <script src="/js/review.js"></script>
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>
