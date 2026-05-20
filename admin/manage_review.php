@@ -181,10 +181,10 @@ $message = $_GET['message'] ?? $message ?? '';
 
                     <div class="form-group">
                         <label for="edit_comment">Отзыв:</label>
-                        <textarea width=100% name="comment" id="edit_comment" rows="3" required></textarea>
+                        <textarea name="comment" id="edit_comment" style="width: 100%;" rows="3" required></textarea>
                     </div>
 
-                    <div class="modal-footer">
+                    <div class="modal-footer" align="center">
                         <button type="submit" class="btn btn-primary">Сохранить</button>
                         <button type="button" class="btn btn-secondary" data-modal-close="edit-review">Отмена</button>
                     </div>
