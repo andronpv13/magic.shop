@@ -1,4 +1,26 @@
 /**
+ * Получить CSRF-токен из формы
+ * @returns {string|null} CSRF-токен или null, если не найден
+ */
+function getCsrfToken() {
+    const tokenInput = document.querySelector('input[name="csrf_token"]');
+    if (!tokenInput || !tokenInput.value) {
+        console.error('CSRF-токен не найден. Возможно, истекла сессия.');
+        return null;
+    }
+    return tokenInput.value;
+}
+
+/**
+ * Показать сообщение об ошибке
+ * @param {string} message - Текст сообщения
+ */
+function showErrorMessage(message) {
+    alert(message);
+    console.error(message);
+}
+
+/**
  * Скрипт управления отзывами (админ-панель)
  * Волшебная ЛАВКА © 2025
  */
@@ -97,6 +119,13 @@ function hideEditForm() {
  * @param {HTMLFormElement} form - Форма редактирования
  */
 function submitEditForm(form) {
+    // Проверка CSRF-токена перед отправкой
+    const csrfToken = getCsrfToken();
+    if (!csrfToken) {
+        showErrorMessage('Ошибка безопасности: CSRF-токен не найден. Пожалуйста, обновите страницу и попробуйте снова.');
+        return;
+    }
+
     const formData = new FormData(form);
 
     fetch('/admin/manage_review.php', {
@@ -119,9 +148,16 @@ function submitEditForm(form) {
  * @param {string} reviewId - ID отзыва
  */
 function approveReview(reviewId) {
+    // Проверка CSRF-токена перед отправкой
+    const csrfToken = getCsrfToken();
+    if (!csrfToken) {
+        showErrorMessage('Ошибка безопасности: CSRF-токен не найден. Пожалуйста, обновите страницу и попробуйте снова.');
+        return;
+    }
+
     const formData = new FormData();
     formData.append('approve_review', reviewId);
-    formData.append('csrf_token', document.querySelector('input[name="csrf_token"]')?.value || '');
+    formData.append('csrf_token', csrfToken);
 
     fetch('/admin/manage_review.php', {
         method: 'POST',
@@ -143,9 +179,16 @@ function approveReview(reviewId) {
  * @param {string} reviewId - ID отзыва
  */
 function deleteReview(reviewId) {
+    // Проверка CSRF-токена перед отправкой
+    const csrfToken = getCsrfToken();
+    if (!csrfToken) {
+        showErrorMessage('Ошибка безопасности: CSRF-токен не найден. Пожалуйста, обновите страницу и попробуйте снова.');
+        return;
+    }
+
     const formData = new FormData();
     formData.append('delete_review', reviewId);
-    formData.append('csrf_token', document.querySelector('input[name="csrf_token"]')?.value || '');
+    formData.append('csrf_token', csrfToken);
 
     fetch('/admin/manage_review.php', {
         method: 'POST',

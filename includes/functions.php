@@ -366,6 +366,34 @@ function getPurchasedProducts($user_id) {
     return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 }
 
+// ✅ ДОБАВЛЕНО: Получение отзывов пользователя
+function getReviewsByUser($user_id) {
+    global $conn;
+    $stmt = $conn->prepare("SELECT r.*, p.name as product_name, p.image as product_image FROM reviews r
+                            JOIN products p ON r.product_id = p.id
+                            WHERE r.user_id = ?
+                            ORDER BY r.created_at DESC");
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+}
+
+// ✅ ДОБАВЛЕНО: Обновление отзыва пользователя
+function updateReview($review_id, $user_id, $rating, $comment) {
+    global $conn;
+    $stmt = $conn->prepare("UPDATE reviews SET rating = ?, comment = ? WHERE id = ? AND user_id = ?");
+    $stmt->bind_param("isii", $rating, $comment, $review_id, $user_id);
+    return $stmt->execute();
+}
+
+// ✅ ДОБАВЛЕНО: Удаление отзыва пользователя
+function deleteReview($review_id, $user_id) {
+    global $conn;
+    $stmt = $conn->prepare("DELETE FROM reviews WHERE id = ? AND user_id = ?");
+    $stmt->bind_param("ii", $review_id, $user_id);
+    return $stmt->execute();
+}
+
 // === Корзина ===
 function addToBasket($product_id, $quantity) {
     $product = getProductById($product_id);
