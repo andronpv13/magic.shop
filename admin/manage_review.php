@@ -162,14 +162,13 @@ $message = $_GET['message'] ?? $message ?? '';
             <div class="modal-content">
                 <div class="modal-header">
                     <h2>Редактирование отзыва</h2>
-                    <button type="button" class="modal-close" data-modal-close="edit-review">&times;</button>
                 </div>
                 <form method="POST" id="editReviewForm">
                     <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
                     <input type="hidden" name="update_review" value="1">
                     <input type="hidden" name="review_id" id="edit_review_id">
 
-                    <div class="form-group">
+                    <div align="right" class="form-group">
                         <label for="edit_rating">Оценка:</label>
                         <select name="rating" id="edit_rating" required>
                             <option value="1">1 ⭐</option>
@@ -181,8 +180,8 @@ $message = $_GET['message'] ?? $message ?? '';
                     </div>
 
                     <div class="form-group">
-                        <label for="edit_comment">Комментарий:</label>
-                        <textarea name="comment" id="edit_comment" rows="4" required></textarea>
+                        <label for="edit_comment">Отзыв:</label>
+                        <textarea width=100% name="comment" id="edit_comment" rows="3" required></textarea>
                     </div>
 
                     <div class="modal-footer">
