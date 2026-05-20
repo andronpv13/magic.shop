@@ -1,60 +1,96 @@
 <?php
-require_once __DIR__ . '/includes/header.php';
-?>
-<section class="hero">
-<div class="hero-content">
-    <h1>Добро пожаловать в Волшебную ЛАВКУ</h1>
-    <p>Откройте для себя удивительный мир магических товаров</p>
-    <a href="/shop.php" class="btn btn-outline">Перейти в каталог</a>
-</div>
-</section>
+/**
+ * magic.shop — Главная страница
+ */
 
-<section class="new-products">
-<h2>Наши новинки</h2>
-<div class="products-slider">
-<?php
-$stmt = $conn->prepare("SELECT p.*, u.username as creator_name FROM products p LEFT JOIN users u ON p.created_by = u.id WHERE p.active = 1 ORDER BY p.created_at DESC LIMIT 3");
+// 🔗 Подключение ядра
+require_once __DIR__ . '/includes/config.php';
+
+// 📊 Получение новинок для слайдера
+$news = [];
+$stmt = $conn->prepare("SELECT id, name, price, image, description FROM products WHERE is_new = 1 AND active = 1 AND stock > 0 ORDER BY created_at DESC LIMIT 6");
 $stmt->execute();
-$products = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-foreach ($products as $product):
-    $imagePath = !empty($product['image']) ? 'product/' . $product['image'] : 'no_photo.png';
-?>
-<div class="product-card">
-    <img src="<?php echo getProductImage($product['image']); ?>" alt="<?php echo e($product['name']); ?>">
-    <div class="card-content">
-        <h3><?php echo e($product['name']); ?></h3>
-        <p class="price"><?php echo number_format($product['price'], 0, '', ' '); ?> ₽</p>
-        <div class="btn-container">
-            <a href="/shop.php?id=<?php echo $product['id']; ?>" class="btn btn-outline">Подробнее</a>
-        </div>
-    </div>
-</div>
-<?php endforeach; ?>
-</div>
-</section>
+$news = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$stmt->close();
 
-<section class="recent-reviews">
-<h2>Последние отзывы</h2>
-<div class="reviews-grid">
-<?php
-$stmt = $conn->prepare("SELECT r.*, u.username, p.name as product_name FROM reviews r JOIN users u ON r.user_id = u.id JOIN products p ON r.product_id = p.id WHERE r.is_approved = 1 ORDER BY r.created_at DESC LIMIT 5");
+// 🗣️ Получение последних одобренных отзывов
+$reviews = [];
+$stmt = $conn->prepare("SELECT r.rating, r.text, r.created_at, u.username, p.name as product_name, p.id as product_id 
+                        FROM reviews r 
+                        JOIN users u ON r.user_id = u.id 
+                        JOIN products p ON r.product_id = p.id 
+                        WHERE r.is_approved = 1 
+                        ORDER BY r.created_at DESC LIMIT 4");
 $stmt->execute();
 $reviews = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-foreach ($reviews as $review):
+$stmt->close();
+
+// 🎨 Мета-данные страницы
+$page_title = 'Главная';
+$breadcrumbs = [['title' => 'Главная', 'url' => '']];
+require_once INCLUDES_PATH . '/header.php';
 ?>
-<div class="review-card">
-    <div class="review-header">
-        <h4>Товар:  <?php echo e($review['product_name']); ?></h4>
-        <div class="rating">
-        <?php for ($i = 1; $i <= 5; $i++): ?>
-            <span class="star <?php if ($i <= $review['rating']) echo 'filled'; ?>">★</span>
-        <?php endfor; ?>
+
+<!-- 🎠 Слайдер новинок -->
+<?php if (!empty($news)): ?>
+<section class="hero-slider">
+    <div class="container">
+        <h2>✨ Новинки сезона</h2>
+        <div class="slider-grid">
+            <?php foreach ($news as $item): ?>
+                <article class="product-card">
+                    <a href="<?= site_url('shop.php?product=' . (int)$item['id']) ?>">
+                        <img src="<?= $item['image'] ? site_url('images/product/' . e($item['image'])) : site_url('images/no_photo.png') ?>" 
+                             alt="<?= e($item['name']) ?>" 
+                             loading="lazy">
+                        <h3><?= e($item['name']) ?></h3>
+                        <p class="price"><?= number_format($item['price'], 0, '.', ' ') ?> ₽</p>
+                    </a>
+                    <?php if (isLoggedIn()): ?>
+                        <button class="btn btn-sm btn-add" 
+                                data-product-id="<?= (int)$item['id'] ?>"
+                                data-csrf="<?= $_SESSION['csrf_token'] ?>">
+                            В корзину
+                        </button>
+                    <?php else: ?>
+                        <a href="<?= site_url('login.php') ?>" class="btn btn-sm">Войти для покупки</a>
+                    <?php endif; ?>
+                </article>
+            <?php endforeach; ?>
         </div>
     </div>
-    <p class="review-text"><?php echo e($review['comment']); ?></p>
-    <p class="review-author">Покупатель:  <?php echo e($review['username']); ?></p>
-</div>
-<?php endforeach; ?>
-</div>
 </section>
-<?php require_once __DIR__ . '/includes/footer.php'; ?>
+<?php endif; ?>
+
+<!-- 🗣️ Отзывы покупателей -->
+<section class="reviews-section">
+    <div class="container">
+        <h2>💬 Отзывы наших клиентов</h2>
+        <?php if (!empty($reviews)): ?>
+            <div class="reviews-grid">
+                <?php foreach ($reviews as $rev): ?>
+                    <div class="review-card">
+                        <div class="review-header">
+                            <strong><?= e($rev['username']) ?></strong>
+                            <span class="rating"><?= str_repeat('⭐', (int)$rev['rating']) ?></span>
+                        </div>
+                        <p class="review-product">
+                            на товар: <a href="<?= site_url('shop.php?product=' . (int)$rev['product_id']) ?>">
+                                <?= e($rev['product_name']) ?>
+                            </a>
+                        </p>
+                        <p class="review-text"><?= e($rev['text']) ?></p>
+                        <time class="review-date"><?= date('d.m.Y', strtotime($rev['created_at'])) ?></time>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+            <p class="text-center">
+                <a href="<?= site_url('shop.php') ?>" class="btn">Смотреть все товары →</a>
+            </p>
+        <?php else: ?>
+            <p class="text-center">Пока нет отзывов. Будьте первым!</p>
+        <?php endif; ?>
+    </div>
+</section>
+
+<?php require_once INCLUDES_PATH . '/footer.php'; ?>

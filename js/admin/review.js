@@ -23,10 +23,21 @@ function showErrorMessage(message) {
 /**
  * Скрипт управления отзывами (админ-панель)
  * Волшебная ЛАВКА © 2025
+ *
+ * Этот файл содержит функции для администраторов и пользователей.
+ * - initReviewHandlers() - инициализирует обработчики для админ-панели (только admin роль)
+ * - initUserReviewHandlers() - инициализирует обработчики для пользовательской страницы review.php (user/moderator роли)
  */
 
+// Инициализация только если это админ-страница (проверка по наличию модального окна editReviewModal)
 document.addEventListener('DOMContentLoaded', function() {
-    initReviewHandlers();
+    const adminModal = document.getElementById('editReviewModal');
+    if (adminModal) {
+        // Это админ-страница, запускаем админские обработчики
+        initReviewHandlers();
+    }
+    // Для пользовательской страницы review.php используется отдельный вызов initUserReviewHandlers()
+    // который подключается через footer.php только для не-admin пользователей
 });
 
 /**
@@ -220,4 +231,119 @@ function openEditReviewModal(reviewId, rating, comment) {
  */
 function closeEditReviewModal() {
     hideEditForm();
+}
+
+/**
+ * Инициализация обработчиков отзывов для пользовательской страницы review.php
+ * Эта функция вызывается только для обычных пользователей и модераторов (не админов)
+ * Использует те же базовые функции (getCsrfToken, showErrorMessage), что и админ-скрипт
+ */
+function initUserReviewHandlers() {
+    // Проверка: не запускать, если уже инициализировано или если это админ-страница
+    if (window.userReviewHandlersInitialized) {
+        return;
+    }
+    window.userReviewHandlersInitialized = true;
+
+    // Обработчик кнопки "Редактировать" на странице пользователя
+    const userEditButtons = document.querySelectorAll('.btn-edit-review');
+
+    if (userEditButtons.length > 0) {
+        userEditButtons.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                const reviewId = this.getAttribute('data-id');
+                const card = this.closest('.user-review-card');
+                const editForm = card.querySelector('.review-edit-form[data-review-id="' + reviewId + '"]');
+                const displayContent = card.querySelector('.review-display-content');
+
+                if (editForm && displayContent) {
+                    // Скрываем отображение отзыва и показываем форму редактирования
+                    displayContent.style.display = 'none';
+                    editForm.classList.add('active');
+                }
+            });
+        });
+    }
+
+    // Обработка кнопки отмены редактирования
+    const cancelButtons = document.querySelectorAll('.btn-cancel-edit');
+
+    if (cancelButtons.length > 0) {
+        cancelButtons.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                const form = this.closest('.review-edit-form');
+                const card = form.closest('.user-review-card');
+                const displayContent = card.querySelector('.review-display-content');
+
+                if (form && displayContent) {
+                    // Скрываем форму и показываем отображение отзыва
+                    form.classList.remove('active');
+                    displayContent.style.display = 'block';
+                }
+            });
+        });
+    }
+
+    // Обработка отправки формы редактирования отзыва через AJAX
+    const editForms = document.querySelectorAll('.review-edit-form');
+
+    if (editForms.length > 0) {
+        editForms.forEach(function(form) {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const formData = new FormData(this);
+                const reviewId = this.getAttribute('data-review-id');
+                const card = this.closest('.user-review-card');
+                const displayContent = card.querySelector('.review-display-content');
+
+                // Добавляем action в URL
+                const actionUrl = '/users/review.php?action=update_review';
+
+                fetch(actionUrl, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        // Обновляем отображение отзыва с новыми данными
+                        const newRating = formData.get('rating');
+                        const newComment = formData.get('comment');
+
+                        // Обновляем рейтинг
+                        const ratingDisplay = displayContent.querySelector('.review-rating-display');
+                        let stars = '';
+                        for (let i = 0; i < newRating; i++) {
+                            stars += '⭐';
+                        }
+                        ratingDisplay.innerHTML = stars;
+
+                        // Обновляем комментарий
+                        const commentDisplay = displayContent.querySelector('.review-comment');
+                        commentDisplay.textContent = newComment;
+
+                        // Скрываем форму и показываем отображение
+                        form.classList.remove('active');
+                        displayContent.style.display = 'block';
+
+                        // Устанавливаем статус "На модерации"
+                        const statusDiv = displayContent.querySelector('.review-status');
+                        statusDiv.className = 'review-status pending';
+                        statusDiv.innerHTML = '⏳ На модерации';
+                    } else {
+                        alert(data.message || 'Ошибка обновления отзыва');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Произошла ошибка при обновлении отзыва');
+                });
+            });
+        });
+    }
 }

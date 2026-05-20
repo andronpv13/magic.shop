@@ -1,60 +1,95 @@
 <?php
-require_once __DIR__ . '/config.php';
-require_once __DIR__ . '/functions.php';
-
-// Генерируем CSRF токен, если его ещё нет
-if (!isset($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+/**
+ * magic.shop — Шапка сайта
+ * Подключается в начале каждой страницы
+ */
+if (!defined('ROOT_PATH')) {
+    require_once __DIR__ . '/config.php';
 }
+$page_title = $page_title ?? 'Волшебная ЛАВКА';
 ?>
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Волшебная ЛАВКА</title>
-<link rel="stylesheet" href="/css/magic.css">
-<link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
-<meta name="csrf-token" content="<?php echo $_SESSION['csrf_token']; ?>">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Интернет-магазин магических товаров — Волшебная ЛАВКА">
+    <title><?= e($page_title) ?> | Волшебная ЛАВКА</title>
+    
+    <!-- ✅ Динамические пути к ассетам -->
+    <link rel="stylesheet" href="<?= site_url('css/magic.css') ?>">
+    <link rel="icon" href="<?= site_url('images/favicon.ico') ?>" type="image/x-icon">
+    
+    <!-- JS с отложенной загрузкой -->
+    <script src="<?= site_url('js/main.js') ?>" defer></script>
+    <script src="<?= site_url('js/basket.js') ?>" defer></script>
 </head>
 <body>
-<header>
-<nav class="navbar">
-    <div class="logo">
-        <a href="/index.php">
-            <img src="/images/logo_.png" alt="Волшебная ЛАВКА" class="logo-img magic">
-        </a>
-    </div>
-    <button class="hamburger-menu" id="hamburger-menu" aria-label="Меню">
-        <span></span>
-        <span></span>
-        <span></span>
-    </button>
-    <div class="nav-links" id="nav-links">
-        <a href="/index.php" class="nav-link">Главная</a>
-        <a href="/shop.php" class="nav-link">Каталог</a>
-        <?php if (isLoggedIn()): ?>
-            <?php if ($_SESSION['role'] === 'admin'): ?>
-                <a href="/admin/index.php" class="nav-link">Админка</a>
-                <a href="/admin/cab.php" class="nav-link">Личный кабинет</a>
-            <?php elseif ($_SESSION['role'] === 'moderator'): ?>
-                <a href="/moderator/index_md.php" class="nav-link">Модерация</a>
-                <a href="/moderator/cab_md.php" class="nav-link">Личный кабинет</a>
-            <?php else: ?>
-                <a href="/users/profile.php" class="nav-link">Личный кабинет</a>
-            <?php endif; ?>
-            <a href="/logout.php" class="nav-link">Выйти</a>
-        <?php else: ?>
-            <a href="/login.php" class="nav-link">Войти</a>
-        <?php endif; ?>
-    </div>
-    <div class="basket-icon">
-        <a href="/basket/basket.php">
-            <span class="basket-emoji">🛒</span>
-            <span class="basket-count" id="basket-count"><?php echo getBasketCount(); ?></span>
-        </a>
-    </div>
-</nav>
-</header>
-
-<main>
+    <!-- 🔔 Всплывающие уведомления -->
+    <div id="toast-container" aria-live="polite"></div>
+    
+    <!-- 🧭 Навигация -->
+    <header class="site-header">
+        <div class="container header-inner">
+            <a href="<?= site_url('index.php') ?>" class="logo">
+                <span class="logo-icon">✨</span>
+                <span class="logo-text">Волшебная ЛАВКА</span>
+            </a>
+            
+            <nav class="main-nav" aria-label="Главная навигация">
+                <a href="<?= site_url('index.php') ?>">Главная</a>
+                <a href="<?= site_url('shop.php') ?>">Каталог</a>
+                
+                <?php if (isLoggedIn()): ?>
+                    <?php if (isAdmin()): ?>
+                        <a href="<?= site_url('admin/index.php') ?>" class="nav-admin">🛠️ Админка</a>
+                    <?php elseif (isModerator()): ?>
+                        <a href="<?= site_url('moderator/index_md.php') ?>" class="nav-mod">🔍 Модерация</a>
+                    <?php endif; ?>
+                    
+                    <a href="<?= site_url('users/profile.php') ?>">👤 Профиль</a>
+                    <a href="<?= site_url('users/orders.php') ?>">📦 Заказы</a>
+                    <a href="<?= site_url('basket/basket.php') ?>" class="nav-basket">
+                        🛒 Корзина 
+                        <?php $cnt = array_sum($_SESSION['basket'] ?? []); if ($cnt): ?>
+                            <span class="badge"><?= (int)$cnt ?></span>
+                        <?php endif; ?>
+                    </a>
+                    <a href="<?= site_url('logout.php') ?>" class="nav-logout">🚪 Выход</a>
+                <?php else: ?>
+                    <a href="<?= site_url('login.php') ?>">🔐 Войти</a>
+                    <a href="<?= site_url('users/register.php') ?>" class="btn btn-sm">Регистрация</a>
+                <?php endif; ?>
+            </nav>
+            
+            <!-- 🍔 Мобильное меню (гамбургер) -->
+            <button class="mobile-toggle" aria-label="Меню" aria-expanded="false">☰</button>
+        </div>
+    </header>
+    
+    <!-- 📣 Баннер (если есть) -->
+    <?php if (defined('SHOW_BANNER') && SHOW_BANNER && !isAdmin()): ?>
+        <div class="banner">
+            <div class="container">
+                <?= defined('BANNER_TEXT') ? e(BANNER_TEXT) : '🎁 Скидка 10% на первый заказ!' ?>
+            </div>
+        </div>
+    <?php endif; ?>
+    
+    <!-- 🍞 Хлебные крошки (опционально) -->
+    <?php if (!empty($breadcrumbs)): ?>
+        <nav class="breadcrumbs" aria-label="Хлебные крошки">
+            <div class="container">
+                <?php foreach ($breadcrumbs as $i => $crumb): ?>
+                    <?php if ($i < count($breadcrumbs) - 1): ?>
+                        <a href="<?= e($crumb['url']) ?>"><?= e($crumb['title']) ?></a> / 
+                    <?php else: ?>
+                        <span><?= e($crumb['title']) ?></span>
+                    <?php endif; ?>
+                <?php endforeach; ?>
+            </div>
+        </nav>
+    <?php endif; ?>
+    
+    <!-- 📦 Основной контент -->
+    <main class="container">

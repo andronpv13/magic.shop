@@ -101,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_GET['action'])) {
             <h3><?php echo e($review['product_name']); ?></h3>
 
             <!-- Форма редактирования (скрыта по умолчанию) -->
-            <form method="POST" class="review-edit-form" style="display: none;" data-review-id="<?php echo $review['id']; ?>">
+            <form method="POST" class="review-edit-form" data-review-id="<?php echo $review['id']; ?>">
                 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
                 <input type="hidden" name="review_id" value="<?php echo $review['id']; ?>">
                 <div class="review-rating-input-wrapper">
@@ -144,5 +144,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_GET['action'])) {
     <?php endif; ?>
 </div></section>
 
-<script src="/js/review.js"></script>
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>

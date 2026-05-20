@@ -42,8 +42,18 @@ $admin_info = getAdminContactInfo();
         echo '<script src="/js/admin/settings.js"></script>';
     } elseif ($current_page === 'manage_category') {
         echo '<script src="/js/admin/categories.js"></script>';
+    } elseif ($current_page === 'manage_review') {
+        echo '<script src="/js/admin/review.js"></script>';
     }
     ?>
+<?php endif; ?>
+<?php if (basename($_SERVER['PHP_SELF'], '.php') === 'review' && isset($_SESSION['role']) && $_SESSION['role'] !== 'admin'): ?>
+    <script src="/js/admin/review.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            initUserReviewHandlers();
+        });
+    </script>
 <?php endif; ?>
 </body>
 </html>

@@ -945,6 +945,15 @@ main {
 }
 
 /* Стили для формы редактирования отзыва */
+.review-edit-form {
+    display: none;
+    width: 100%;
+}
+
+.review-edit-form.active {
+    display: block;
+}
+
 .review-rating-input-wrapper {
     display: flex;
     align-items: center;
